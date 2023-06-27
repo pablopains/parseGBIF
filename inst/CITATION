@@ -1,0 +1,13 @@
+bibentry(
+  bibtype  = "Article",
+  title    = "ParsGBIF: An R package for parsing species occurrence records",
+  author   = c(person("Pablo", "Melo", email = "pablopains@yahoo.com.br", role = c("aut", "cre"), comment = c(ORCID = "0000-0003-3004-2984")),
+	    person("Nadia", "Bystriakova", email = "n_bystriakova@yahoo.com", role = c("aut"), comment = c(ORCID = "0000-0002-6909-5533")),
+	    person("Alexandre", "Monro", email = "a.monro@kew.org", role = c("aut"), comment = c(ORCID = "0000-0003-4013-3804"))),
+  journal  = "Methods in Ecology and Evolution",
+  year     = "2023",
+  volume   = "1",
+  number   = "11",
+  pages    = "1-11",
+  doi      = "doi....."
+)

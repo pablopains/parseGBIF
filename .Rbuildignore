@@ -1,0 +1,5 @@
+^C:\parseGBIF - github\.com\parseGBIF$
+^docs$
+^pkgdown$
+^.*\.Rproj$
+^\.Rproj\.user$
