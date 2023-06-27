@@ -13,6 +13,45 @@
     <loc>/LICENSE-text.html</loc>
   </url>
   <url>
+    <loc>/reference/collectors_get_name.html</loc>
+  </url>
+  <url>
+    <loc>/reference/collectors_prepare_dictionary.html</loc>
+  </url>
+  <url>
+    <loc>/reference/collectors_update_dictionary.html</loc>
+  </url>
+  <url>
+    <loc>/reference/EnumOccurrenceIssue.html</loc>
+  </url>
+  <url>
+    <loc>/reference/export_data.html</loc>
+  </url>
+  <url>
+    <loc>/reference/extract_gbif_issue.html</loc>
+  </url>
+  <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/prepare_gbif_occurrence_data.html</loc>
+  </url>
+  <url>
+    <loc>/reference/select_digital_voucher_and_sample_identification.html</loc>
+  </url>
+  <url>
+    <loc>/reference/select_gbif_fields.html</loc>
+  </url>
+  <url>
+    <loc>/reference/standardize_scientificName.html</loc>
+  </url>
+  <url>
+    <loc>/reference/wcvp_check_name.html</loc>
+  </url>
+  <url>
+    <loc>/reference/wcvp_check_name_batch.html</loc>
+  </url>
+  <url>
+    <loc>/reference/wcvp_get_data.html</loc>
   </url>
 </urlset>
