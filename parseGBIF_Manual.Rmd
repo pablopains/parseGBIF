@@ -1,5 +1,5 @@
 ---
-title: "ParsGBIF Manual"
+title: "parseGBIF Manual"
 
 author:
   - Pablo Hendrigo Alves de Melo^[Instituto Federal de Educação, Ciência e Tecnologia de Minas Gerais, pablopains@yahoo.com.br]
@@ -17,27 +17,27 @@ template: template.tex
 options(tinytex.verbose = TRUE)
 ```
 
-# ParsGBIF Manual
+# parseGBIF Manual
 
 
-ParsGBIF package is designed to convert [Global Biodiversity Information Facility - GBIF](https://www.gbif.org/) species occurrence data to a more comprehensible format to be used for further analysis, e.g. spatial. The package provides tools for verifying and standardizing species scientific names and for selecting the most informative species records when duplicates are available. The Manual provides a brief introduction to ParsGBIF, with more information available from Help pages accessed via help(function_name).
+parseGBIF package is designed to convert [Global Biodiversity Information Facility - GBIF](https://www.gbif.org/) species occurrence data to a more comprehensible format to be used for further analysis, e.g. spatial. The package provides tools for verifying and standardizing species scientific names and for selecting the most informative species records when duplicates are available. The Manual provides a brief introduction to parseGBIF, with more information available from Help pages accessed via help(function_name).
 
 ## Installation
 
-You can install the development version of ParsGBIF from [GitHub](https://github.com/pablopains/ParsGBIF).
-To install ParsGBIF, run 
+You can install the development version of parseGBIF from [GitHub](https://github.com/pablopains/parseGBIF).
+To install parseGBIF, run 
 
 ```{r example_install, eval=FALSE}
-devtools::install_github("pablopains/ParsGBIF")
+devtools::install_github("pablopains/parseGBIF")
 ```
 
-Please site ParsGBIF as:
+Please site parseGBIF as:
 ```{r example_citation, eval=TRUE}
-print(citation("ParsGBIF"), bibtex = FALSE)
+print(citation("parseGBIF"), bibtex = FALSE)
 ```
 
 ## Example
-__ParsGBIF makes it easy to get species occurrence records based on GBIF.__
+__parseGBIF makes it easy to get species occurrence records based on GBIF.__
 
 ### 1. GBIF data preparation
 #### 1.1. Obtaining occurrence data of the species records from GBIF
@@ -57,14 +57,14 @@ __ParsGBIF makes it easy to get species occurrence records based on GBIF.__
   
 #### 1.2. Preparing occurrence data downloaded from GBIF 
 
-To prepare occurrence data downloaded from GBIF to be used by ParsGBIF functions, run prepare_gbif_occurrence_data.
+To prepare occurrence data downloaded from GBIF to be used by parseGBIF functions, run prepare_gbif_occurrence_data.
 
 ```{r example_prepare_gbif_occurrence_data, eval=TRUE, message=FALSE, warning=FALSE}
-  library(ParsGBIF)
+  library(parseGBIF)
   
-  occ_file <- 'https://raw.githubusercontent.com/pablopains/ParsGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt'
+  occ_file <- 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt'
   
-  occ <- ParsGBIF::prepare_gbif_occurrence_data(gbif_occurrece_file = occ_file, columns = 'standard')
+  occ <- parseGBIF::prepare_gbif_occurrence_data(gbif_occurrece_file = occ_file, columns = 'standard')
   
   head(occ)
 ```
@@ -72,11 +72,11 @@ To prepare occurrence data downloaded from GBIF to be used by ParsGBIF functions
 When parsing data, the user can choose between “standard” and “all” columns to be selected. The “standard” format has 54 data fields (columns), and the “all” format, 257 data fields (columns).
 
 ```{r example_select_gbif_fields, eval=TRUE, message=FALSE, warning=FALSE}
-  col_standard <- ParsGBIF::select_gbif_fields(columns = 'standard')
+  col_standard <- parseGBIF::select_gbif_fields(columns = 'standard')
   
   str(col_standard)
 
-  col_all <- ParsGBIF::select_gbif_fields(columns = 'all')
+  col_all <- parseGBIF::select_gbif_fields(columns = 'all')
 
   str(col_all)
 ```
@@ -97,13 +97,13 @@ On the details page of any occurrence record you will see the list of issues in 
   colnames(EnumOccurrenceIssue)
   
   help(EnumOccurrenceIssue)
-  print(?ParsGBIF::EnumOccurrenceIssue)
+  print(?parseGBIF::EnumOccurrenceIssue)
 ```
 
 
 ```{r example_extract_gbif_issue, eval=TRUE, message=FALSE, warning=FALSE}
 
- occ_gbif_issue <- ParsGBIF::extract_gbif_issue(occ = occ)
+ occ_gbif_issue <- parseGBIF::extract_gbif_issue(occ = occ)
 
  names(occ_gbif_issue)
 
@@ -161,7 +161,7 @@ standardize_scientificName('Platymiscium pubescens subsp. fragrans (Rusby) Klitg
 The funtion get_lastNameRecordedB returns the last name of the main collector in recordedBy field.
 
 ```{r example_get_lastNameRecordedBy, eval=TRUE, message=FALSE, warning=FALSE}
-# library(ParsGBIF)
+# library(parseGBIF)
 get_lastNameRecordedBy('Melo, P.H.A, Bystriakova, N. & Monro, A.')
 
 get_lastNameRecordedBy('Monro, A.; Bystriakova, N. & Melo, P.H.A')
@@ -320,14 +320,14 @@ Export of results:
   NROW(occ_resuts$occ_dup)
   
   
-  file.in <-  'ParsGBIF_occ_in.csv'
+  file.in <-  'parseGBIF_occ_in.csv'
   write.csv(occ_resuts$occ_in,
             file.in, 
             row.names = FALSE, 
             fileEncoding = "UTF-8", 
             na = "")
 
-  file.occ_out_to_recover <-  'ParsGBIF_occ_out_to_recover.csv'
+  file.occ_out_to_recover <-  'parseGBIF_occ_out_to_recover.csv'
   write.csv(occ_resuts$occ_out_to_recover,
             file.occ_out_to_recover, 
             row.names = FALSE, 
@@ -335,7 +335,7 @@ Export of results:
             na = "")
 
 
-  file.dup <-  'ParsGBIF_occ_dup.csv'
+  file.dup <-  'parseGBIF_occ_dup.csv'
   write.csv(occ_resuts$occ_dup,
             file.dup, 
             row.names = FALSE, 

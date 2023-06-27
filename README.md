@@ -1,45 +1,45 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# ParsGBIF
+# parseGBIF
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/p/ParsGBIF/pablopains/R-CMD-check/badge.svg)](https://github.com/pablopains/ParsGBIF/actions)
+[![R-CMD-check](https://github.com/p/parseGBIF/pablopains/R-CMD-check/badge.svg)](https://github.com/pablopains/parseGBIF/actions)
 [![Codecov test
-coverage](https://codecov.io/gh/pablopains/ParsGBIF/branch/main/graph/badge.svg)](https://app.codecov.io/gh/pablopains/ParsGBIF?branch=main)
-[![R-CMD-check](https://github.com/pablopains/ParsGBIF/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pablopains/ParsGBIF/actions/workflows/R-CMD-check.yaml)
+coverage](https://codecov.io/gh/pablopains/parseGBIF/branch/main/graph/badge.svg)](https://app.codecov.io/gh/pablopains/parseGBIF?branch=main)
+[![R-CMD-check](https://github.com/pablopains/parseGBIF/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pablopains/parseGBIF/actions/workflows/R-CMD-check.yaml)
 
 <!-- badges: end -->
 
-ParsGBIF package is designed to convert [Global Biodiversity Information
-Facility - GBIF](https://www.gbif.org/) species occurrence data to a
-more comprehensible format to be used for further analysis,
+parseGBIF package is designed to convert [Global Biodiversity
+Information Facility - GBIF](https://www.gbif.org/) species occurrence
+data to a more comprehensible format to be used for further analysis,
 e.g. spatial. The package provides tools for verifying and standardizing
 species scientific names and for selecting the most informative species
 records when duplicates are available. The Manual provides a brief
-introduction to ParsGBIF, with more information available from Help
+introduction to parseGBIF, with more information available from Help
 pages accessed via help(function_name).
 
 ## Installation
 
-You can install the development version of ParsGBIF from
-[GitHub](https://github.com/pablopains/ParsGBIF). To install ParsGBIF,
+You can install the development version of parseGBIF from
+[GitHub](https://github.com/pablopains/parseGBIF). To install parseGBIF,
 run
 
 ``` r
-devtools::install_github("pablopains/ParsGBIF")
+devtools::install_github("pablopains/parseGBIF")
 ```
 
-Please site ParsGBIF as:
+Please site parseGBIF as:
 
 ``` r
-print(citation("ParsGBIF"), bibtex = FALSE)
+print(citation("parseGBIF"), bibtex = FALSE)
 ```
 
 ## Example
 
-**ParsGBIF makes it easy to get species occurrence records based on
+**parseGBIF makes it easy to get species occurrence records based on
 GBIF.**
 
 ### 1. GBIF data preparation
@@ -66,15 +66,15 @@ function
 #### 1.2. Preparing occurrence data downloaded from GBIF
 
 ``` r
-  library(ParsGBIF)
+  library(parseGBIF)
   
-  occ_file <- 'https://raw.githubusercontent.com/pablopains/ParsGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt'
+  occ_file <- 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt'
   
-  occ <- ParsGBIF::prepare_gbif_occurrence_data(gbif_occurrece_file = occ_file, columns = 'standard')
+  occ <- parseGBIF::prepare_gbif_occurrence_data(gbif_occurrece_file = occ_file, columns = 'standard')
 ```
 
 ``` r
-  col_standard <- ParsGBIF::select_gbif_fields(columns = 'standard')
+  col_standard <- parseGBIF::select_gbif_fields(columns = 'standard')
   
   str(col_standard)
 ```
@@ -88,7 +88,7 @@ function
 ```
 
 ``` r
- occ_gbif_issue <- ParsGBIF::extract_gbif_issue(occ = occ)
+ occ_gbif_issue <- parseGBIF::extract_gbif_issue(occ = occ)
 ```
 
 ### 2. Check species names against WCVP database
@@ -127,7 +127,7 @@ standardize_scientificName('Platymiscium pubescens subsp. fragrans (Rusby) Klitg
 ```
 
 ``` r
-# library(ParsGBIF)
+# library(parseGBIF)
 get_lastNameRecordedBy('Melo, P.H.A, Bystriakova, N. & Monro, A.')
 
 get_lastNameRecordedBy('Monro, A.; Bystriakova, N. & Melo, P.H.A')
@@ -190,14 +190,14 @@ collectorsDictionary.dataset <- prepare_collectorsDictionary(occ = occ)
   NROW(occ_resuts$occ_dup)
   
   
-  file.in <-  'ParsGBIF_occ_in.csv'
+  file.in <-  'parseGBIF_occ_in.csv'
   write.csv(occ_resuts$occ_in,
             file.in, 
             row.names = FALSE, 
             fileEncoding = "UTF-8", 
             na = "")
 
-  file.occ_out_to_recover <-  'ParsGBIF_occ_out_to_recover.csv'
+  file.occ_out_to_recover <-  'parseGBIF_occ_out_to_recover.csv'
   write.csv(occ_resuts$occ_out_to_recover,
             file.occ_out_to_recover, 
             row.names = FALSE, 
@@ -205,7 +205,7 @@ collectorsDictionary.dataset <- prepare_collectorsDictionary(occ = occ)
             na = "")
 
 
-  file.dup <-  'ParsGBIF_occ_dup.csv'
+  file.dup <-  'parseGBIF_occ_dup.csv'
   write.csv(occ_resuts$occ_dup,
             file.dup, 
             row.names = FALSE, 
