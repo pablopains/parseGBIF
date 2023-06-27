@@ -8,7 +8,7 @@
 select_digital_voucher_and_sample_identification(
   occ = NA,
   occ_gbif_issue = NA,
-  occ_checkName_wcvp = NA,
+  occ_wcvp_check_name = NA,
   occ_collectorsDictionary = NA,
   enumOccurrenceIssue = NA
 )
@@ -18,7 +18,7 @@ select_digital_voucher_and_sample_identification(
 
 \item{occ_gbif_issue}{= result of function extract_gbif_issue()$occ_gbif_issue}
 
-\item{occ_checkName_wcvp}{= result of function batch_checkName_wcvp()$occ_checkName_wcvp}
+\item{occ_wcvp_check_name}{= result of function batch_checkName_wcvp()$occ_wcvp_check_name}
 
 \item{occ_collectorsDictionary}{= result of function update_collectorsDictionary()$occ_collectorsDictionary}
 
@@ -103,11 +103,11 @@ help(select_digital_voucher_and_sample_identification)
 
 head(occ)
 head(res_gbif_issue$occ_gbif_issue)
-head(res_checkName_wcvp$occ_checkName_wcvp)
+head(res_checkName_wcvp$occ_wcvp_check_name)
 head(res_collectorsDictionary$occ_collectorsDictionary)
 res_digital_voucher_and_sample_identification <- select_digital_voucher_and_sample_identification(occ = occ,
                                                                                                   occ_gbif_issue = res_gbif_issue$occ_gbif_issue,
-                                                                                                  occ_checkName_wcvp = res_checkName_wcvp$occ_checkName_wcvp,
+                                                                                                  occ_wcvp_check_name = res_checkName_wcvp$occ_wcvp_check_name,
                                                                                                   occ_collectorsDictionary = res_collectorsDictionary$occ_collectorsDictionary,
                                                                                                   enumOccurrenceIssue = EnumOccurrenceIssue)
 

@@ -55,7 +55,7 @@
 #'
 #' @param occ GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')
 #' @param occ_gbif_issue = result of function extract_gbif_issue()$occ_gbif_issue
-#' @param occ_checkName_wcvp = result of function batch_checkName_wcvp()$occ_checkName_wcvp
+#' @param occ_wcvp_check_name = result of function batch_checkName_wcvp()$occ_wcvp_check_name
 #' @param occ_collectorsDictionary = result of function update_collectorsDictionary()$occ_collectorsDictionary
 #' @param enumOccurrenceIssue An enumeration of validation rules for single occurrence records by GBIF file, if NA, will be used, data(EnumOccurrenceIssue)
 #'
@@ -85,11 +85,11 @@
 #'
 #' head(occ)
 #' head(res_gbif_issue$occ_gbif_issue)
-#' head(res_checkName_wcvp$occ_checkName_wcvp)
+#' head(res_checkName_wcvp$occ_wcvp_check_name)
 #' head(res_collectorsDictionary$occ_collectorsDictionary)
 #' res_digital_voucher_and_sample_identification <- select_digital_voucher_and_sample_identification(occ = occ,
 #'                                                                                                   occ_gbif_issue = res_gbif_issue$occ_gbif_issue,
-#'                                                                                                   occ_checkName_wcvp = res_checkName_wcvp$occ_checkName_wcvp,
+#'                                                                                                   occ_wcvp_check_name = res_checkName_wcvp$occ_wcvp_check_name,
 #'                                                                                                   occ_collectorsDictionary = res_collectorsDictionary$occ_collectorsDictionary,
 #'                                                                                                   enumOccurrenceIssue = EnumOccurrenceIssue)
 #'
@@ -104,7 +104,7 @@
 #' @export
 select_digital_voucher_and_sample_identification <-  function(occ = NA,
                                                               occ_gbif_issue = NA,
-                                                              occ_checkName_wcvp = NA,
+                                                              occ_wcvp_check_name = NA,
                                                               occ_collectorsDictionary = NA,
                                                               enumOccurrenceIssue = NA)
 {
@@ -137,7 +137,7 @@ select_digital_voucher_and_sample_identification <-  function(occ = NA,
 
     occ_in <- occ
 
-    occ <- cbind(occ_gbif_issue, occ_in, occ_checkName_wcvp, occ_collectorsDictionary)
+    occ <- cbind(occ_gbif_issue, occ_in, occ_wcvp_check_name, occ_collectorsDictionary)
 
 
     occ$Ctrl_taxonRank %>% unique()
@@ -559,6 +559,6 @@ select_digital_voucher_and_sample_identification <-  function(occ = NA,
                   Ctrl_useful_spatial_analysis)
 
   return(list(occ_digital_voucher_and_sample_identification = occ,
-              occ_join_results = cbind(occ_gbif_issue, occ_in, occ_checkName_wcvp, occ_collectorsDictionary, occ)
+              occ_join_results = cbind(occ_gbif_issue, occ_in, occ_wcvp_check_name, occ_collectorsDictionary, occ)
   ))
 }

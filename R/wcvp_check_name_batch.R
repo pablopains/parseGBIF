@@ -22,7 +22,7 @@
 #'
 #' @seealso \code{\link[parseGBIF]{wcvp_get_data}}, \code{\link[parseGBIF]{wcvp_check_name}}
 #'
-#' @return list with two data frames: summary, species list and occ_checkName_wcvp, with WCVP fields
+#' @return list with two data frames: summary, species list and occ_wcvp_check_name, with WCVP fields
 #'
 #' @import dplyr
 #' @import stringr
@@ -58,7 +58,7 @@
 #'
 #' head(res_wcvp_check_name_batch$summary)
 #'
-#' head(res_wcvp_check_name_batch$occ_checkName_wcvp)
+#' head(res_wcvp_check_name_batch$occ_wcvp_check_name)
 #'
 #' }
 #'
@@ -207,6 +207,6 @@ wcvp_check_name_batch <- function(occ = NA,
 
   }
 
-  return(list(occ_checkName_wcvp=occ_all[,tidyselect::all_of(colunas_wcvp_sel)],
+  return(list(occ_wcvp_check_name=occ_all[,tidyselect::all_of(colunas_wcvp_sel)],
               summary=x))
 }

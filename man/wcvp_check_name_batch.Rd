@@ -24,7 +24,7 @@ Remove the authors of combinations, in parentheses.}
 The default is 'standard'}
 }
 \value{
-list with two data frames: summary, species list and occ_checkName_wcvp, with WCVP fields
+list with two data frames: summary, species list and occ_wcvp_check_name, with WCVP fields
 }
 \description{
 In batch, use the \href{https://powo.science.kew.org//}{World Checklist of Vascular Plants}
@@ -62,7 +62,7 @@ names(res_wcvp_check_name_batch)
 
 head(res_wcvp_check_name_batch$summary)
 
-head(res_wcvp_check_name_batch$occ_checkName_wcvp)
+head(res_wcvp_check_name_batch$occ_wcvp_check_name)
 
 }
 

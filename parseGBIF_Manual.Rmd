@@ -118,24 +118,24 @@ The World Checklist of Vascular Plants (WCVP) database is available from the (Ro
   data(wcvp_names_Achatocarpaceae)
   wcvp_names <- wcvp_names_Achatocarpaceae
   
-  # wcvp_names <- get_wcvp(read_only_to_memory = TRUE)$wcvp_names
+  # wcvp_names <- wcvp_get_data(read_only_to_memory = TRUE)$wcvp_names
   
   colnames(wcvp_names)
 ```
 
-Species’ names can be checked against WCVP database one by one or in a batch mode. To verify individual names, the function checkName_wcvp is used.
+Species’ names can be checked against WCVP database one by one or in a batch mode. To verify individual names, the function wcvp_check_name is used.
 
-```{r example_checkName_wcvp, eval=TRUE, message=FALSE, warning=FALSE}
-  name.checked <- checkName_wcvp(searchedName = 'Achatocarpus mollis H.Walter',
+```{r example_wcvp_check_name, eval=TRUE, message=FALSE, warning=FALSE}
+  name.checked <- wcvp_check_name(searchedName = 'Achatocarpus mollis H.Walter',
                  wcvp_names = wcvp_names,
                  if_author_fails_try_without_combinations = TRUE)
   name.checked[,c(3:5,22,23,40)]
 ```
 
-To check names in a batch mode, there is batch_checkName_wcvp function. It uses the occurrence data (occ) and WCVP names list (wcvp_names) generated in the previous steps.
+To check names in a batch mode, there is wcvp_check_name_batch function. It uses the occurrence data (occ) and WCVP names list (wcvp_names) generated in the previous steps.
 
-```{r example_batch_checkName_wcvp, eval=TRUE, message=FALSE, warning=FALSE}
-  names.checked <- batch_checkName_wcvp(occ = occ,
+```{r example_wcvp_check_name_batch, eval=TRUE, message=FALSE, warning=FALSE}
+  names.checked <- wcvp_check_name_batch(occ = occ,
                                                    wcvp_names =  wcvp_names,
                                                    if_author_fails_try_without_combinations = TRUE,
                                                    wcvp_selected_fields = 'standard')
@@ -160,26 +160,26 @@ standardize_scientificName('Platymiscium pubescens subsp. fragrans (Rusby) Klitg
 
 The funtion get_lastNameRecordedB returns the last name of the main collector in recordedBy field.
 
-```{r example_get_lastNameRecordedBy, eval=TRUE, message=FALSE, warning=FALSE}
+```{r example_collectors_get_name, eval=TRUE, message=FALSE, warning=FALSE}
 # library(parseGBIF)
-get_lastNameRecordedBy('Melo, P.H.A, Bystriakova, N. & Monro, A.')
+collectors_get_name('Melo, P.H.A, Bystriakova, N. & Monro, A.')
 
-get_lastNameRecordedBy('Monro, A.; Bystriakova, N. & Melo, P.H.A')
+collectors_get_name('Monro, A.; Bystriakova, N. & Melo, P.H.A')
 
-get_lastNameRecordedBy('Bystriakova, N., Monro, A.,Melo, P.H.A')
+collectors_get_name('Bystriakova, N., Monro, A.,Melo, P.H.A')
 
 ```
 
 
 ### 3. Collectors Dictionary
 
-To extract the last name of the main collector based on the recordedBy field and assemble a list relating the last name of the main collector and the raw data from the recordedBy, use the prepare_collectorsDictionary function. It uses the occurrence data (occ) generated in the previous step.
+To extract the last name of the main collector based on the recordedBy field and assemble a list relating the last name of the main collector and the raw data from the recordedBy, use the collectors_prepare_dictionary function. It uses the occurrence data (occ) generated in the previous step.
 
 #### 3.1 Prepare dictionary collectors
 
-```{r example_prepare_collectorsDictionary, eval=TRUE, message=FALSE, warning=FALSE}
+```{r example_collectors_prepare_dictionary, eval=TRUE, message=FALSE, warning=FALSE}
 
-collectorsDictionary.dataset <- prepare_collectorsDictionary(occ = occ)
+collectorsDictionary.dataset <- collectors_prepare_dictionary(occ = occ)
 
 head(collectorsDictionary.dataset)
 ```
@@ -210,9 +210,9 @@ Create a key to group duplicates of a sample.
 It also returns new collectors to be added to the collector dictionary that can be reused in the future.
 
 
-```{r example_update_collectorsDictionary, eval=TRUE, message=FALSE, warning=FALSE}
+```{r example_collectors_update_dictionary, eval=TRUE, message=FALSE, warning=FALSE}
 
-  occ_collectorsDictionary <- update_collectorsDictionary(occ=occ,
+  occ_collectorsDictionary <- collectors_update_dictionary(occ=occ,
                                         collectorDictionary_checked_file = file.collectorsDictionary.dataset)
 
   names(occ_collectorsDictionary)
@@ -279,7 +279,7 @@ If so, the accepted TAXON_NAME identified at or below the specified level is use
 
   occ_digital_voucher <- select_digital_voucher_and_sample_identification(occ = occ,
   occ_gbif_issue = occ_gbif_issue$occ_gbif_issue,
-  occ_checkName_wcvp = names.checked$occ_checkName_wcvp ,
+  occ_wcvp_check_name = names.checked$occ_wcvp_check_name ,
   occ_collectorsDictionary = occ_collectorsDictionary$occ_collectorsDictionary)
 
   names(occ_digital_voucher)
