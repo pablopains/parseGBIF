@@ -30,10 +30,6 @@
 #'
 #' }
 #' @export
-
-# library(ParsGBIF)
-# library(dplyr)
-# occ_digital_voucher_file <- 'occ_digital_voucher.csv'
 export_data <- function(occ_digital_voucher_file = '',
                         occ_digital_voucher = NA)
 {
@@ -131,6 +127,9 @@ export_data <- function(occ_digital_voucher_file = '',
   recordedBy_unique <- occ_tmp$Ctrl_key_family_recordedBy_recordNumber %>% unique()
   tot <- NROW(recordedBy_unique)
   s<-0
+  
+  print('Selecting...')
+  
   for (r in recordedBy_unique)
   {
     s <- s+1
@@ -354,18 +353,34 @@ export_data <- function(occ_digital_voucher_file = '',
     occ_in <- occ_tmp %>%
       dplyr::filter(parseGBIF_digital_voucher == TRUE,
                     parseGBIF_unidentified_sample == FALSE, # parseGBIF_sample_taxon_name_status %in% c('identified','divergent identifications'),
-                    parseGBIF_useful_for_spatial_analysis == TRUE) 
+                    parseGBIF_useful_for_spatial_analysis == TRUE) %>%
+      dplyr::select(-wcvp_taxon_name,
+                    -wcvp_taxon_status)
     
     # NROW(occ_in)
     
     occ_dup <- occ_tmp %>%
-      dplyr::filter(parseGBIF_digital_voucher == FALSE)
+      dplyr::filter(parseGBIF_digital_voucher == FALSE) %>%
+      dplyr::select(-wcvp_taxon_name,
+                    -wcvp_taxon_status)
     
     # NROW(occ_dup)
 
     # NROW(occ_in)+NROW(occ_dup)+NROW(occ_out_to_recover)
     # NROW(occ_tmp)
+    
+    occ_out_to_recover <- occ_tmp %>%
+      dplyr::filter(parseGBIF_digital_voucher == TRUE,
+                    (parseGBIF_unidentified_sample == TRUE |
+                       parseGBIF_useful_for_spatial_analysis == FALSE)) %>%
+      dplyr::select(-wcvp_taxon_name,
+                    -wcvp_taxon_status)
+    
+    remove(occ_tmp)
+    
   }
+
+  print('Merging...')
   
   # merge
   {
@@ -453,11 +468,11 @@ export_data <- function(occ_digital_voucher_file = '',
               next
             }
             
-            # # nao armazear dados repetidos entre duplicatas 
-            # if(ix > 1 & data_col_dup[ix] %in% data_col_dup[1:ix] )
-            # {
-            #   next
-            # }
+            # nao armazear dados repetidos entre duplicatas
+            if(ix > 1 & data_col_dup[ix] %in% data_col_dup[1:ix] )
+            {
+              next
+            }
             
             
             # armazena informações novas para o campo
@@ -534,80 +549,10 @@ export_data <- function(occ_digital_voucher_file = '',
       }
     }
   }
-  
-  
-  occ_out_to_recover <- occ_tmp %>%
-    dplyr::filter(parseGBIF_digital_voucher == TRUE,
-                  (parseGBIF_unidentified_sample == TRUE |
-                     parseGBIF_useful_for_spatial_analysis == FALSE))
-  
-  # NROW(occ_out_to_recover)
-  
+
   return(list(occ_merge = occ_res_full,
               occ_raw = occ_in,
               occ_dup = occ_dup,
               occ_out_to_recover = occ_out_to_recover))
   
 }
-
-
-
-
-# View(occ_res) 
-# View(occ_res_full) 
-# 
-# 
-# jsonlite::fromJSON(occ_res_full$merged_fields[2154])
-# 
-# jsonlite::fromJSON(occ_res_full$merge_map[2154])
-# 
-# occ_res_full$Ctrl_language[2154]
-# occ_res$Ctrl_language[2154]
-# 
-# occ_res_full$Ctrl_municipality[2154]
-# occ_res$Ctrl_municipality[2154]
-# occ_tmp$Ctrl_municipality[2154]
-# 
-# 
-# jsonlite::fromJSON(occ_res_full$merge_map[2154])
-# 
-# 
-# 
-# jsonlite::fromJSON(occ_res_full$merge_map[192])
-# occ_res_full$merged_fields[192]
-# 
-# 
-# 
-# jsonlite::fromJSON(occ_res_full$merge_map[7])
-# occ_res_full$merged_fields[7]
-# 
-# jsonlite::fromJSON(occ_res_full$merged_fields[903])
-# occ_res_full$Ctrl_eventRemarks[903]
-# occ_res$Ctrl_eventRemarks[903]
-# occ_tmp$Ctrl_eventRemarks[903]
-# 
-# jsonlite::fromJSON(occ_res_full$merge_map[903])
-# 
-# 
-# 
-# 
-# 
-# jsonlite::fromJSON(occ_res_full$merge_map[939])
-# jsonlite::fromJSON(occ_res_full$merged_fields[939])
-# 
-# 
-# jsonlite::fromJSON(occ_res_full$merge_map[940])
-# jsonlite::fromJSON(occ_res_full$merged_fields[940])
-# 
-# 
-# 
-# jsonlite::fromJSON(occ_res_full$merge_map[903])$Ctrl_eventRemarks
-# 
-# 
-# View(occ_res_full[,c(9,10,73)]) 
-# 
-# 
-# View(occ_res) 
-# View(occ_res_full) 
-# 
-# View(occ_res[,c(9,10,54)]) 
