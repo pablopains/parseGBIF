@@ -244,7 +244,7 @@ Is there information about the collection number?
 Is there information about the year of collection?  
 Is there information about the institution code?  
 Is there information about the catalog number?  
-Is there information about the collection site?  
+Is there information about the locality?  
 Is there information about the municipality of collection?  
 Is there information about the state/province of collection?  
 Is there information about the bibliographic citation?  

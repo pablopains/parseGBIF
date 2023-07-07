@@ -87,8 +87,8 @@ the sample is indicated as unidentified.
 }
 \details{
 \itemize{
-\item matchStatusDuplicates - "matched", "unmatched: no recordedBy and no recordNumber",
-"unmatched: no recordNumber" or "unmatched: no recordedBy"
+\item matchStatusDuplicates - "groupable", "not groupable: no recordedBy and no recordNumber",
+"not groupable: no recordNumber" or "not groupable: no recordedBy"
 \item numberTaxonNamesSample -  count of the different accepted scientific names,
 identified up to or below the specific level, listed in the sample duplicates, or Zero,
 if there is no identification, equal to or below the specific level, for the sample.

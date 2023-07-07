@@ -60,8 +60,8 @@
 #' @param enumOccurrenceIssue An enumeration of validation rules for single occurrence records by GBIF file, if NA, will be used, data(EnumOccurrenceIssue)
 #'
 #' @details
-#' * matchStatusDuplicates - "matched", "unmatched: no recordedBy and no recordNumber",
-#' "unmatched: no recordNumber" or "unmatched: no recordedBy"
+#' * matchStatusDuplicates - "groupable", "not groupable: no recordedBy and no recordNumber",
+#' "not groupable: no recordNumber" or "not groupable: no recordedBy"
 #' * numberTaxonNamesSample -  count of the different accepted scientific names,
 #' identified up to or below the specific level, listed in the sample duplicates, or Zero,
 #' if there is no identification, equal to or below the specific level, for the sample.
@@ -172,6 +172,7 @@ select_digital_voucher_and_sample_identification <-  function(occ = NA,
 
   # Ctrl_verbatim_quality
   {
+
     occ <- occ %>%
       dplyr::mutate(temAnoColeta =  ifelse( is.na(Ctrl_year) | Ctrl_year == ""  | Ctrl_year == 0 | Ctrl_year <= 10,
                                             FALSE, TRUE) %>%
@@ -217,20 +218,22 @@ select_digital_voucher_and_sample_identification <-  function(occ = NA,
                     temLocalidade = ifelse( is.na(Ctrl_locality) | Ctrl_locality=="",
                                             FALSE, TRUE) %>%
                       ifelse(is.na(.), FALSE,.),
-
-
-                    temIdentificador = ifelse( is.na(Ctrl_identifiedBy) | Ctrl_identifiedBy=="",
+                    
+                    temNotas = ifelse( is.na(Ctrl_fieldNotes) | Ctrl_fieldNotes=="",
                                                FALSE, TRUE) %>%
-                      ifelse(is.na(.), FALSE,.),
+                      ifelse(is.na(.), FALSE,.)
 
+                    # temIdentificador = ifelse( is.na(Ctrl_identifiedBy) | Ctrl_identifiedBy=="",
+                    #                            FALSE, TRUE) %>%
+                    #   ifelse(is.na(.), FALSE,.),
 
                     # temDataIdentificacao = ifelse( is.na(Ctrl_dateIdentified) | Ctrl_dateIdentified=="",
                     #                                FALSE, TRUE) %>%
                     #   ifelse(is.na(.), FALSE,.),
 
-                    temCitacaoBibliografica = ifelse( is.na(Ctrl_bibliographicCitation) | Ctrl_bibliographicCitation=="",
-                                                      FALSE, TRUE) %>%
-                      ifelse(is.na(.), FALSE,.)
+                    # temCitacaoBibliografica = ifelse( is.na(Ctrl_bibliographicCitation) | Ctrl_bibliographicCitation=="",
+                    #                                   FALSE, TRUE) %>%
+                    #   ifelse(is.na(.), FALSE,.)
 
       )
   }
@@ -242,29 +245,42 @@ select_digital_voucher_and_sample_identification <-  function(occ = NA,
       dplyr::mutate(Ctrl_geospatial_quality = 0,
                     Ctrl_verbatim_quality = 0,
                     Ctrl_moreInformativeRecord = 0,
-                    Ctrl_selectedMoreInformativeRecord = FALSE,
-                    Ctrl_thereAreDuplicates = FALSE,
-                    Ctrl_unmatched = FALSE,
-                    Ctrl_unidentifiedSample = FALSE,
-
-                    # sample taxon name
-                    Ctrl_sampleTaxonName = '',
+                    parseGBIF_digital_voucher = FALSE,
+                    parseGBIF_duplicates = FALSE,
+                    parseGBIF_non_groupable_duplicates = FALSE,
+                    
                     # match status between duplicates
-                    Ctrl_matchStatusDuplicates = '',
-                    # sample identification status
-                    Ctrl_sampleIdentificationStatus = '',
-                    # number of taxon names for the sample
-                    Ctrl_numberTaxonNamesSample = 0)
+                    parseGBIF_duplicates_grouping_status = '',
+                    
+                    Ctrl_coordinates_validated_by_gbif_issue = FALSE)
+                    # 
+                    # 
+                    # # parseGBIF_unidentified_sample = TRUE,
+                    # 
+                    # # sample taxon name
+                    # parseGBIF_sample_taxon_name = '',
+                    # # sample identification status
+                    # parseGBIF_sample_taxon_name_status = '',
+                    # # number of taxon names for the sample
+                    # parseGBIF_number_taxon_names = 0)
 
     occ <- occ %>%
-      dplyr::mutate(Ctrl_useful_spatial_analysis = ifelse(rowSums(occ[,EnumOccurrenceIssue$constant[index_tmp3 == TRUE]])==0,TRUE,FALSE))
+      dplyr::mutate(Ctrl_coordinates_validated_by_gbif_issue = ifelse(rowSums(occ[,EnumOccurrenceIssue$constant[index_tmp3 == TRUE]])==0,TRUE,FALSE))
 
+    occ <- occ %>%
+      dplyr::mutate(Ctrl_coordinates_validated_by_gbif_issue = ifelse(Ctrl_hasCoordinate == FALSE | Ctrl_decimalLatitude==0 | Ctrl_decimalLongitude==0, FALSE,
+                                                                   Ctrl_coordinates_validated_by_gbif_issue))
+    
     occ <- occ %>%
       dplyr::mutate(Ctrl_geospatial_quality = ifelse(rowSums(occ[,EnumOccurrenceIssue$constant[index_tmp3 == TRUE]])>0, -9,
                                                 ifelse(rowSums(occ[,EnumOccurrenceIssue$constant[index_tmp2 == TRUE]])>0, -3,
                                                        ifelse(rowSums(occ[,EnumOccurrenceIssue$constant[index_tmp1 == TRUE]])>0, -1, 0))))
 
-
+    occ <- occ %>%
+      dplyr::mutate(Ctrl_geospatial_quality = ifelse(Ctrl_hasCoordinate == FALSE, 
+                                                     -9, 
+                                                     Ctrl_geospatial_quality))
+    
     occ <- occ %>%
       dplyr::mutate(Ctrl_verbatim_quality = (temColetor +
                                             temNumeroColeta +
@@ -274,7 +290,11 @@ select_digital_voucher_and_sample_identification <-  function(occ = NA,
                                             temLocalidade +
                                             temMunicipio +
                                             temUF +
-                                            temCitacaoBibliografica))
+                                            temPais + # novo
+                                            # temCitacaoBibliografica
+                                            temNotas  # novo
+                                            # Ctrl_hasCoordinate # nao testar
+                                            ))
 
     occ <- occ %>%
       dplyr::mutate(Ctrl_moreInformativeRecord  = ( Ctrl_geospatial_quality + Ctrl_verbatim_quality))
@@ -289,15 +309,15 @@ select_digital_voucher_and_sample_identification <-  function(occ = NA,
                     Ctrl_geospatial_quality,
                     Ctrl_verbatim_quality,
                     Ctrl_moreInformativeRecord,
-                    Ctrl_selectedMoreInformativeRecord,
-                    Ctrl_thereAreDuplicates,
-                    Ctrl_unmatched,
-                    Ctrl_unidentifiedSample,
-                    Ctrl_sampleTaxonName,
-                    Ctrl_matchStatusDuplicates,
-                    Ctrl_sampleIdentificationStatus,
-                    Ctrl_numberTaxonNamesSample,
-                    Ctrl_useful_spatial_analysis)
+                    parseGBIF_digital_voucher,
+                    parseGBIF_duplicates,
+                    parseGBIF_non_groupable_duplicates,
+                    # parseGBIF_unidentified_sample,
+                    # parseGBIF_sample_taxon_name,
+                    parseGBIF_duplicates_grouping_status,
+                    # parseGBIF_sample_taxon_name_status,
+                    # parseGBIF_number_taxon_names,
+                    Ctrl_coordinates_validated_by_gbif_issue)
 
     index <- str_sub(occ$Ctrl_key_family_recordedBy_recordNumber, str_count(occ$Ctrl_key_family_recordedBy_recordNumber)-2, str_count(occ$Ctrl_key_family_recordedBy_recordNumber)) %in% '_NA'
     occ$Ctrl_key_family_recordedBy_recordNumber[index==TRUE] <- str_sub(occ$Ctrl_key_family_recordedBy_recordNumber[index==TRUE], 1, str_count(occ$Ctrl_key_family_recordedBy_recordNumber[index==TRUE])-2)
@@ -349,17 +369,6 @@ select_digital_voucher_and_sample_identification <-  function(occ = NA,
         if(FAMILY__==FALSE)
         {
 
-          # FAMILY_recordedBy_ <- (str_sub(r, str_count(r), str_count(r)) == '_' &
-          #                          !str_sub(r, str_count(r)-1, str_count(r)-1) == '_') |
-          #   grepl('UNKNOWN-COLLECTOR',r) %>% ifelse(is.na(.), FALSE,.)
-          #
-          # if (FAMILY_recordedBy_==FALSE)
-          # {
-          #   FAMILY__recordNumber <- (grepl('__', r) &
-          #                              str_locate(r, '__')[2] != str_count(r)) %>% ifelse(is.na(.), FALSE,.)
-          # }
-
-
           FAMILY_recordedBy_ <- (grepl('__', r) &
                                    str_locate(r, '__')[2] != str_count(r)) |
             grepl('UNKNOWN-COLLECTOR',r) %>% ifelse(is.na(.), FALSE,.)
@@ -381,33 +390,34 @@ select_digital_voucher_and_sample_identification <-  function(occ = NA,
       {
         # incluir filtro espacial
 
-        # nomes
-        sp_name <- ifelse(occ[index_occ==TRUE, ]$wcvp_taxon_status == 'Accepted',
-                          occ[index_occ==TRUE, ]$wcvp_taxon_name %>% as.character(),
-                          '')
+        # aqui
+        # # nomes
+        # sp_name <- ifelse(occ[index_occ==TRUE, ]$wcvp_taxon_status == 'Accepted',
+        #                   occ[index_occ==TRUE, ]$wcvp_taxon_name %>% as.character(),
+        #                   '')
 
         occ[index_occ==TRUE, ] <- occ[index_occ==TRUE, ] %>%
-          dplyr::mutate(Ctrl_selectedMoreInformativeRecord = TRUE,
-                        Ctrl_unmatched = TRUE,
-                        Ctrl_thereAreDuplicates = FALSE,
-                        Ctrl_sampleTaxonName = sp_name,
-                        Ctrl_unidentifiedSample = ifelse(sp_name %in% '', TRUE,FALSE),
-                        Ctrl_matchStatusDuplicates = ifelse(FAMILY__==TRUE,
-                                                            'unmatched: no recordedBy and no recordNumber',
+          dplyr::mutate(parseGBIF_digital_voucher = TRUE,
+                        parseGBIF_non_groupable_duplicates = TRUE,
+                        parseGBIF_duplicates = FALSE,
+                        # # aqui
+                        # parseGBIF_sample_taxon_name = sp_name,
+                        # parseGBIF_unidentified_sample = ifelse(sp_name %in% '', TRUE,FALSE),
+                        
+                        parseGBIF_duplicates_grouping_status = ifelse(FAMILY__==TRUE,
+                                                            'not groupable: no recordedBy and no recordNumber',
                                                             ifelse(FAMILY__recordNumber==TRUE,
-                                                                   'unmatched: no recordNumber ',
+                                                                   'not groupable: no recordNumber ',
                                                                    ifelse(FAMILY_recordedBy_==TRUE,
-                                                                          'unmatched: no recordedBy', 'unmatched'))),
-                        Ctrl_numberTaxonNamesSample = ifelse(sp_name %in% '',
-                                                             0,
-                                                             1),
-                        Ctrl_sampleIdentificationStatus = ifelse(sp_name %in% '',
-                                                                 'unidentified',
-                                                                 # paste0('unidentified: ',
-                                                                 #        ifelse(occ[index_occ==TRUE, ]$Ctrl_taxonRank %in%  c("SPECIES","VARIETY", "FORM", "SUBSPECIES"),
-                                                                 #               occ[index_occ==TRUE, ]$wcvp_searchNotes,
-                                                                 #               occ[index_occ==TRUE, ]$Ctrl_taxonRank)),
-                                                                 'identified')
+                                                                          'not groupable: no recordedBy', 'not groupable')))
+          
+                        # # aqui
+                        # parseGBIF_number_taxon_names = ifelse(sp_name %in% '',
+                        #                                      0,
+                        #                                      1),
+                        # parseGBIF_sample_taxon_name_status = ifelse(sp_name %in% '',
+                        #                                          'unidentified',
+                        #                                          'identified')
 
           )
 
@@ -416,128 +426,125 @@ select_digital_voucher_and_sample_identification <-  function(occ = NA,
       }
 
       occ[index_occ==TRUE, ] <- occ[index_occ==TRUE, ] %>%
-        dplyr::mutate(Ctrl_matchStatusDuplicates = 'matched',
-                      Ctrl_thereAreDuplicates = num_records > 1)
+        dplyr::mutate(parseGBIF_duplicates_grouping_status = 'groupable',
+                      parseGBIF_duplicates = num_records > 1)
 
       # flaq para inidicar amostra não identificada
 
-      if(!any(is.na(occ[index_occ==TRUE, ]$wcvp_taxon_name) == FALSE)) # any ???
-      {
-
-        # nomes
-        sp_name <- rep('',num_records)
-
-        occ[index_occ==TRUE, ] <- occ[index_occ==TRUE, ] %>%
-          dplyr::mutate(Ctrl_matchStatusDuplicates = 'matched',
-                        Ctrl_thereAreDuplicates = num_records > 1,
-                        Ctrl_numberTaxonNamesSample = 0,
-                        Ctrl_sampleTaxonName = sp_name,
-                        # Ctrl_sampleIdentificationStatus = paste0('unidentified: ',
-                        #                                          ifelse(occ[index_occ==TRUE, ]$Ctrl_taxonRank %in%  c("SPECIES","VARIETY", "FORM", "SUBSPECIES"),
-                        #                                                 occ[index_occ==TRUE, ]$wcvp_searchNotes,
-                        #                                                 occ[index_occ==TRUE, ]$Ctrl_taxonRank)))
-                        Ctrl_sampleIdentificationStatus = 'unidentified')
-
-        # print('2 - Unidentified sample')
-
-      } else
-      {
-
-        taxon_name_sample <- table(occ[index_occ==TRUE, ]$wcvp_taxon_name,
-                                   # occ[index_occ==TRUE, ]$wcvp_searchNotes,
-                                   occ[index_occ==TRUE, ]$wcvp_taxon_status,
-                                   # occ[index_occ==TRUE, ]$Ctrl_taxonRank,
-                                   exclude = NA) %>%
-          data.frame() %>%
-          dplyr::filter(Freq > 0) %>%
-          dplyr::arrange(desc(Freq),Var1)
-
-        num_taxon_name <- NROW(taxon_name_sample)
-
-        if(num_taxon_name==0)
-        {
-
-          print(occ[index_occ==TRUE, ]$wcvp_taxon_name)
-
-          print('0 - Error')
-
-          break
+      # aqui
+      # nomes
+      { 
+      # if(!any(is.na(occ[index_occ==TRUE, ]$wcvp_taxon_name) == FALSE)) # any ???
+      # {
+      # 
+      #   # nomes
+      #   sp_name <- rep('',num_records)
+      # 
+      #   occ[index_occ==TRUE, ] <- occ[index_occ==TRUE, ] %>%
+      #     dplyr::mutate(parseGBIF_duplicates_grouping_status = 'groupable',
+      #                   parseGBIF_duplicates = num_records > 1,
+      #                   parseGBIF_number_taxon_names = 0,
+      #                   parseGBIF_sample_taxon_name = sp_name,
+      #                   parseGBIF_sample_taxon_name_status = 'unidentified')
+      # 
+      # } else
+      # {
+      # 
+      #   taxon_name_sample <- table(occ[index_occ==TRUE, ]$wcvp_taxon_name,
+      #                              # occ[index_occ==TRUE, ]$wcvp_searchNotes,
+      #                              occ[index_occ==TRUE, ]$wcvp_taxon_status,
+      #                              # occ[index_occ==TRUE, ]$Ctrl_taxonRank,
+      #                              exclude = NA) %>%
+      #     data.frame() %>%
+      #     dplyr::filter(Freq > 0) %>%
+      #     dplyr::arrange(desc(Freq),Var1)
+      # 
+      #   num_taxon_name <- NROW(taxon_name_sample)
+      # 
+      #   if(num_taxon_name==0)
+      #   {
+      # 
+      #     print(occ[index_occ==TRUE, ]$wcvp_taxon_name)
+      # 
+      #     print('0 - Error')
+      # 
+      #     break
+      #   }
+      # 
+      # 
+      #   if(num_taxon_name==1 & taxon_name_sample$Var2[1] %in% c('Accepted'))#,'Updated'))
+      #   {
+      #     sp_name <- taxon_name_sample$Var1[1] %>% as.character()
+      # 
+      #     occ[index_occ==TRUE, ] <- occ[index_occ==TRUE, ] %>%
+      #       dplyr::mutate(parseGBIF_duplicates_grouping_status = 'groupable',
+      #                     parseGBIF_duplicates = num_records > 1,
+      #                     parseGBIF_number_taxon_names = num_taxon_name,
+      #                     parseGBIF_sample_taxon_name = sp_name,
+      #                     parseGBIF_sample_taxon_name_status = 'identified',
+      #                     parseGBIF_unidentified_sample = FALSE
+      #       )
+      # 
+      #     # print('3 - Identified sample 100 %')
+      # 
+      #   }
+      # 
+      # 
+      #   if(num_taxon_name>1)
+      #   {
+      #     ii=1
+      #     for(ii in 1:NROW(taxon_name_sample))
+      #     {
+      # 
+      #       if(taxon_name_sample$Var2[ii] %in% c('Accepted'))#,'Updated'))
+      #       {
+      #         sp_name <- taxon_name_sample$Var1[ii] %>% as.character()
+      # 
+      #         occ[index_occ==TRUE, ] <- occ[index_occ==TRUE, ] %>%
+      #           dplyr::mutate(parseGBIF_duplicates_grouping_status = 'groupable',
+      #                         parseGBIF_duplicates = num_records > 1,
+      #                         parseGBIF_number_taxon_names = num_taxon_name,
+      #                         parseGBIF_sample_taxon_name = sp_name,
+      #                         parseGBIF_sample_taxon_name_status = 'divergent identifications',
+      #                         parseGBIF_unidentified_sample = FALSE)
+      # 
+      # 
+      #         # print(paste0('4 - Identified sample ', 100/num_taxon_name,' %'))
+      # 
+      #         break
+      #       }
+      # 
+      # 
+      #     }
+      # 
+      #   }
+      # 
+      # }
         }
 
-
-        if(num_taxon_name==1 & taxon_name_sample$Var2[1] %in% c('Accepted'))#,'Updated'))
-        {
-          sp_name <- taxon_name_sample$Var1[1] %>% as.character()
-
-          occ[index_occ==TRUE, ] <- occ[index_occ==TRUE, ] %>%
-            dplyr::mutate(Ctrl_matchStatusDuplicates = 'matched',
-                          Ctrl_thereAreDuplicates = num_records > 1,
-                          Ctrl_numberTaxonNamesSample = num_taxon_name,
-                          Ctrl_sampleTaxonName = sp_name,
-                          Ctrl_sampleIdentificationStatus = 'identified')
-
-          # print('3 - Identified sample 100 %')
-
-        }
-
-
-        if(num_taxon_name>1)
-        {
-          ii=1
-          for(ii in 1:NROW(taxon_name_sample))
-          {
-
-            if(taxon_name_sample$Var2[ii] %in% c('Accepted'))#,'Updated'))
-            {
-              sp_name <- taxon_name_sample$Var1[ii] %>% as.character()
-
-              occ[index_occ==TRUE, ] <- occ[index_occ==TRUE, ] %>%
-                dplyr::mutate(Ctrl_matchStatusDuplicates = 'matched',
-                              Ctrl_thereAreDuplicates = num_records > 1,
-                              Ctrl_numberTaxonNamesSample = num_taxon_name,
-                              Ctrl_sampleTaxonName = sp_name,
-                              Ctrl_sampleIdentificationStatus = 'divergent identifications')
-
-
-              # print(paste0('4 - Identified sample ', 100/num_taxon_name,' %'))
-
-              break
-            }
-
-
-          }
-
-        }
-
-      }
-
-      occ[index_occ==TRUE, ]$Ctrl_selectedMoreInformativeRecord <-
+      occ[index_occ==TRUE, ]$parseGBIF_digital_voucher <-
         (occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord ==
            max(occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord) )
 
-      if (sum(occ[index_occ==TRUE, ]$Ctrl_selectedMoreInformativeRecord)>1)
+      if (sum(occ[index_occ==TRUE, ]$parseGBIF_digital_voucher)>1)
       {
 
-        index_end <- occ[index_occ==TRUE, ]$Ctrl_selectedMoreInformativeRecord == TRUE
+        index_end <- occ[index_occ==TRUE, ]$parseGBIF_digital_voucher == TRUE
 
-        n_tmp <- NROW(occ[index_occ==TRUE, ]$Ctrl_selectedMoreInformativeRecord[index_end==TRUE])
+        n_tmp <- NROW(occ[index_occ==TRUE, ]$parseGBIF_digital_voucher[index_end==TRUE])
 
         if (n_tmp==1)
         {
-          occ[index_occ==TRUE, ]$Ctrl_selectedMoreInformativeRecord[index_end==FALSE] <- FALSE
+          occ[index_occ==TRUE, ]$parseGBIF_digital_voucher[index_end==FALSE] <- FALSE
         } else
         {
-          occ[index_occ==TRUE, ]$Ctrl_selectedMoreInformativeRecord[index_end==FALSE] <- FALSE
-          occ[index_occ==TRUE, ]$Ctrl_selectedMoreInformativeRecord[index_end==TRUE][2:n_tmp] <- FALSE
+          occ[index_occ==TRUE, ]$parseGBIF_digital_voucher[index_end==FALSE] <- FALSE
+          occ[index_occ==TRUE, ]$parseGBIF_digital_voucher[index_end==TRUE][2:n_tmp] <- FALSE
         }
 
         # print(paste0('6 - Selection of the more informative record ', 100/sum(index_end),' %'))
 
       }
-      # else
-      # {
-      #   print(paste0('5 - Selection of the more informative record 100 %'))
-      # }
     }
 
   }
@@ -548,17 +555,18 @@ select_digital_voucher_and_sample_identification <-  function(occ = NA,
     dplyr::select(Ctrl_geospatial_quality,
                   Ctrl_verbatim_quality,
                   Ctrl_moreInformativeRecord,
-                  Ctrl_selectedMoreInformativeRecord,
-                  Ctrl_thereAreDuplicates,
-                  Ctrl_unmatched,
-                  Ctrl_unidentifiedSample,
-                  Ctrl_sampleTaxonName,
-                  Ctrl_matchStatusDuplicates,
-                  Ctrl_sampleIdentificationStatus,
-                  Ctrl_numberTaxonNamesSample,
-                  Ctrl_useful_spatial_analysis)
+                  parseGBIF_digital_voucher,
+                  parseGBIF_duplicates,
+                  parseGBIF_non_groupable_duplicates,
+                  # parseGBIF_unidentified_sample,
+                  # parseGBIF_sample_taxon_name,
+                  parseGBIF_duplicates_grouping_status,
+                  # parseGBIF_sample_taxon_name_status,
+                  # parseGBIF_number_taxon_names,
+                  Ctrl_coordinates_validated_by_gbif_issue)
 
-  return(list(occ_digital_voucher_and_sample_identification = occ,
-              occ_join_results = cbind(occ_gbif_issue, occ_in, occ_wcvp_check_name, occ_collectorsDictionary, occ)
+  return(list(
+    occ_digital_voucher_and_sample_identification = occ,
+    occ_join_results = cbind(occ_gbif_issue, occ_in, occ_wcvp_check_name, occ_collectorsDictionary, occ)
   ))
 }

@@ -22,7 +22,7 @@ or
 
 'all':
 \itemize{
-\item 'gbifID'
+\item 'gbifID' \strong{(standard)}
 \item 'abstract'
 \item 'accessRights'
 \item 'accrualMethod'

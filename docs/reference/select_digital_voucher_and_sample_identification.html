@@ -119,7 +119,7 @@ the sample is indicated as unidentified.</p></li>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">select_digital_voucher_and_sample_identification</span><span class="op">(</span></span>
 <span>  occ <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  occ_gbif_issue <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  occ_checkName_wcvp <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  occ_wcvp_check_name <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  occ_collectorsDictionary <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  enumOccurrenceIssue <span class="op">=</span> <span class="cn">NA</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -135,8 +135,8 @@ the sample is indicated as unidentified.</p></li>
 <dd><p>= result of function extract_gbif_issue()$occ_gbif_issue</p></dd>
 
 
-<dt>occ_checkName_wcvp</dt>
-<dd><p>= result of function batch_checkName_wcvp()$occ_checkName_wcvp</p></dd>
+<dt>occ_wcvp_check_name</dt>
+<dd><p>= result of function batch_checkName_wcvp()$occ_wcvp_check_name</p></dd>
 
 
 <dt>occ_collectorsDictionary</dt>
@@ -189,7 +189,7 @@ Alexandre Monro</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ParsGBIF              C:/Users/Pablo</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                       Hendrigo/AppData/Local/R/win-library/4.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   parseGBIF             C:/Users/Pablo</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       Hendrigo/AppData/Local/Temp/Rtmp2Lk9YU/temp_libpath460c4cf66bcc</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                       Hendrigo/AppData/Local/Temp/RtmpsFfGNV/temp_libpath5178233ad4e</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Using the first match ...</span>
@@ -198,17 +198,16 @@ Alexandre Monro</p>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'occ' not found</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res_gbif_issue</span><span class="op">$</span><span class="va">occ_gbif_issue</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'res_gbif_issue' not found</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res_checkName_wcvp</span><span class="op">$</span><span class="va">occ_checkName_wcvp</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res_checkName_wcvp</span><span class="op">$</span><span class="va">occ_wcvp_check_name</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'res_checkName_wcvp' not found</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res_collectorsDictionary</span><span class="op">$</span><span class="va">occ_collectorsDictionary</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'res_collectorsDictionary' not found</span>
 <span class="r-in"><span><span class="va">res_digital_voucher_and_sample_identification</span> <span class="op">&lt;-</span> <span class="fu">select_digital_voucher_and_sample_identification</span><span class="op">(</span>occ <span class="op">=</span> <span class="va">occ</span>,</span></span>
 <span class="r-in"><span>                                                                                                  occ_gbif_issue <span class="op">=</span> <span class="va">res_gbif_issue</span><span class="op">$</span><span class="va">occ_gbif_issue</span>,</span></span>
-<span class="r-in"><span>                                                                                                  occ_checkName_wcvp <span class="op">=</span> <span class="va">res_checkName_wcvp</span><span class="op">$</span><span class="va">occ_checkName_wcvp</span>,</span></span>
+<span class="r-in"><span>                                                                                                  occ_wcvp_check_name <span class="op">=</span> <span class="va">res_checkName_wcvp</span><span class="op">$</span><span class="va">occ_wcvp_check_name</span>,</span></span>
 <span class="r-in"><span>                                                                                                  occ_collectorsDictionary <span class="op">=</span> <span class="va">res_collectorsDictionary</span><span class="op">$</span><span class="va">occ_collectorsDictionary</span>,</span></span>
 <span class="r-in"><span>                                                                                                  enumOccurrenceIssue <span class="op">=</span> <span class="va">EnumOccurrenceIssue</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: readr</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in if (is.na(enumOccurrenceIssue)) {    data(EnumOccurrenceIssue)} else {    EnumOccurrenceIssue &lt;- enumOccurrenceIssue}:</span> the condition has length &gt; 1</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in select_digital_voucher_and_sample_identification(occ = occ, occ_gbif_issue = res_gbif_issue$occ_gbif_issue,     occ_wcvp_check_name = res_checkName_wcvp$occ_wcvp_check_name,     occ_collectorsDictionary = res_collectorsDictionary$occ_collectorsDictionary,     enumOccurrenceIssue = EnumOccurrenceIssue):</span> unused argument (occ_wcvp_check_name = res_checkName_wcvp$occ_wcvp_check_name)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">res_digital_voucher_and_sample_identification</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'res_digital_voucher_and_sample_identification' not found</span>

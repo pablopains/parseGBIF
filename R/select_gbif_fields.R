@@ -13,7 +13,7 @@
 #'
 #' 'all':
 #'
-#'  * 'gbifID'
+#'  * 'gbifID' **(standard)**
 #'  * 'abstract'
 #'  * 'accessRights'
 #'  * 'accrualMethod'
@@ -575,7 +575,7 @@ select_gbif_fields <- function(columns = 'standard')
   if (columns == 'standard')
   {
     col_sel <- c(
-      # gbifID
+      'gbifID',
       # abstract
       # accessRights
       # accrualMethod
@@ -846,3 +846,8 @@ select_gbif_fields <- function(columns = 'standard')
   return(col_sel)
 
 }
+
+# excluir Ctrl_informationWithheld	Ctrl_dataGeneralizations Ctrl_georeferenceVerificationStatus
+# excluir Ctrl_islandGroup	Ctrl_island Ctrl_verbatimCoordinateSystem	Ctrl_verbatimIdentification
+# excluir Ctrl_verbatimLocality Ctrl_locationRemarks Ctrl_verbatimCoordinateSystem	Ctrl_verbatimIdentification
+
