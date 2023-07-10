@@ -275,18 +275,18 @@ If there is no identification, equal to or less than the specific level, for the
 If so, the accepted TAXON_NAME identified at or below the specified level is used. If there is no identification, equal to or less than the specific level, the sample is indicated as unidentified.
 
 
-```{r example_select_digital_voucher_and_sample_identification, eval=TRUE, message=FALSE, warning=FALSE}
+```{r example_select_digital_voucher, eval=TRUE, message=FALSE, warning=FALSE}
 
-  occ_digital_voucher <- select_digital_voucher_and_sample_identification(occ = occ,
+  occ_digital_voucher <- select_digital_voucher(occ = occ,
   occ_gbif_issue = occ_gbif_issue$occ_gbif_issue,
   occ_wcvp_check_name = names.checked$occ_wcvp_check_name ,
   occ_collectorsDictionary = occ_collectorsDictionary$occ_collectorsDictionary)
 
   names(occ_digital_voucher)
   
-  colnames(occ_digital_voucher$occ_digital_voucher_and_sample_identification)
+  colnames(occ_digital_voucher$occ_digital_voucher)
     
-  head(occ_digital_voucher$occ_digital_voucher_and_sample_identification[,c(8,9,11,12)])
+  head(occ_digital_voucher$occ_digital_voucher[,c(8,9,11,12)])
 
   file.occ_digital_voucher <-  'occ_digital_voucher.csv'
 

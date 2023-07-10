@@ -7,8 +7,8 @@
 #' * Data in need of revision of spatial information or without identification
 #' * Duplicates of the previous two datasets
 #'
-#' @param occ_digital_voucher_file CSV fila result of function select_digital_voucher_and_sample_identification()$occ_digital_voucher_and_sample_identification
-#' @param occ_digital_voucher data frame result of function select_digital_voucher_and_sample_identification()$occ_digital_voucher_and_sample_identification
+#' @param occ_digital_voucher_file CSV fila result of function select_digital_voucher()$occ_digital_voucher
+#' @param occ_digital_voucher data frame result of function select_digital_voucher()$occ_digital_voucher
 #'
 #' @details Each data frame should be used as needed
 #'
@@ -30,12 +30,103 @@
 #'
 #' }
 #' @export
+#' occ_digital_voucher_file <- 'occ_digital_voucher.csv'
 export_data <- function(occ_digital_voucher_file = '',
-                        occ_digital_voucher = NA)
+                        occ_digital_voucher = NA,
+                        fields_to_merge = c('Ctrl_fieldNotes',
+                                            'Ctrl_year',
+                                            'Ctrl_stateProvince',
+                                            'Ctrl_municipality',
+                                            'Ctrl_locality',
+                                            'Ctrl_countryCode',
+                                            'Ctrl_eventDate',
+                                            'Ctrl_habitat',
+                                            'Ctrl_level0Name',
+                                            'Ctrl_level1Name',
+                                            'Ctrl_level2Name',
+                                            'Ctrl_level3Name'),
+                        
+                        fields_to_compare = c('Ctrl_gbifID',
+                                              'Ctrl_scientificName',
+                                           'Ctrl_recordedBy',
+                                           'Ctrl_recordNumber',
+                                           'Ctrl_identifiedBy',
+                                           'Ctrl_dateIdentified',
+                                           'Ctrl_institutionCode',
+                                           'Ctrl_collectionCode',
+                                           'Ctrl_datasetName',
+                                           'Ctrl_datasetName',
+                                           'Ctrl_language',
+                                           "wcvp_plant_name_id",
+                                           "wcvp_taxon_rank",                                  
+                                           "wcvp_taxon_status",
+                                           "wcvp_family",
+                                           "wcvp_taxon_name",
+                                           "wcvp_taxon_authors",
+                                           "wcvp_reviewed",
+                                           "wcvp_searchNotes"),
+                        
+                        fields_to_parse = c('Ctrl_gbifID',
+                                            'Ctrl_bibliographicCitation',
+                                            'Ctrl_language',
+                                            'Ctrl_institutionCode',
+                                            'Ctrl_collectionCode',
+                                            'Ctrl_datasetName',
+                                            'Ctrl_basisOfRecord',
+                                            'Ctrl_catalogNumber',	
+                                            'Ctrl_recordNumber',
+                                            'Ctrl_recordedBy',
+                                            'Ctrl_occurrenceStatus',
+                                            'Ctrl_eventDate',	
+                                            'Ctrl_year',	
+                                            'Ctrl_month',	
+                                            'Ctrl_day',
+                                            'Ctrl_habitat',
+                                            'Ctrl_fieldNotes',
+                                            'Ctrl_eventRemarks',
+                                            'Ctrl_countryCode',	
+                                            'Ctrl_stateProvince',	
+                                            'Ctrl_municipality',
+                                            'Ctrl_county',
+                                            'Ctrl_locality',
+                                            
+                                            'Ctrl_level0Name',
+                                            'Ctrl_level1Name',
+                                            'Ctrl_level2Name',
+                                            'Ctrl_level3Name',
+
+                                            'Ctrl_identifiedBy',
+                                            'Ctrl_dateIdentified',
+                                            'Ctrl_scientificName',
+                                            'Ctrl_decimalLatitude',
+                                            'Ctrl_decimalLongitude',
+
+                                            'Ctrl_nameRecordedBy_Standard',	
+                                            'Ctrl_recordNumber_Standard',	
+                                            'Ctrl_key_family_recordedBy_recordNumber',
+                                            'Ctrl_geospatial_quality',
+                                            'Ctrl_verbatim_quality',
+                                            'Ctrl_moreInformativeRecord',
+                                            'Ctrl_coordinates_validated_by_gbif_issue',	
+                                            
+                                            "wcvp_plant_name_id",
+                                            "wcvp_taxon_rank",                                  
+                                            "wcvp_taxon_status",
+                                            "wcvp_family",
+                                            "wcvp_taxon_name",
+                                            "wcvp_taxon_authors",
+                                            "wcvp_reviewed",
+                                            "wcvp_searchNotes",
+                                            
+                                            'parseGBIF_digital_voucher',	
+                                            'parseGBIF_duplicates',
+                                            'parseGBIF_num_duplicates',
+                                            'parseGBIF_non_groupable_duplicates',	
+                                            'parseGBIF_duplicates_grouping_status')
+                        )
 {
 
   print('Loading occurrence file...')
-
   if(occ_digital_voucher_file !=''  )
   {
     if(!file.exists(occ_digital_voucher_file))
@@ -57,78 +148,36 @@ export_data <- function(occ_digital_voucher_file = '',
     occ_tmp <- occ_digital_voucher %>% as.data.frame()
     rm(occ_digital_voucher)
   }
-  
-  occ_tmp <- occ_tmp %>%
-    dplyr::select(Ctrl_gbifID,
-                  Ctrl_bibliographicCitation,
-                  Ctrl_language,
-                  Ctrl_institutionCode,
-                  Ctrl_collectionCode,
-                  Ctrl_datasetName,
-                  Ctrl_basisOfRecord,
-                  Ctrl_catalogNumber,	
-                  Ctrl_recordNumber,
-                  Ctrl_recordedBy,
-                  Ctrl_occurrenceStatus,
-                  Ctrl_eventDate,	
-                  Ctrl_year,	
-                  Ctrl_month,	
-                  Ctrl_day,
-                  Ctrl_habitat,
-                  Ctrl_fieldNotes,
-                  Ctrl_eventRemarks,
-                  Ctrl_countryCode,	
-                  Ctrl_stateProvince,	
-                  Ctrl_municipality,
-                  Ctrl_county,
-                  Ctrl_locality,
-                  
-                  Ctrl_level0Name,
-                  Ctrl_level1Name,
-                  Ctrl_level2Name,
-                  Ctrl_level3Name,
-                  
-                  
-                  Ctrl_identifiedBy,
-                  Ctrl_dateIdentified,
-                  Ctrl_scientificName,
-                  Ctrl_decimalLatitude,
-                  Ctrl_decimalLongitude,
-                  
-                  
-                  Ctrl_nameRecordedBy_Standard,	
-                  Ctrl_recordNumber_Standard,	
-                  Ctrl_key_family_recordedBy_recordNumber,
-                  Ctrl_geospatial_quality,
-                  Ctrl_verbatim_quality,
-                  Ctrl_moreInformativeRecord,
-                  Ctrl_coordinates_validated_by_gbif_issue,	
-                  
-                  
-                  wcvp_taxon_name,
-                  wcvp_taxon_status,
-                  
-                  parseGBIF_digital_voucher,	
-                  parseGBIF_duplicates,
-                  parseGBIF_non_groupable_duplicates,	
-                  parseGBIF_duplicates_grouping_status)
-  
-  occ_tmp <- occ_tmp %>%
-    dplyr::mutate(
-      parseGBIF_unidentified_sample = TRUE,
-      parseGBIF_sample_taxon_name = '',
-      parseGBIF_sample_taxon_name_status = '',
-      parseGBIF_number_taxon_names = 0,
-      parseGBIF_useful_for_spatial_analysis = FALSE,
-      parseGBIF_decimalLatitude = NA,
-      parseGBIF_decimalLongitude = NA)
+
+
+  # preparacao dos dados
+  {
+    occ_tmp <- occ_tmp %>%
+      dplyr::select(fields_to_parse)
+    
+    occ_tmp <- occ_tmp %>%
+      dplyr::mutate(
+        parseGBIF_unidentified_sample = TRUE,
+        parseGBIF_sample_taxon_name = '',
+        parseGBIF_sample_taxon_name_status = '',
+        parseGBIF_number_taxon_names = 0,
+        parseGBIF_useful_for_spatial_analysis = FALSE,
+        parseGBIF_decimalLatitude = NA,
+        parseGBIF_decimalLongitude = NA,
+        parseGBIF_freq_duplicate_or_missing_data = '')
+    
+    occ_tmp <- occ_tmp %>%
+      dplyr::arrange(Ctrl_key_family_recordedBy_recordNumber)
+  }
   
   
+  print('Selecting...')
   recordedBy_unique <- occ_tmp$Ctrl_key_family_recordedBy_recordNumber %>% unique()
   tot <- NROW(recordedBy_unique)
   s<-0
   
-  print('Selecting...')
+  # r <- 'ACHATOCARPACEAE_ZARDINI_5592'
+  # r <- 'ACHATOCARPACEAE_AGUILAR_1486'
   
   for (r in recordedBy_unique)
   {
@@ -139,7 +188,6 @@ export_data <- function(occ_digital_voucher_file = '',
     sp_name <- ''
     
     index_occ <- (occ_tmp$Ctrl_key_family_recordedBy_recordNumber %in% r) %>% ifelse(is.na(.), FALSE,.)
-    
     
     # nomes e coorrdenadas para não agrupaveis
     if(any(occ_tmp$parseGBIF_non_groupable_duplicates[index_occ==TRUE]) == TRUE)
@@ -155,19 +203,8 @@ export_data <- function(occ_digital_voucher_file = '',
       
       occ_tmp[index_occ==TRUE, ] <- occ_tmp[index_occ==TRUE, ] %>%
         dplyr::mutate(
-          # parseGBIF_digital_voucher = TRUE,
-          # parseGBIF_non_groupable_duplicates = TRUE,
-          # parseGBIF_duplicates = FALSE,
           parseGBIF_sample_taxon_name = sp_name,
           parseGBIF_unidentified_sample = ifelse(sp_name %in% '', TRUE,FALSE),
-          
-          # parseGBIF_duplicates_grouping_status = ifelse(FAMILY__==TRUE,
-          #                                               'not groupable: no recordedBy and no recordNumber',
-          #                                               ifelse(FAMILY__recordNumber==TRUE,
-          #                                                      'not groupable: no recordNumber ',
-          #                                                      ifelse(FAMILY_recordedBy_==TRUE,
-          #                                                             'not groupable: no recordedBy', 'not groupable'))),
-          
           parseGBIF_number_taxon_names = ifelse(sp_name %in% '',
                                                 0,
                                                 1),
@@ -197,10 +234,8 @@ export_data <- function(occ_digital_voucher_file = '',
     
     # nomes para agrupaveis
     { 
+      
       num_records <- NROW(occ_tmp[index_occ==TRUE,])
-      
-      
-      # ifelse(is.na(occ_tmp[index_occ==TRUE, ]$wcvp_taxon_status == 'Accepted'), FALSE,TRUE)
       
       if(!any(is.na(occ_tmp[index_occ==TRUE, ]$wcvp_taxon_name) == FALSE)) # any ???
       {
@@ -210,8 +245,6 @@ export_data <- function(occ_digital_voucher_file = '',
         
         occ_tmp[index_occ==TRUE, ] <- occ_tmp[index_occ==TRUE, ] %>%
           dplyr::mutate(
-            # parseGBIF_duplicates_grouping_status = 'groupable',
-            # parseGBIF_duplicates = num_records > 1,
             parseGBIF_number_taxon_names = 0,
             parseGBIF_sample_taxon_name = sp_name,
             parseGBIF_sample_taxon_name_status = 'unidentified')
@@ -220,9 +253,7 @@ export_data <- function(occ_digital_voucher_file = '',
       {
         
         taxon_name_sample <- table(occ_tmp[index_occ==TRUE, ]$wcvp_taxon_name,
-                                   # occ[index_occ==TRUE, ]$wcvp_searchNotes,
                                    occ_tmp[index_occ==TRUE, ]$wcvp_taxon_status,
-                                   # occ[index_occ==TRUE, ]$Ctrl_taxonRank,
                                    exclude = NA) %>%
           data.frame() %>%
           dplyr::filter(Freq > 0) %>%
@@ -247,8 +278,6 @@ export_data <- function(occ_digital_voucher_file = '',
           
           occ_tmp[index_occ==TRUE, ] <- occ_tmp[index_occ==TRUE, ] %>%
             dplyr::mutate(
-              # parseGBIF_duplicates_grouping_status = 'groupable',
-              # parseGBIF_duplicates = num_records > 1,
               parseGBIF_number_taxon_names = num_taxon_name,
               parseGBIF_sample_taxon_name = sp_name,
               parseGBIF_sample_taxon_name_status = 'identified',
@@ -256,8 +285,6 @@ export_data <- function(occ_digital_voucher_file = '',
             )
           
           # print('3 - Identified sample 100 %')
-          
-          # next
           
         }
         
@@ -274,8 +301,6 @@ export_data <- function(occ_digital_voucher_file = '',
               
               occ_tmp[index_occ==TRUE, ] <- occ_tmp[index_occ==TRUE, ] %>%
                 dplyr::mutate(
-                  # parseGBIF_duplicates_grouping_status = 'groupable',
-                  # parseGBIF_duplicates = num_records > 1,
                   parseGBIF_number_taxon_names = num_taxon_name,
                   parseGBIF_sample_taxon_name = sp_name,
                   parseGBIF_sample_taxon_name_status = 'divergent identifications',
@@ -286,15 +311,9 @@ export_data <- function(occ_digital_voucher_file = '',
               
               break
             }
-            
-            
           }
-          
-          # next
-          
         }
       }
-      
     }
     
     # coorrdenadas para agrupaveis
@@ -326,6 +345,7 @@ export_data <- function(occ_digital_voucher_file = '',
           
         }
         
+        # pegar a com maior score
         if(sum(index_no_voucher_useful_for_spatial_analysis)>1)
         {
           
@@ -353,56 +373,33 @@ export_data <- function(occ_digital_voucher_file = '',
     occ_in <- occ_tmp %>%
       dplyr::filter(parseGBIF_digital_voucher == TRUE,
                     parseGBIF_unidentified_sample == FALSE, # parseGBIF_sample_taxon_name_status %in% c('identified','divergent identifications'),
-                    parseGBIF_useful_for_spatial_analysis == TRUE) %>%
-      dplyr::select(-wcvp_taxon_name,
-                    -wcvp_taxon_status)
+                    parseGBIF_useful_for_spatial_analysis == TRUE) 
     
     # NROW(occ_in)
+    # occ_dup <- dplyr::anti_join(occ_tmp %>%
+    #                               dplyr::filter(parseGBIF_digital_voucher == FALSE), occ_in, "Ctrl_gbifID")
     
     occ_dup <- occ_tmp %>%
-      dplyr::filter(parseGBIF_digital_voucher == FALSE) %>%
-      dplyr::select(-wcvp_taxon_name,
-                    -wcvp_taxon_status)
+      dplyr::filter(parseGBIF_digital_voucher == FALSE)
     
-    # NROW(occ_dup)
+    # sum(occ_dup$Ctrl_key_family_recordedBy_recordNumber %in% 'ACHATOCARPACEAE_ZARDINI_5592')
 
-    # NROW(occ_in)+NROW(occ_dup)+NROW(occ_out_to_recover)
-    # NROW(occ_tmp)
-    
     occ_out_to_recover <- occ_tmp %>%
       dplyr::filter(parseGBIF_digital_voucher == TRUE,
                     (parseGBIF_unidentified_sample == TRUE |
-                       parseGBIF_useful_for_spatial_analysis == FALSE)) %>%
-      dplyr::select(-wcvp_taxon_name,
-                    -wcvp_taxon_status)
+                       parseGBIF_useful_for_spatial_analysis == FALSE))
     
-    remove(occ_tmp)
+    # remove(occ_tmp)
     
   }
 
   print('Merging...')
   
-  # merge
+  # merge and compare
   {
-    col_from_merge <- c('Ctrl_gbifID',
-                        
-                        'Ctrl_fieldNotes',       # check and merge - character   
-                        'Ctrl_year',             # check and merge - character 
-                        'Ctrl_stateProvince',    # check and merge - character 
-                        'Ctrl_municipality',     # check and merge - character 
-                        'Ctrl_locality',         # check and merge - character 
-                        
-                        
-                        'Ctrl_countryCode',      # merge - character 
-                        'Ctrl_eventDate',        # merge - data
-                        'Ctrl_habitat',          # merge - character 
-                        'Ctrl_level0Name',	      # merge - character 
-                        'Ctrl_level1Name',	      # merge - character
-                        'Ctrl_level2Name',	      # merge - character
-                        'Ctrl_level3Name'       # merge - character
-    )
-    
-    
+
+    # fields_to_merge
+    # fields_to_compare
     
     occ_res_full <- occ_in %>%
       dplyr::mutate(parseGBIF_duplicates_map = rep('',NROW(occ_in)),
@@ -413,31 +410,37 @@ export_data <- function(occ_digital_voucher_file = '',
       unique()
     
     tot <- NROW(key)
+    fields_to_all <- c(fields_to_compare,fields_to_merge)
     
+    i = 52
+    i=1
     for(i in 1:tot)
     {
-      
-      
+  
       index <- occ_in$Ctrl_key_family_recordedBy_recordNumber %in% key[i]
-      
       
       if(occ_in$parseGBIF_duplicates[index==TRUE][1]==TRUE)
       {
         print(paste0(i, ' - ', tot, ' - ', key[i]))
         
         index_dup <- occ_dup$Ctrl_key_family_recordedBy_recordNumber %in% key[i]
-        # sum(index_dup)
+        
+        if(sum(index_dup)==0)
+        {next}
         
         ic <- 1
         
         x_jonsom_full <- ""
         parseGBIF_merged_fields <- ""
         
-        for ( ic in 1:length(col_from_merge))
+        freq_data_col_full <- ""
+
+        for ( ic in 1:length(fields_to_all))
         {
+          # print(ic)
           
           data_col <- occ_in[index==TRUE,
-                             col_from_merge[ic]] 
+                             fields_to_all[ic]] 
           
           if(is.na(data_col))
           {
@@ -447,7 +450,38 @@ export_data <- function(occ_digital_voucher_file = '',
           x_data_col <- toupper(data_col)
           
           data_col_dup <- occ_dup[index_dup==TRUE,
-                                  col_from_merge[ic]] 
+                                  fields_to_all[ic]] 
+          
+          freq_data_col <- table(freq_tmp <- data.frame(value= c(occ_in[index==TRUE,fields_to_all[ic]], 
+                                                                 occ_dup[index_dup==TRUE, fields_to_all[ic]])),
+                                 exclude = NA) %>%
+            data.frame() %>%
+            dplyr::arrange(desc(Freq)) 
+    
+          if(NROW(freq_data_col)==0)
+          {
+            freq_data_col <- data.frame(value = 'empty',
+                                        freq = occ_dup[index_dup==TRUE, 'parseGBIF_num_duplicates'][1])
+          }else
+          {
+            colnames(freq_data_col) <- c('value','freq')
+            freq_tmp <- occ_dup[index_dup==TRUE, 'parseGBIF_num_duplicates'][1] - sum(freq_data_col$freq) 
+            if(freq_tmp>0) #freq_data_col$freq[freq_data_col$value=='empty']>0)
+            {
+              freq_data_col <- freq_data_col %>%
+                dplyr::add_row(value = 'empty',
+                               freq = freq_tmp)
+            }
+          }
+
+          # x <- paste0('{"',fields_to_all[ic],'":',jsonify::to_json( freq_data_col),"}" )
+          x <- paste0('"',fields_to_all[ic],'":',jsonify::to_json( freq_data_col))
+          
+          freq_data_col_full <- paste0(freq_data_col_full,
+                                       ifelse(freq_data_col_full=="","",","),
+                                       x)
+          
+          # stop()
           
           ix <- 1
           # x <- ""
@@ -461,15 +495,19 @@ export_data <- function(occ_digital_voucher_file = '',
               next
             }
             
-            x_data_col_dup <- toupper(data_col_dup[ix])
+            x_Ctrl_gbifID_dup <- occ_dup[index_dup==TRUE, 'Ctrl_gbifID'][ix]
             
+            x_data_col_dup <- toupper(data_col_dup[ix])
+
             if(x_data_col == x_data_col_dup)
             {
               next
             }
             
-            # nao armazear dados repetidos entre duplicatas
-            if(ix > 1 & data_col_dup[ix] %in% data_col_dup[1:ix] )
+            # # nao armazear dados repetidos entre duplicatas
+            # if(any(data_col_dup[ix] == data_col_dup[-ix] %>%
+            #        ifelse(is.na(.), FALSE,.) )==TRUE )
+            if(grepl(data_col_dup[ix], x_jonsom) %>% ifelse(is.na(.), FALSE,.))
             {
               next
             }
@@ -481,43 +519,54 @@ export_data <- function(occ_digital_voucher_file = '',
             if(x_jonsom=="") #aqui
             {
               # # if(data_col %>% as.character() !="")
-              # if(col_from_merge[ic] == "Ctrl_gbifID" )
+              # if(fields_to_all[ic] == "Ctrl_gbifID" )
               # {
-              #   x_jonsom <-  paste0('"',col_from_merge[ic],'"',":[",'"', gsub('"','',data_col),'"')
+                x_jonsom <-  paste0('"',fields_to_all[ic],'"',":[",'"', gsub('"','',data_col),'"')
               # }else
               # {
-              x_jonsom <-  paste0('"',col_from_merge[ic],'"',":[")
+              # x_jonsom <-  paste0('"',fields_to_all[ic],'"',":[")
               # }
             }
             
             # dados
             if(substr(x_jonsom,str_count(x_jonsom),str_count(x_jonsom)) == '[')
             {
-              x_jonsom <- paste0(x_jonsom, '"', gsub('"','',data_col_dup[ix]),'"')
+              x_jonsom <- paste0(x_jonsom, '"', gsub('"','',data_col_dup[ix]),';[',x_Ctrl_gbifID_dup,']"')
             }else
             {
-              x_jonsom <- paste0(x_jonsom, ",", '"', gsub('"','',data_col_dup[ix]),'"')
+              x_jonsom <- paste0(x_jonsom, ",", '"', gsub('"','',data_col_dup[ix]),';[',x_Ctrl_gbifID_dup,']"')
             }
             
             
             # combina dasdos de uma amostra, adiciona informações novas à culunas vazias
             # referencia a infoamação com Ctrl_gbifID em parseGBIF_merged_fields
-            if (x_data_col=="")
+            if(x_data_col=="" &
+               fields_to_all[ic] %in% fields_to_merge)
             {
+              # print('merge')
+              
               occ_res_full[index==TRUE,
-                           col_from_merge[ic]] <- data_col_dup[ix]
+                           fields_to_all[ic]] <- data_col_dup[ix]
+              
+              
+              # x_Ctrl_gbifID <- occ_res_full[index==TRUE, 'Ctrl_gbifID']
+              
+              
               
               if(parseGBIF_merged_fields=="")
               {
-                # parseGBIF_merged_fields <- paste0('"', col_from_merge[ic],'":[','"', ix+1,'"]')
-                parseGBIF_merged_fields <- paste0('"', col_from_merge[ic],'":[','"', ix,'"]')
+                # parseGBIF_merged_fields <- paste0('"', fields_to_all[ic],'":[','"', ix+1,'"]')
+                # parseGBIF_merged_fields <- paste0('"', fields_to_all[ic],'":[','"', ix,'"]') 
+                parseGBIF_merged_fields <- paste0('"', fields_to_all[ic],'":[','"', x_Ctrl_gbifID_dup,'"]')
                 
               }else
               {
-                # parseGBIF_merged_fields <- paste0(parseGBIF_merged_fields, ",", '"', col_from_merge[ic],'":[','"', ix+1,'"]')
-                parseGBIF_merged_fields <- paste0(parseGBIF_merged_fields, ",", '"', col_from_merge[ic],'":[','"', ix,'"]')
+                # parseGBIF_merged_fields <- paste0(parseGBIF_merged_fields, ",", '"', fields_to_all[ic],'":[','"', ix+1,'"]')
+                # parseGBIF_merged_fields <- paste0(parseGBIF_merged_fields, ",", '"', fields_to_all[ic],'":[','"', ix,'"]') 
+                parseGBIF_merged_fields <- paste0(parseGBIF_merged_fields, ",", '"', fields_to_all[ic],'":[','"', x_Ctrl_gbifID_dup,'"]')
               }
             }
+            
           }
           
           if (x_jonsom != "")
@@ -532,6 +581,8 @@ export_data <- function(occ_digital_voucher_file = '',
               x_jonsom_full <- paste0(x_jonsom_full,',',x_jonsom)
             }
           }
+          
+          
         }
         
         if(x_jonsom_full != "")
@@ -546,6 +597,14 @@ export_data <- function(occ_digital_voucher_file = '',
                          'parseGBIF_merged')] <- c(paste0('{',parseGBIF_merged_fields,'}'),
                                                    TRUE)
         }
+      
+      if (freq_data_col_full != "")
+      {
+        occ_res_full[index==TRUE,'parseGBIF_freq_duplicate_or_missing_data'] <- paste0('{',freq_data_col_full,'}') 
+      }
+      
+      
+      
       }
     }
   }
