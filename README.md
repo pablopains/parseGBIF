@@ -169,7 +169,7 @@ collectorsDictionary.dataset <- prepare_collectorsDictionary(occ = occ)
 
 ``` r
 
-  occ_digital_voucher <- select_digital_voucher_and_sample_identification(occ = occ,
+  occ_digital_voucher <- select_digital_voucher(occ = occ,
   occ_gbif_issue = occ_gbif_issue$occ_gbif_issue,
   occ_checkName_wcvp = names.checked$occ_checkName_wcvp ,
   occ_collectorsDictionary = occ_collectorsDictionary$occ_collectorsDictionary)

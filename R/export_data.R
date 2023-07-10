@@ -30,7 +30,6 @@
 #'
 #' }
 #' @export
-#' occ_digital_voucher_file <- 'occ_digital_voucher.csv'
 export_data <- function(occ_digital_voucher_file = '',
                         occ_digital_voucher = NA,
                         fields_to_merge = c('Ctrl_fieldNotes',
