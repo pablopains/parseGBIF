@@ -718,47 +718,11 @@ export_data <- function(occ_digital_voucher_file = '',
     
     
   }
+  
   {
     occ_tmp <- occ_all
-    # occ_tmp <- occ_results$occ_all
-    # merge_occ_out = T
-    # 
+
     {
-      # fields_to_merge <- c('Ctrl_fieldNotes',
-      #                      'Ctrl_year',
-      #                      'Ctrl_stateProvince',
-      #                      'Ctrl_municipality',
-      #                      'Ctrl_locality',
-      #                      'Ctrl_countryCode',
-      #                      'Ctrl_eventDate',
-      #                      'Ctrl_habitat',
-      #                      'Ctrl_level0Name',
-      #                      'Ctrl_level1Name',
-      #                      'Ctrl_level2Name',
-      #                      'Ctrl_level3Name')
-      # 
-      # fields_to_compare = c('Ctrl_gbifID',
-      #                       'Ctrl_scientificName',
-      #                       'Ctrl_recordedBy',
-      #                       'Ctrl_recordNumber',
-      #                       'Ctrl_identifiedBy',
-      #                       'Ctrl_dateIdentified',
-      #                       'Ctrl_institutionCode',
-      #                       'Ctrl_collectionCode',
-      #                       'Ctrl_datasetName',
-      #                       'Ctrl_datasetName',
-      #                       'Ctrl_language',
-      #                       "wcvp_plant_name_id",
-      #                       "wcvp_taxon_rank",                                  
-      #                       "wcvp_taxon_status",
-      #                       "wcvp_family",
-      #                       "wcvp_taxon_name",
-      #                       "wcvp_taxon_authors",
-      #                       "wcvp_reviewed",
-      #                       "wcvp_searchNotes")
-      # 
-      # fields_to_all <- c(fields_to_compare,fields_to_merge)
-      
       parseGBIF_summary <<- data.frame(question='',
                                        value=0,
                                        unit='')[-1,]
@@ -1015,7 +979,7 @@ export_data <- function(occ_digital_voucher_file = '',
     
   }
   
-  add_summary()
+  # add_summary()
   
   if(merge_occ_out==TRUE)
   {

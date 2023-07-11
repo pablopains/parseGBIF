@@ -294,7 +294,7 @@ occ_digital_voucher <- parseGBIF::select_digital_voucher(occ = occ,
 
 From the selected digital voucher.
 
-* select the taxonomic identification of the sample,
+* Select the taxonomic identification of the sample,
 * Select geographic coordinates,
 * Merge information between fields of duplicates of a sample,
 * Compare the frequency of content in fields
