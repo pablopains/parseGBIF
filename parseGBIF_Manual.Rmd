@@ -277,17 +277,15 @@ If so, the accepted TAXON_NAME identified at or below the specified level is use
 
 ```{r example_select_digital_voucher, eval=TRUE, message=FALSE, warning=FALSE}
 
-  occ_digital_voucher <- select_digital_voucher(occ = occ,
-  occ_gbif_issue = occ_gbif_issue$occ_gbif_issue,
-  occ_wcvp_check_name = names.checked$occ_wcvp_check_name ,
-  occ_collectorsDictionary = occ_collectorsDictionary$occ_collectorsDictionary)
+occ_digital_voucher <- parseGBIF::select_digital_voucher(occ = occ,
+                                                         occ_gbif_issue = occ_gbif_issue$occ_gbif_issue,
+                                                         occ_wcvp_check_name = names.checked$occ_wcvp_check_name ,
+                                                         occ_collectorsDictionary = occ_collectorsDictionary$occ_collectorsDictionary)
 
   names(occ_digital_voucher)
   
   colnames(occ_digital_voucher$occ_digital_voucher)
     
-  head(occ_digital_voucher$occ_digital_voucher[,c(8,9,11,12)])
-
   file.occ_digital_voucher <-  'occ_digital_voucher.csv'
 
   write.csv(occ_digital_voucher$occ_join_results,
@@ -309,29 +307,28 @@ From the selected digital voucher:
 
 ```{r example_export, eval=TRUE, message=FALSE, warning=FALSE}
 
-occ_resuts <-  export_data(occ_digital_voucher_file = file.occ_digital_voucher,
-                             merge_occ_out = TRUE)
+occ_results <- export_data(occ_digital_voucher_file = file.occ_digital_voucher)
   
 names(occ_results)
 
 NROW(occ_results$occ_all)
 NROW(occ_results$occ_in_merge)
 NROW(occ_results$occ_in_raw)
-NROW(occ_results$occ_out_to_recover_merge)
+# NROW(occ_results$occ_out_to_recover_merge)
 NROW(occ_results$occ_out_to_recover_raw)
 NROW(occ_results$occ_dup)
 
 occ_results$summary
 
   file.all <- 'parseGBIF_occ_all.csv'
-  write.csv(occ_resuts$occ_all,
+  write.csv(occ_results$occ_all,
             file.all, 
             row.names = FALSE, 
             fileEncoding = "UTF-8", 
             na = "")
 
   file.summary <- 'parseGBIF_summary.csv'
-  write.csv(occ_resuts$summary,
+  write.csv(occ_results$summary,
             file.summary, 
             row.names = FALSE, 
             fileEncoding = "UTF-8", 

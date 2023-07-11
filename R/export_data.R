@@ -19,13 +19,13 @@
 #' @details Each data frame should be used as needed
 #'
 #' @return list with six or seven (merge_occ_out == TRUE) data frames
-#' occ_all - all records processed with parseGBIF_dataset_result field indicating records flagged as in, out_to_recover, and duplicates.
-#' occ_in_merge - records inside - samples with data merged between duplicates
-#' occ_in_raw  - records inside - samples with original digital voucher data
-#' occ_dup - duplicates
-#' occ_out_to_recover_raw - records out - samples with original digital voucher data
-#' occ_out_to_recover_merge  - records out - (only if lala == TRUE) samples with data merged between duplicates
-#' summary
+#' * occ_all - all records processed with parseGBIF_dataset_result field indicating records flagged as in, out_to_recover, and duplicates.
+#' * occ_in_merge - records inside - samples with data merged between duplicates
+#' * occ_in_raw  - records inside - samples with original digital voucher data
+#' * occ_dup - duplicates
+#' * occ_out_to_recover_raw - records out - samples with original digital voucher data
+#' * occ_out_to_recover_merge  - records out - (only if lala == TRUE) samples with data merged between duplicates
+#' * summary
 #'
 #' @author Pablo Hendrigo Alves de Melo,
 #'         Nadia Bystriakova &
@@ -719,44 +719,44 @@ export_data <- function(occ_digital_voucher_file = '',
     
   }
   {
-    occ_tmp <- occ_results$occ_all
-    merge_occ_out = T
-    
+    # occ_tmp <- occ_results$occ_all
+    # merge_occ_out = T
+    # 
     {
-      fields_to_merge <- c('Ctrl_fieldNotes',
-                           'Ctrl_year',
-                           'Ctrl_stateProvince',
-                           'Ctrl_municipality',
-                           'Ctrl_locality',
-                           'Ctrl_countryCode',
-                           'Ctrl_eventDate',
-                           'Ctrl_habitat',
-                           'Ctrl_level0Name',
-                           'Ctrl_level1Name',
-                           'Ctrl_level2Name',
-                           'Ctrl_level3Name')
-      
-      fields_to_compare = c('Ctrl_gbifID',
-                            'Ctrl_scientificName',
-                            'Ctrl_recordedBy',
-                            'Ctrl_recordNumber',
-                            'Ctrl_identifiedBy',
-                            'Ctrl_dateIdentified',
-                            'Ctrl_institutionCode',
-                            'Ctrl_collectionCode',
-                            'Ctrl_datasetName',
-                            'Ctrl_datasetName',
-                            'Ctrl_language',
-                            "wcvp_plant_name_id",
-                            "wcvp_taxon_rank",                                  
-                            "wcvp_taxon_status",
-                            "wcvp_family",
-                            "wcvp_taxon_name",
-                            "wcvp_taxon_authors",
-                            "wcvp_reviewed",
-                            "wcvp_searchNotes")
-      
-      fields_to_all <- c(fields_to_compare,fields_to_merge)
+      # fields_to_merge <- c('Ctrl_fieldNotes',
+      #                      'Ctrl_year',
+      #                      'Ctrl_stateProvince',
+      #                      'Ctrl_municipality',
+      #                      'Ctrl_locality',
+      #                      'Ctrl_countryCode',
+      #                      'Ctrl_eventDate',
+      #                      'Ctrl_habitat',
+      #                      'Ctrl_level0Name',
+      #                      'Ctrl_level1Name',
+      #                      'Ctrl_level2Name',
+      #                      'Ctrl_level3Name')
+      # 
+      # fields_to_compare = c('Ctrl_gbifID',
+      #                       'Ctrl_scientificName',
+      #                       'Ctrl_recordedBy',
+      #                       'Ctrl_recordNumber',
+      #                       'Ctrl_identifiedBy',
+      #                       'Ctrl_dateIdentified',
+      #                       'Ctrl_institutionCode',
+      #                       'Ctrl_collectionCode',
+      #                       'Ctrl_datasetName',
+      #                       'Ctrl_datasetName',
+      #                       'Ctrl_language',
+      #                       "wcvp_plant_name_id",
+      #                       "wcvp_taxon_rank",                                  
+      #                       "wcvp_taxon_status",
+      #                       "wcvp_family",
+      #                       "wcvp_taxon_name",
+      #                       "wcvp_taxon_authors",
+      #                       "wcvp_reviewed",
+      #                       "wcvp_searchNotes")
+      # 
+      # fields_to_all <- c(fields_to_compare,fields_to_merge)
       
       parseGBIF_summary <<- data.frame(question='',
                                        value=0,
