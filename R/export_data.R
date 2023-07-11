@@ -719,6 +719,7 @@ export_data <- function(occ_digital_voucher_file = '',
     
   }
   {
+    occ_tmp <- occ_all
     # occ_tmp <- occ_results$occ_all
     # merge_occ_out = T
     # 
