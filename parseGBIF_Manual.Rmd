@@ -260,19 +260,14 @@ GIBF issues on the quality of geospatial information were classified into three 
 * Potentially affect coordinate accuracy, with selection_score equal to -3
 * Records to be excluded from spatial analysis, with selection_score equal to -9
 
-#### How is the taxonomic identification of the sample chosen?
 
-1) When the key to group the duplicates is complete:
 
-The accepted TAXON_NAME identified at or below the specified level and the most frequent among the duplicates is chosen.
 
-In case of a tie in frequency, in alphabetical order, the first accepted TAXON_NAME identified up to or below the specific level is chosen.
 
-If there is no identification, equal to or less than the specific level, for the sample, the sample is indicated as unidentified.
 
-2) When the key to group the duplicates is incomplete:
 
-If so, the accepted TAXON_NAME identified at or below the specified level is used. If there is no identification, equal to or less than the specific level, the sample is indicated as unidentified.
+
+
 
 
 ```{r example_select_digital_voucher, eval=TRUE, message=FALSE, warning=FALSE}
@@ -297,13 +292,28 @@ occ_digital_voucher <- parseGBIF::select_digital_voucher(occ = occ,
 
 ### 5. Export of results
 
-From the selected digital voucher:
-  * select the taxonomic identification of the sample,
-  * Select geographic coordinates,
-  * Merge information between fields of duplicates of a sample,
-  * Compare the frequency of content in fields
-  * Generate data summary
-  * Export results
+From the selected digital voucher.
+
+* select the taxonomic identification of the sample,
+* Select geographic coordinates,
+* Merge information between fields of duplicates of a sample,
+* Compare the frequency of content in fields
+* Generate data summary
+* Export results
+
+#### How is the taxonomic identification of the sample chosen?
+
+1) When the key to group the duplicates is complete:
+
+The accepted TAXON_NAME identified at or below the rank of species and the most frequent among the duplicates is chosen.
+
+In case of a tie in frequency, a mechanical approach, using alphabetical order, is applied, the first accepted TAXON_NAME identified up to or below the specific level is chosen.
+
+If there is no identification, at or below the rank of species, for the sample, the sample is indicated as unidentified.
+
+2) When the key to group the duplicates is incomplete:
+
+In the case where the key to group the duplicates is incomplete, the accepted TAXON_NAME identified at or below the rank of species is used. If there is no identification, at or below the rank of species, the sample is indicated as unidentified.
 
 ```{r example_export, eval=TRUE, message=FALSE, warning=FALSE}
 
