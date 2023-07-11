@@ -7,6 +7,7 @@
 export_data(
   occ_digital_voucher_file = "",
   occ_digital_voucher = NA,
+  merge_occ_out = FALSE,
   fields_to_merge = c("Ctrl_fieldNotes", "Ctrl_year", "Ctrl_stateProvince",
     "Ctrl_municipality", "Ctrl_locality", "Ctrl_countryCode", "Ctrl_eventDate",
     "Ctrl_habitat", "Ctrl_level0Name", "Ctrl_level1Name", "Ctrl_level2Name",
@@ -41,20 +42,34 @@ export_data(
 \item{occ_digital_voucher_file}{CSV fila result of function select_digital_voucher()$occ_digital_voucher}
 
 \item{occ_digital_voucher}{data frame result of function select_digital_voucher()$occ_digital_voucher}
+
+\item{merge_occ_out}{include records flagged out_to_recover in merge processing}
+
+\item{fields_to_merge}{fields to merge}
+
+\item{fields_to_compare}{fields to compare content frequency}
+
+\item{fields_to_parse}{all fields}
 }
 \value{
-list with three data frames:
-occ_in, Useful data for spatial and taxonomic analysis,
-occ_out_to_recover, data in need of spatial data revision or without identification and
-occ_dup, duplicates.
+list with six or seven (merge_occ_out == TRUE) data frames
+occ_all - all records processed with parseGBIF_dataset_result field indicating records flagged as in, out_to_recover, and duplicates.
+occ_in_merge - records inside - samples with data merged between duplicates
+occ_in_raw  - records inside - samples with original digital voucher data
+occ_dup - duplicates
+occ_out_to_recover_raw - records out - samples with original digital voucher data
+occ_out_to_recover_merge  - records out - (only if lala == TRUE) samples with data merged between duplicates
+summary
 }
 \description{
-Separate records into three data frames
-Export of results:
+from the selected digital voucher:
 \itemize{
-\item Useful data for spatial and taxonomic analysis
-\item Data in need of revision of spatial information or without identification
-\item Duplicates of the previous two datasets
+\item select the taxonomic identification of the sample,
+\item Select geographic coordinates,
+\item Merge information between fields of duplicates of a sample,
+\item Compare the frequency of content in fields
+\item Generate data summary
+\item Export results
 }
 }
 \details{
@@ -63,6 +78,20 @@ Each data frame should be used as needed
 \examples{
 \donttest{
 help(export_data)
+
+occ_results <- export_data(occ_digital_voucher_file = file.occ_digital_voucher, merge_occ_out = T)
+
+names(occ_results)
+
+NROW(occ_results$occ_all)
+NROW(occ_results$occ_in_merge)
+NROW(occ_results$occ_in_raw)
+NROW(occ_results$occ_out_to_recover_merge)
+NROW(occ_results$occ_out_to_recover_raw)
+NROW(occ_results$occ_dup)
+
+occ_results$summary
+
 
 }
 }

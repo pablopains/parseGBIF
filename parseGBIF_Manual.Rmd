@@ -299,45 +299,40 @@ If so, the accepted TAXON_NAME identified at or below the specified level is use
 
 ### 5. Export of results
 
-Separate records into three data frames  
-Export of results:  
-
-* Useful data for spatial and taxonomic analysis  
-* Data in need of revision of spatial information or without identification  
-* Duplicates of the previous two datasets  
-
+From the selected digital voucher:
+  * select the taxonomic identification of the sample,
+  * Select geographic coordinates,
+  * Merge information between fields of duplicates of a sample,
+  * Compare the frequency of content in fields
+  * Generate data summary
+  * Export results
 
 ```{r example_export, eval=TRUE, message=FALSE, warning=FALSE}
 
-  occ_resuts <-  export_data(occ_digital_voucher_file = file.occ_digital_voucher )
+occ_resuts <-  export_data(occ_digital_voucher_file = file.occ_digital_voucher,
+                             merge_occ_out = TRUE)
   
-  names(occ_resuts)
+names(occ_results)
 
-  NROW(occ_resuts$occ_in)
-  
-  NROW(occ_resuts$occ_out_to_recover)
-  
-  NROW(occ_resuts$occ_dup)
-  
-  
-  file.in <-  'parseGBIF_occ_in.csv'
-  write.csv(occ_resuts$occ_in,
-            file.in, 
+NROW(occ_results$occ_all)
+NROW(occ_results$occ_in_merge)
+NROW(occ_results$occ_in_raw)
+NROW(occ_results$occ_out_to_recover_merge)
+NROW(occ_results$occ_out_to_recover_raw)
+NROW(occ_results$occ_dup)
+
+occ_results$summary
+
+  file.all <- 'parseGBIF_occ_all.csv'
+  write.csv(occ_resuts$occ_all,
+            file.all, 
             row.names = FALSE, 
             fileEncoding = "UTF-8", 
             na = "")
 
-  file.occ_out_to_recover <-  'parseGBIF_occ_out_to_recover.csv'
-  write.csv(occ_resuts$occ_out_to_recover,
-            file.occ_out_to_recover, 
-            row.names = FALSE, 
-            fileEncoding = "UTF-8", 
-            na = "")
-
-
-  file.dup <-  'parseGBIF_occ_dup.csv'
-  write.csv(occ_resuts$occ_dup,
-            file.dup, 
+  file.summary <- 'parseGBIF_summary.csv'
+  write.csv(occ_resuts$summary,
+            file.summary, 
             row.names = FALSE, 
             fileEncoding = "UTF-8", 
             na = "")

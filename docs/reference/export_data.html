@@ -53,17 +53,48 @@ Export of results:</p><ul><li><p>Useful data for spatial and taxonomic analysis<
 </ul></div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">export_data</span><span class="op">(</span>occ_digital_voucher_file <span class="op">=</span> <span class="st">""</span>, occ_digital_voucher <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">export_data</span><span class="op">(</span></span>
+<span>  occ_digital_voucher_file <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  occ_digital_voucher <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  fields_to_merge <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ctrl_fieldNotes"</span>, <span class="st">"Ctrl_year"</span>, <span class="st">"Ctrl_stateProvince"</span>,</span>
+<span>    <span class="st">"Ctrl_municipality"</span>, <span class="st">"Ctrl_locality"</span>, <span class="st">"Ctrl_countryCode"</span>, <span class="st">"Ctrl_eventDate"</span>,</span>
+<span>    <span class="st">"Ctrl_habitat"</span>, <span class="st">"Ctrl_level0Name"</span>, <span class="st">"Ctrl_level1Name"</span>, <span class="st">"Ctrl_level2Name"</span>,</span>
+<span>    <span class="st">"Ctrl_level3Name"</span><span class="op">)</span>,</span>
+<span>  fields_to_compare <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ctrl_gbifID"</span>, <span class="st">"Ctrl_scientificName"</span>, <span class="st">"Ctrl_recordedBy"</span>,</span>
+<span>    <span class="st">"Ctrl_recordNumber"</span>, <span class="st">"Ctrl_identifiedBy"</span>, <span class="st">"Ctrl_dateIdentified"</span>,</span>
+<span>    <span class="st">"Ctrl_institutionCode"</span>, <span class="st">"Ctrl_collectionCode"</span>, <span class="st">"Ctrl_datasetName"</span>,</span>
+<span>    <span class="st">"Ctrl_datasetName"</span>, <span class="st">"Ctrl_language"</span>, <span class="st">"wcvp_plant_name_id"</span>, <span class="st">"wcvp_taxon_rank"</span>,</span>
+<span>    <span class="st">"wcvp_taxon_status"</span>, <span class="st">"wcvp_family"</span>, <span class="st">"wcvp_taxon_name"</span>, <span class="st">"wcvp_taxon_authors"</span>,</span>
+<span>    <span class="st">"wcvp_reviewed"</span>, <span class="st">"wcvp_searchNotes"</span><span class="op">)</span>,</span>
+<span>  fields_to_parse <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ctrl_gbifID"</span>, <span class="st">"Ctrl_bibliographicCitation"</span>, <span class="st">"Ctrl_language"</span>,</span>
+<span>    <span class="st">"Ctrl_institutionCode"</span>, <span class="st">"Ctrl_collectionCode"</span>, <span class="st">"Ctrl_datasetName"</span>,</span>
+<span>    <span class="st">"Ctrl_basisOfRecord"</span>, <span class="st">"Ctrl_catalogNumber"</span>, <span class="st">"Ctrl_recordNumber"</span>, <span class="st">"Ctrl_recordedBy"</span>,</span>
+<span>    <span class="st">"Ctrl_occurrenceStatus"</span>, <span class="st">"Ctrl_eventDate"</span>, <span class="st">"Ctrl_year"</span>, <span class="st">"Ctrl_month"</span>, <span class="st">"Ctrl_day"</span>,</span>
+<span>    <span class="st">"Ctrl_habitat"</span>, <span class="st">"Ctrl_fieldNotes"</span>, <span class="st">"Ctrl_eventRemarks"</span>, <span class="st">"Ctrl_countryCode"</span>,</span>
+<span>    <span class="st">"Ctrl_stateProvince"</span>, <span class="st">"Ctrl_municipality"</span>, <span class="st">"Ctrl_county"</span>, <span class="st">"Ctrl_locality"</span>,</span>
+<span>    <span class="st">"Ctrl_level0Name"</span>, <span class="st">"Ctrl_level1Name"</span>, <span class="st">"Ctrl_level2Name"</span>, </span>
+<span>     <span class="st">"Ctrl_level3Name"</span>,</span>
+<span>    <span class="st">"Ctrl_identifiedBy"</span>, <span class="st">"Ctrl_dateIdentified"</span>, <span class="st">"Ctrl_scientificName"</span>,</span>
+<span>    <span class="st">"Ctrl_decimalLatitude"</span>, <span class="st">"Ctrl_decimalLongitude"</span>, <span class="st">"Ctrl_nameRecordedBy_Standard"</span>,</span>
+<span>    <span class="st">"Ctrl_recordNumber_Standard"</span>, <span class="st">"Ctrl_key_family_recordedBy_recordNumber"</span>,</span>
+<span>    <span class="st">"Ctrl_geospatial_quality"</span>, <span class="st">"Ctrl_verbatim_quality"</span>, <span class="st">"Ctrl_moreInformativeRecord"</span>,</span>
+<span>    <span class="st">"Ctrl_coordinates_validated_by_gbif_issue"</span>, <span class="st">"wcvp_plant_name_id"</span>, <span class="st">"wcvp_taxon_rank"</span>,</span>
+<span>    <span class="st">"wcvp_taxon_status"</span>, <span class="st">"wcvp_family"</span>, <span class="st">"wcvp_taxon_name"</span>, <span class="st">"wcvp_taxon_authors"</span>,</span>
+<span>    <span class="st">"wcvp_reviewed"</span>, </span>
+<span>     <span class="st">"wcvp_searchNotes"</span>, <span class="st">"parseGBIF_digital_voucher"</span>,</span>
+<span>    <span class="st">"parseGBIF_duplicates"</span>, <span class="st">"parseGBIF_num_duplicates"</span>,</span>
+<span>    <span class="st">"parseGBIF_non_groupable_duplicates"</span>, <span class="st">"parseGBIF_duplicates_grouping_status"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>occ_digital_voucher_file</dt>
-<dd><p>CSV fila result of function select_digital_voucher_and_sample_identification()$occ_digital_voucher_and_sample_identification</p></dd>
+<dd><p>CSV fila result of function select_digital_voucher()$occ_digital_voucher</p></dd>
 
 
 <dt>occ_digital_voucher</dt>
-<dd><p>data frame result of function select_digital_voucher_and_sample_identification()$occ_digital_voucher_and_sample_identification</p></dd>
+<dd><p>data frame result of function select_digital_voucher()$occ_digital_voucher</p></dd>
 
 </dl></div>
     <div id="value">
