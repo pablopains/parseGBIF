@@ -283,7 +283,7 @@ occ_digital_voucher <- parseGBIF::select_digital_voucher(occ = occ,
     
   file.occ_digital_voucher <-  'occ_digital_voucher.csv'
 
-  write.csv(occ_digital_voucher$occ_join_results,
+  write.csv(occ_digital_voucher$occ_digital_voucher,
             file.occ_digital_voucher, 
             row.names = FALSE, 
             fileEncoding = "UTF-8", 
