@@ -1,9 +1,3 @@
-# samples = unique collection events
-
-# incompletely_recovered
-# incompletely_recovered
-# completely_recovered
-
 #' @title Export of results
 #' @name export_data
 #'
@@ -46,19 +40,19 @@
 #' \donttest{
 #' help(export_data)
 #' 
-#' occ_results <- export_data(occ_digital_voucher_file = file.occ_digital_voucher, merge_unique_collection_event_incomplete = T)
+#' results <- export_data(occ_digital_voucher_file = file.occ_digital_voucher,
+#'                        merge_unique_collection_event_incomplete = TRUE)
 #' 
-#' names(occ_results)
+#' names(results)
 #' 
-#' NROW(occ_results$occ_all)
-#' NROW(occ_results$occ_in_merge)
-#' NROW(occ_results$occ_in_raw)
-#' NROW(occ_results$occ_out_to_recover_merge)
-#' NROW(occ_results$occ_out_to_recover_raw)
-#' NROW(occ_results$occ_dup)
-#' 
-#' occ_results$summary
-#' 
+#' results$parseGBIF_general_summary
+#' results$parseGBIF_merge_fields_summary
+#' results$parseGBIF_merge_fields_summary_complete
+
+#' NROW(results$all_data)
+#' NROW(results$unique_collection_event_complete_merge)
+#' NROW(results$unique_collection_event_incomplete_raw)
+#' NROW(results$duplicates)
 #'
 #' }
 #' @export

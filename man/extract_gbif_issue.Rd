@@ -2,7 +2,7 @@
 % Please edit documentation in R/extract_gbif_issue.R
 \name{extract_gbif_issue}
 \alias{extract_gbif_issue}
-\title{Extract GBIF ussue occurrence records}
+\title{Extract GBIF issue occurrence records}
 \usage{
 extract_gbif_issue(occ = NA, enumOccurrenceIssue = NA)
 }

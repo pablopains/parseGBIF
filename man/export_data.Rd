@@ -7,7 +7,7 @@
 export_data(
   occ_digital_voucher_file = "",
   occ_digital_voucher = NA,
-  merge_occ_out = FALSE,
+  merge_unique_collection_event_incomplete = FALSE,
   fields_to_merge = c("Ctrl_fieldNotes", "Ctrl_year", "Ctrl_stateProvince",
     "Ctrl_municipality", "Ctrl_locality", "Ctrl_countryCode", "Ctrl_eventDate",
     "Ctrl_habitat", "Ctrl_level0Name", "Ctrl_level1Name", "Ctrl_level2Name",
@@ -43,7 +43,7 @@ export_data(
 
 \item{occ_digital_voucher}{data frame result of function select_digital_voucher()$occ_digital_voucher}
 
-\item{merge_occ_out}{include records flagged out_to_recover in merge processing}
+\item{merge_unique_collection_event_incomplete}{include records unique collection events incomplete in merge processing}
 
 \item{fields_to_merge}{fields to merge}
 
@@ -52,15 +52,19 @@ export_data(
 \item{fields_to_parse}{all fields}
 }
 \value{
-list with six or seven (merge_occ_out == TRUE) data frames
+list with 10 data frames
 \itemize{
-\item occ_all - all records processed with parseGBIF_dataset_result field indicating records flagged as in, out_to_recover, and duplicates.
-\item occ_in_merge - records inside - samples with data merged between duplicates
-\item occ_in_raw  - records inside - samples with original digital voucher data
-\item occ_dup - duplicates
-\item occ_out_to_recover_raw - records out - samples with original digital voucher data
-\item occ_out_to_recover_merge  - records out - (only if lala == TRUE) samples with data merged between duplicates
-\item summary
+\item \strong{all_data} All records processed, merged Unique collection events complete / incomplete and their duplicates
+\item \strong{unique_collection_event_complete_merge} Merged Unique collection events complete
+\item \strong{unique_collection_event_complete_raw} Raw Unique collection events complete
+\item \strong{duplicates} Duplicates of unique collection events complete / incomplete
+\item \strong{unique_collection_event_incomplete_merge} Merged Unique collection events incomplete,
+It is NA if merge_unique_collection_event_incomplete is FALSE.
+\item \strong{unique_collection_event_incomplete_raw} Raw Unique collection events incomplete
+\item \strong{parseGBIF_general_summary}
+\item \strong{parseGBIF_merge_fields_summary}
+\item \strong{parseGBIF_merge_fields_summary_complete}
+\item \strong{parseGBIF_merge_fields_summary_incomplete} It is NA if merge_unique_collection_event_incomplete is FALSE
 }
 }
 \description{
@@ -81,19 +85,18 @@ Each data frame should be used as needed
 \donttest{
 help(export_data)
 
-occ_results <- export_data(occ_digital_voucher_file = file.occ_digital_voucher, merge_occ_out = T)
+results <- export_data(occ_digital_voucher_file = file.occ_digital_voucher,
+                       merge_unique_collection_event_incomplete = TRUE)
 
-names(occ_results)
+names(results)
 
-NROW(occ_results$occ_all)
-NROW(occ_results$occ_in_merge)
-NROW(occ_results$occ_in_raw)
-NROW(occ_results$occ_out_to_recover_merge)
-NROW(occ_results$occ_out_to_recover_raw)
-NROW(occ_results$occ_dup)
-
-occ_results$summary
-
+results$parseGBIF_general_summary
+results$parseGBIF_merge_fields_summary
+results$parseGBIF_merge_fields_summary_complete
+NROW(results$all_data)
+NROW(results$unique_collection_event_complete_merge)
+NROW(results$unique_collection_event_incomplete_raw)
+NROW(results$duplicates)
 
 }
 }

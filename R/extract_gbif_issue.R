@@ -1,6 +1,6 @@
-#' @title Extract GBIF ussue occurrence records
+#' @title Extract GBIF issue occurrence records
 #'
-#' @name extract_gbif_issue
+#' @name extract_gbif_issue 
 #'
 #' @description Extract GBIF validation rules for occurrence records
 #'
