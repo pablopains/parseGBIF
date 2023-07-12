@@ -1,3 +1,9 @@
+# samples = unique collection events
+
+# incompletely_recovered
+# incompletely_recovered
+# completely_recovered
+
 #' @title Export of results
 #' @name export_data
 #'
@@ -11,21 +17,24 @@
 #'
 #' @param occ_digital_voucher_file CSV fila result of function select_digital_voucher()$occ_digital_voucher
 #' @param occ_digital_voucher data frame result of function select_digital_voucher()$occ_digital_voucher
-#' @param merge_occ_out include records flagged out_to_recover in merge processing
+#' @param merge_unique_collection_event_incomplete include records unique collection events incomplete in merge processing
 #' @param fields_to_merge fields to merge
 #' @param fields_to_compare fields to compare content frequency
 #' @param fields_to_parse all fields
 #'
 #' @details Each data frame should be used as needed
-#'
-#' @return list with six or seven (merge_occ_out == TRUE) data frames
-#' * occ_all - all records processed with parseGBIF_dataset_result field indicating records flagged as in, out_to_recover, and duplicates.
-#' * occ_in_merge - records inside - samples with data merged between duplicates
-#' * occ_in_raw  - records inside - samples with original digital voucher data
-#' * occ_dup - duplicates
-#' * occ_out_to_recover_raw - records out - samples with original digital voucher data
-#' * occ_out_to_recover_merge  - records out - (only if lala == TRUE) samples with data merged between duplicates
-#' * summary
+#' @return list with 10 data frames
+#' * __all_data__ All records processed, merged Unique collection events complete / incomplete and their duplicates 
+#' * __unique_collection_event_complete_merge__ Merged Unique collection events complete
+#' * __unique_collection_event_complete_raw__ Raw Unique collection events complete
+#' * __duplicates__ Duplicates of unique collection events complete / incomplete
+#' * __unique_collection_event_incomplete_merge__ Merged Unique collection events incomplete, 
+#' It is NA if merge_unique_collection_event_incomplete is FALSE.
+#' * __unique_collection_event_incomplete_raw__ Raw Unique collection events incomplete
+#' * __parseGBIF_general_summary__
+#' * __parseGBIF_merge_fields_summary__
+#' * __parseGBIF_merge_fields_summary_complete__
+#' * __parseGBIF_merge_fields_summary_incomplete__ It is NA if merge_unique_collection_event_incomplete is FALSE
 #'
 #' @author Pablo Hendrigo Alves de Melo,
 #'         Nadia Bystriakova &
@@ -37,7 +46,7 @@
 #' \donttest{
 #' help(export_data)
 #' 
-#' occ_results <- export_data(occ_digital_voucher_file = file.occ_digital_voucher, merge_occ_out = T)
+#' occ_results <- export_data(occ_digital_voucher_file = file.occ_digital_voucher, merge_unique_collection_event_incomplete = T)
 #' 
 #' names(occ_results)
 #' 
@@ -55,7 +64,7 @@
 #' @export
 export_data <- function(occ_digital_voucher_file = '',
                         occ_digital_voucher = NA,
-                        merge_occ_out = FALSE,
+                        merge_unique_collection_event_incomplete = FALSE,
                         fields_to_merge = c('Ctrl_fieldNotes',
                                             'Ctrl_year',
                                             'Ctrl_stateProvince',
@@ -176,7 +185,7 @@ export_data <- function(occ_digital_voucher_file = '',
   # preparacao dos dados
   {
     occ_tmp <- occ_tmp %>%
-      dplyr::select(fields_to_parse)
+      dplyr::select(all_of(fields_to_parse))
     
     occ_tmp <- occ_tmp %>%
       dplyr::mutate(
@@ -462,7 +471,7 @@ export_data <- function(occ_digital_voucher_file = '',
     # fields_to_merge
     # fields_to_compare
     
-    if(merge_occ_out==TRUE)
+    if(merge_unique_collection_event_incomplete==TRUE)
     {
       occ_res_full <-  rbind(occ_in,occ_out_to_recover)
       # occ_res_full <-  occ_res_full %>%
@@ -681,7 +690,7 @@ export_data <- function(occ_digital_voucher_file = '',
     }
   }
   
-  if(merge_occ_out==TRUE)
+  if(merge_unique_collection_event_incomplete==TRUE)
   {
     # in dup out_to_recover
     {
@@ -718,28 +727,28 @@ export_data <- function(occ_digital_voucher_file = '',
     
     
   }
-  
+    
+  # summary
   {
     occ_tmp <- occ_all
-
+    
     {
-      parseGBIF_summary <<- data.frame(question='',
-                                       value=0,
-                                       unit='')[-1,]
+      parseGBIF_general_summary <- data.frame(question='',
+                                              value="0")[-1,]
+      
+      parseGBIF_merge_fields_summary_complete <- 
+        parseGBIF_merge_fields_summary_incomplete <- 
+        parseGBIF_merge_fields_summary <- 
+        parseGBIF_general_summary
       
       add_summary <- function(question='',
-                              value=0,
-                              unit='',
-                              show=FALSE)
+                              value="0",
+                              data = NA)
       { 
-        if(question[1] !='')
-        {
-          parseGBIF_summary <<- parseGBIF_summary %>%
-            dplyr::add_row(question=question,
-                           value=value,
-                           unit=unit)
-        }
-        if(show==TRUE | question[1] ==''){print(parseGBIF_summary)}
+        data <- data %>%
+          dplyr::add_row(question=question,
+                         value=as.character(value))
+        return(data)  
       }
       
       freq_merged_fields <- function(fields=NA,
@@ -780,227 +789,453 @@ export_data <- function(occ_digital_voucher_file = '',
     
     question <- 'total number of records'
     value <- NROW(occ_tmp)
-    unit <- 'records'
-    add_summary(question, value, unit)
+    parseGBIF_general_summary <- add_summary(question, value, parseGBIF_general_summary)
+    parseGBIF_general_summary
     
-    question <- 'total number of samples'
-    value <- NROW(occ_tmp %>% dplyr::filter(parseGBIF_digital_voucher==TRUE))
-    add_summary(question, value, 'samples')
+    question <- 'total number of unique collection events'
+    value <- sum(occ_tmp$parseGBIF_digital_voucher==TRUE)
+    # value <- paste0(NROW(occ_tmp %>% dplyr::filter(parseGBIF_digital_voucher==TRUE)),
+    #                 " (complete: ",sum(occ_tmp$parseGBIF_digital_voucher == TRUE &
+    #                                      occ_tmp$parseGBIF_dataset_result=='in'), 
+    #                 " / incomplete: ",sum(occ_tmp$parseGBIF_digital_voucher == TRUE &
+    #                                         occ_tmp$parseGBIF_dataset_result=='out_to_recover'),")")
+    parseGBIF_general_summary <- add_summary(question, value, parseGBIF_general_summary)
+    parseGBIF_general_summary
+    
+    question <- 'total number of unique collection events complete'
+    value <- sum(occ_tmp$parseGBIF_digital_voucher == TRUE &
+                   occ_tmp$parseGBIF_dataset_result=='in')
+    parseGBIF_general_summary <- add_summary(question, value, parseGBIF_general_summary)
+    parseGBIF_general_summary
+    
+    
+    question <- 'total number of unique collection events incomplete'
+    value <- sum(occ_tmp$parseGBIF_digital_voucher == TRUE &
+                   occ_tmp$parseGBIF_dataset_result=='out_to_recover')
+    parseGBIF_general_summary <- add_summary(question, value, parseGBIF_general_summary)
+    parseGBIF_general_summary
     
     question <- 'total number of duplicates'
     value <- sum(occ_tmp$parseGBIF_dataset_result=='dup')
-    add_summary(question, value, unit)
+    parseGBIF_general_summary <- add_summary(question, value, parseGBIF_general_summary)
+    parseGBIF_general_summary
     
     
-    question <- 'total number of non-groupable records'
-    value <- sum(occ_tmp$parseGBIF_non_groupable_duplicates &
-                   occ_tmp$parseGBIF_digital_voucher == TRUE)
-    add_summary(question, value, unit)
-    
-    question <- 'total number of non-groupable samples'
-    value <- sum(occ_tmp$parseGBIF_non_groupable_duplicates == TRUE &
-                   occ_tmp$parseGBIF_digital_voucher == TRUE)
-    add_summary(question, value, 'samples')
-    
-    question <- 'in: number of non-groupable samples'
-    value <- sum(occ_tmp$parseGBIF_non_groupable_duplicates == TRUE&
-                   occ_tmp$parseGBIF_digital_voucher == TRUE &
-                   occ_tmp$parseGBIF_dataset_result=='in')
-    add_summary(question, value, 'samples')
-    
-    
-    question <- 'out_to_recover: number of non-groupable samples'
-    value <- sum(occ_tmp$parseGBIF_non_groupable_duplicates == TRUE&
-                   occ_tmp$parseGBIF_digital_voucher == TRUE &
-                   occ_tmp$parseGBIF_dataset_result=='out_to_recover')
-    add_summary(question, value, 'samples')
-    
-    
-    question <- 'total number of groupable records'
-    value <- sum(occ_tmp$parseGBIF_non_groupable_duplicates==FALSE)
-    add_summary(question, value, unit)
-    
-    
-    question <- 'total number of groupable samples'
-    value <- sum(occ_tmp$parseGBIF_non_groupable_duplicates==FALSE &
-                   occ_tmp$parseGBIF_digital_voucher == TRUE)
-    add_summary(question, value, 'samples')
-    
-    question <- 'in: number of groupable samples'
-    value <- sum(occ_tmp$parseGBIF_non_groupable_duplicates == FALSE&
-                   occ_tmp$parseGBIF_digital_voucher == TRUE &
-                   occ_tmp$parseGBIF_dataset_result=='in')
-    add_summary(question, value, 'samples')
-    
-    question <- 'out_to_recover: number of groupable samples'
-    value <- sum(occ_tmp$parseGBIF_non_groupable_duplicates == FALSE&
-                   occ_tmp$parseGBIF_digital_voucher == TRUE &
-                   occ_tmp$parseGBIF_dataset_result=='out_to_recover')
-    add_summary(question, value, 'samples')
-    
-    
-    question <- 'total number of samples with duplicates'
+    question <- paste0('total unique collection events containing merged fields', ifelse(merge_unique_collection_event_incomplete==TRUE,'',
+                                                                                      ' (only unique collection events complete)'))
     value <- NROW(occ_tmp %>%
-                    dplyr::filter(parseGBIF_duplicates==TRUE &
-                                    parseGBIF_dataset_result!='dup'))
-    add_summary(question, value, 'samples')
+                    dplyr::filter(parseGBIF_merged==TRUE))
+    parseGBIF_general_summary <- add_summary(question, value, parseGBIF_general_summary)
+    parseGBIF_general_summary
     
+    x_freq_merged_fields <- freq_merged_fields(fields_to_merge, occ_tmp)
+    x_freq_merged_fields$id <- paste0(x_freq_merged_fields$id,' : total merge actions')
+    parseGBIF_merge_fields_summary <- add_summary(x_freq_merged_fields$id, x_freq_merged_fields$val, parseGBIF_merge_fields_summary)
+    parseGBIF_merge_fields_summary
     
-    question <- 'in: number of samples with duplicates'
-    value <- NROW(occ_tmp %>%
-                    dplyr::filter(parseGBIF_duplicates==TRUE &
-                                    parseGBIF_dataset_result=='in'))
-    add_summary(question, value, 'samples')
-    
-    
-    question <- 'out_to_recover: number of samples with duplicates'
-    value <- NROW(occ_tmp %>%
-                    dplyr::filter(parseGBIF_duplicates==TRUE &
-                                    parseGBIF_dataset_result=='out_to_recover'))
-    sum(occ_tmp$parseGBIF_duplicates)
-    add_summary(question, value, 'samples')
-    
-    if(merge_occ_out==TRUE)
-    {
-      question <- 'total number of number of unidentified samples'
-      value <- sum(occ_tmp$parseGBIF_sample_taxon_name_status == 'unidentified' &
-                     occ_tmp$parseGBIF_digital_voucher == TRUE)
-      add_summary(question, value, 'samples')
-      
-      question <- 'total number of number of identified samples'
-      value <- sum(occ_tmp$parseGBIF_sample_taxon_name_status == 'identified' &
-                     occ_tmp$parseGBIF_digital_voucher == TRUE)
-      add_summary(question, value, 'samples')
-      
-      question <- 'total number of number of samples with divergent identifications'
-      value <- sum(occ_tmp$parseGBIF_sample_taxon_name_status == 'divergent identifications' &
-                     occ_tmp$parseGBIF_digital_voucher == TRUE)
-      add_summary(question, value, 'samples')
-    }  
-    
-    
-    question <- 'in: number of unidentified samples'
-    value <- sum(occ_tmp$parseGBIF_sample_taxon_name_status == 'unidentified' &
-                   occ_tmp$parseGBIF_digital_voucher == TRUE &
-                   occ_tmp$parseGBIF_dataset_result=='in')
-    add_summary(question, value, 'samples')
-    
-    question <- 'in: number of identified samples'
-    value <- sum(occ_tmp$parseGBIF_sample_taxon_name_status == 'identified' &
-                   occ_tmp$parseGBIF_digital_voucher == TRUE &
-                   occ_tmp$parseGBIF_dataset_result=='in')
-    add_summary(question, value, 'samples')
-    
-    question <- 'in: number of samples with divergent identifications'
-    value <- sum(occ_tmp$parseGBIF_sample_taxon_name_status == 'divergent identifications' &
-                   occ_tmp$parseGBIF_digital_voucher == TRUE &
-                   occ_tmp$parseGBIF_dataset_result=='in')
-    add_summary(question, value, 'samples')
-    
-    if(merge_occ_out==TRUE)
-    {
-      question <- 'out_to_recover: number of unidentified samples'
-      value <- sum(occ_tmp$parseGBIF_sample_taxon_name_status == 'unidentified' &
-                     occ_tmp$parseGBIF_digital_voucher == TRUE &
-                     occ_tmp$parseGBIF_dataset_result=='out_to_recover')
-      add_summary(question, value, 'samples')
-      
-      question <- 'out_to_recover: number of identified samples'
-      value <- sum(occ_tmp$parseGBIF_sample_taxon_name_status == 'identified' &
-                     occ_tmp$parseGBIF_digital_voucher == TRUE &
-                     occ_tmp$parseGBIF_dataset_result=='out_to_recover')
-      add_summary(question, value, 'samples')
-      
-      question <- 'out_to_recover: number of samples with divergent identifications'
-      value <- sum(occ_tmp$parseGBIF_sample_taxon_name_status == 'divergent identifications' &
-                     occ_tmp$parseGBIF_digital_voucher == TRUE &
-                     occ_tmp$parseGBIF_dataset_result=='out_to_recover')
-      add_summary(question, value, 'samples')
-      
-    }
-    
-    question <- 'number samples: out_to_recover'
-    value <- sum(occ_tmp$parseGBIF_dataset_result=='out_to_recover')
-    add_summary(question, value, 'samples')
-    
-    # question <- 'number samples: out_to_recover: unidentified sample'
-    # value <- sum(occ_tmp$parseGBIF_dataset_result=='out_to_recover' &
-    #              (occ_tmp$parseGBIF_unidentified_sample == TRUE & occ_tmp$parseGBIF_useful_for_spatial_analysis == TRUE) )
-    # add_summary(question, value, 'samples')
-    # 
-    # question <- 'number samples: out_to_recover: not useful for spatial analysis'
-    # value <- sum(occ_tmp$parseGBIF_dataset_result=='out_to_recover' &
-    #                (occ_tmp$parseGBIF_unidentified_sample == FALSE & occ_tmp$parseGBIF_useful_for_spatial_analysis == FALSE) )
-    # add_summary(question, value, 'samples')
-    # 
-    # question <- 'number samples: out_to_recover: unidentified sample and not useful for spatial analysis'
-    # value <- sum(occ_tmp$parseGBIF_dataset_result=='out_to_recover' &
-    #                (occ_tmp$parseGBIF_useful_for_spatial_analysis == FALSE &
-    #                   occ_tmp$parseGBIF_unidentified_sample == TRUE) )
-    # add_summary(question, value, 'samples')
-    
-    if(merge_occ_out==TRUE)
-    {
-      question <- 'total samples with any field merged'
-      value <- NROW(occ_tmp %>%
-                      dplyr::filter(parseGBIF_merged==TRUE))
-      add_summary(question, value, 'samples')
-    }
-    
-    question <- 'number samples with any field merged: in'
-    value <- NROW(occ_tmp %>%
-                    dplyr::filter(parseGBIF_merged==TRUE &
-                                    parseGBIF_dataset_result=='in'))
-    add_summary(question, value, 'samples')
-    
-    if(merge_occ_out==TRUE)
-    {
-      x_freq_merged_fields <- freq_merged_fields(fields_to_merge, occ_tmp)
-      x_freq_merged_fields$id <- paste0('total merge events in the field: ',x_freq_merged_fields$id)
-      add_summary(x_freq_merged_fields$id, x_freq_merged_fields$val, 'merge events')
-    }
     
     x_freq_merged_fields <- freq_merged_fields(fields_to_merge, occ_tmp %>% dplyr::filter(parseGBIF_dataset_result=='in'))
-    x_freq_merged_fields$id <- paste0('merge events in the field - in : ',x_freq_merged_fields$id)
-    add_summary(x_freq_merged_fields$id, x_freq_merged_fields$val, 'merge events')
+    x_freq_merged_fields$id <- paste0(x_freq_merged_fields$id,' : merge actions ')
+    parseGBIF_merge_fields_summary_complete <- add_summary(x_freq_merged_fields$id, x_freq_merged_fields$val, parseGBIF_merge_fields_summary_complete)
+    parseGBIF_merge_fields_summary_complete
     
-    if(merge_occ_out==TRUE)
+    
+    if(merge_unique_collection_event_incomplete==TRUE)
     {
-      question <- 'number samples with any field merged: out_to_recover'
-      value <- NROW(occ_tmp %>%
-                      dplyr::filter(parseGBIF_merged==TRUE &
-                                      parseGBIF_dataset_result=='out_to_recover'))
-      add_summary(question, value, 'samples')
-      
-      x_freq_merged_fields <- freq_merged_fields(fields = fields_to_merge, occ_tmp = occ_tmp %>% dplyr::filter(parseGBIF_dataset_result=='out_to_recover'))
-      x_freq_merged_fields$id <- paste0('merge events in the field - out_to_recover : ',x_freq_merged_fields$id)
-      add_summary(x_freq_merged_fields$id, x_freq_merged_fields$val, 'merge events')
+      x_freq_merged_fields <- freq_merged_fields(fields_to_merge, occ_tmp %>% dplyr::filter(parseGBIF_dataset_result=='out_to_recover'))
+      x_freq_merged_fields$id <- paste0(x_freq_merged_fields$id,' : merge actions ')
+      parseGBIF_merge_fields_summary_incomplete <- add_summary(x_freq_merged_fields$id, x_freq_merged_fields$val, parseGBIF_merge_fields_summary_incomplete)
+      parseGBIF_merge_fields_summary_incomplete
+    }else
+    {
+      parseGBIF_merge_fields_summary_incomplete <- NA
     }
     
+    
+    {
+    
+  # {
+  #   
+  #   {
+  #   parseGBIF_general_summary <- data.frame(question='',
+  #                                           value="0")[-1,]
+  #   
+  #   parseGBIF_merge_fields_summary <- data.frame(question='',
+  #                                                value="0")[-1,]
+  #   
+  #   add_summary <- function(question='',
+  #                           value="0",
+  #                           data = NA)
+  #   { 
+  #     data <- data %>%
+  #       dplyr::add_row(question=question,
+  #                      value=as.character(value))
+  #     return(data)  
+  #   }
+  #   
+  #   freq_merged_fields <- function(fields=NA,
+  #                                  occ_tmp=NA)
+  #   {
+  #     
+  #     freq_fields <- data.frame(id='',val=0)[-1,]
+  #     freq_fields <- freq_fields %>%
+  #       dplyr::add_row(id=fields,
+  #                      val=rep(0,NROW(fields)))
+  #     
+  #     for(i in 1:NROW(occ_tmp))
+  #     {
+  #       if(occ_tmp$parseGBIF_merged[i] == FALSE)
+  #       {
+  #         next
+  #       }
+  #       
+  #       x <- jsonlite::fromJSON(occ_tmp$parseGBIF_merged_fields[i])
+  #       
+  #       ic=1
+  #       
+  #       for(ic in 1:NROW(fields_to_merge))
+  #       {
+  #         if(fields_to_merge[ic] %in% names(x))
+  #         {
+  #           freq_fields[ic,2]  <- freq_fields[ic,2]+1
+  #         }
+  #       }
+  #     }  
+  #     
+  #     freq_fields <- freq_fields %>%
+  #       dplyr::arrange(desc(val))
+  #     return(freq_fields)
+  #   }
+  #   
+  # }
+  # 
+  # question <- 'total number of records'
+  # value <- NROW(occ_tmp)
+  # parseGBIF_general_summary <- add_summary(question, value, parseGBIF_general_summary)
+  # parseGBIF_general_summary
+  # 
+  # question <- 'total number of unique collection events'
+  # value <- sum(occ_tmp$parseGBIF_digital_voucher==TRUE)
+  # # value <- paste0(NROW(occ_tmp %>% dplyr::filter(parseGBIF_digital_voucher==TRUE)),
+  # #                 " (complete: ",sum(occ_tmp$parseGBIF_digital_voucher == TRUE &
+  # #                                      occ_tmp$parseGBIF_dataset_result=='in'), 
+  # #                 " / incomplete: ",sum(occ_tmp$parseGBIF_digital_voucher == TRUE &
+  # #                                         occ_tmp$parseGBIF_dataset_result=='out_to_recover'),")")
+  # parseGBIF_general_summary <- add_summary(question, value, parseGBIF_general_summary)
+  # parseGBIF_general_summary
+  # 
+  # question <- 'total number of unique collection events complete'
+  # value <- sum(occ_tmp$parseGBIF_digital_voucher == TRUE &
+  #                occ_tmp$parseGBIF_dataset_result=='in')
+  # parseGBIF_general_summary <- add_summary(question, value, parseGBIF_general_summary)
+  # parseGBIF_general_summary
+  # 
+  # 
+  # question <- 'total number of unique collection events incomplete'
+  # value <- sum(occ_tmp$parseGBIF_digital_voucher == TRUE &
+  #                occ_tmp$parseGBIF_dataset_result=='out_to_recover')
+  # parseGBIF_general_summary <- add_summary(question, value, parseGBIF_general_summary)
+  # parseGBIF_general_summary
+  # 
+  # question <- 'total number of duplicates'
+  # value <- sum(occ_tmp$parseGBIF_dataset_result=='dup')
+  # parseGBIF_general_summary <- add_summary(question, value, parseGBIF_general_summary)
+  # parseGBIF_general_summary
+  # 
+  # 
+  # question <- paste0('total unique collection events with any field merged', ifelse(merge_unique_collection_event_incomplete==TRUE,'',
+  #                                                                                   ' (only unique collection events complete)'))
+  # value <- NROW(occ_tmp %>%
+  #                 dplyr::filter(parseGBIF_merged==TRUE))
+  # parseGBIF_general_summary <- add_summary(question, value, parseGBIF_general_summary)
+  # parseGBIF_general_summary
+  # 
+  # # {
+  # #   occ_tmp <- occ_all
+  # # 
+  # #   {
+  # #     parseGBIF_summary <<- data.frame(question='',
+  # #                                      value=0)[-1,]
+  # #     
+  # #     add_summary <- function(question='',
+  # #                             value=0,
+  # #                             show=FALSE)
+  # #     { 
+  # #       if(question[1] !='')
+  # #       {
+  # #         parseGBIF_summary <<- parseGBIF_summary %>%
+  # #           dplyr::add_row(question=question,
+  # #                          value=value)
+  # #       }
+  # #       if(show==TRUE | question[1] ==''){print(parseGBIF_summary)}
+  # #     }
+  # #     
+  # #     freq_merged_fields <- function(fields=NA,
+  # #                                    occ_tmp=NA)
+  # #     {
+  # #       
+  # #       freq_fields <- data.frame(id='',val=0)[-1,]
+  # #       freq_fields <- freq_fields %>%
+  # #         dplyr::add_row(id=fields,
+  # #                        val=rep(0,NROW(fields)))
+  # #       
+  # #       for(i in 1:NROW(occ_tmp))
+  # #       {
+  # #         if(occ_tmp$parseGBIF_merged[i] == FALSE)
+  # #         {
+  # #           next
+  # #         }
+  # #         
+  # #         x <- jsonlite::fromJSON(occ_tmp$parseGBIF_merged_fields[i])
+  # #         
+  # #         ic=1
+  # #         
+  # #         for(ic in 1:NROW(fields_to_merge))
+  # #         {
+  # #           if(fields_to_merge[ic] %in% names(x))
+  # #           {
+  # #             freq_fields[ic,2]  <- freq_fields[ic,2]+1
+  # #           }
+  # #         }
+  # #       }  
+  # #       
+  # #       freq_fields <- freq_fields %>%
+  # #         dplyr::arrange(desc(val))
+  # #       return(freq_fields)
+  # #     }
+  # #     
+  # #   }
+  # #   
+  # #   question <- 'total number of records'
+  # #   value <- NROW(occ_tmp)
+  # #   add_summary(question, value)
+  # #   
+  # #   question <- 'total number of samples'
+  # #   value <- NROW(occ_tmp %>% dplyr::filter(parseGBIF_digital_voucher==TRUE))
+  # #   add_summary(question, value)
+  # #   
+  # #   question <- 'total number of duplicates'
+  # #   value <- sum(occ_tmp$parseGBIF_dataset_result=='dup')
+  # #   add_summary(question, value)
+  # #   
+  # #   
+  # #   question <- 'total number of non-groupable records'
+  # #   value <- sum(occ_tmp$parseGBIF_non_groupable_duplicates &
+  # #                  occ_tmp$parseGBIF_digital_voucher == TRUE)
+  # #   add_summary(question, value)
+  # #   
+  # #   question <- 'total number of non-groupable samples'
+  # #   value <- sum(occ_tmp$parseGBIF_non_groupable_duplicates == TRUE &
+  # #                  occ_tmp$parseGBIF_digital_voucher == TRUE)
+  # #   add_summary(question, value)
+  # #   
+  # #   question <- 'in: number of non-groupable samples'
+  # #   value <- sum(occ_tmp$parseGBIF_non_groupable_duplicates == TRUE&
+  # #                  occ_tmp$parseGBIF_digital_voucher == TRUE &
+  # #                  occ_tmp$parseGBIF_dataset_result=='in')
+  # #   add_summary(question, value)
+  # #   
+  # #   
+  # #   question <- 'out_to_recover: number of non-groupable samples'
+  # #   value <- sum(occ_tmp$parseGBIF_non_groupable_duplicates == TRUE&
+  # #                  occ_tmp$parseGBIF_digital_voucher == TRUE &
+  # #                  occ_tmp$parseGBIF_dataset_result=='out_to_recover')
+  # #   add_summary(question, value)
+  # #   
+  # #   
+  # #   question <- 'total number of groupable records'
+  # #   value <- sum(occ_tmp$parseGBIF_non_groupable_duplicates==FALSE)
+  # #   add_summary(question, value)
+  # #   
+  # #   
+  # #   question <- 'total number of groupable samples'
+  # #   value <- sum(occ_tmp$parseGBIF_non_groupable_duplicates==FALSE &
+  # #                  occ_tmp$parseGBIF_digital_voucher == TRUE)
+  # #   add_summary(question, value)
+  # #   
+  # #   question <- 'in: number of groupable samples'
+  # #   value <- sum(occ_tmp$parseGBIF_non_groupable_duplicates == FALSE&
+  # #                  occ_tmp$parseGBIF_digital_voucher == TRUE &
+  # #                  occ_tmp$parseGBIF_dataset_result=='in')
+  # #   add_summary(question, value)
+  # #   
+  # #   question <- 'out_to_recover: number of groupable samples'
+  # #   value <- sum(occ_tmp$parseGBIF_non_groupable_duplicates == FALSE&
+  # #                  occ_tmp$parseGBIF_digital_voucher == TRUE &
+  # #                  occ_tmp$parseGBIF_dataset_result=='out_to_recover')
+  # #   add_summary(question, value)
+  # #   
+  # #   
+  # #   question <- 'total number of samples with duplicates'
+  # #   value <- NROW(occ_tmp %>%
+  # #                   dplyr::filter(parseGBIF_duplicates==TRUE &
+  # #                                   parseGBIF_dataset_result!='dup'))
+  # #   add_summary(question, value)
+  # #   
+  # #   
+  # #   question <- 'in: number of samples with duplicates'
+  # #   value <- NROW(occ_tmp %>%
+  # #                   dplyr::filter(parseGBIF_duplicates==TRUE &
+  # #                                   parseGBIF_dataset_result=='in'))
+  # #   add_summary(question, value)
+  # #   
+  # #   
+  # #   question <- 'out_to_recover: number of samples with duplicates'
+  # #   value <- NROW(occ_tmp %>%
+  # #                   dplyr::filter(parseGBIF_duplicates==TRUE &
+  # #                                   parseGBIF_dataset_result=='out_to_recover'))
+  # #   sum(occ_tmp$parseGBIF_duplicates)
+  # #   add_summary(question, value)
+  # #   
+  # #   if(merge_unique_collection_event_incomplete==TRUE)
+  # #   {
+  # #     question <- 'total number of number of unidentified samples'
+  # #     value <- sum(occ_tmp$parseGBIF_sample_taxon_name_status == 'unidentified' &
+  # #                    occ_tmp$parseGBIF_digital_voucher == TRUE)
+  # #     add_summary(question, value)
+  # #     
+  # #     question <- 'total number of number of identified samples'
+  # #     value <- sum(occ_tmp$parseGBIF_sample_taxon_name_status == 'identified' &
+  # #                    occ_tmp$parseGBIF_digital_voucher == TRUE)
+  # #     add_summary(question, value)
+  # #     
+  # #     question <- 'total number of number of samples with divergent identifications'
+  # #     value <- sum(occ_tmp$parseGBIF_sample_taxon_name_status == 'divergent identifications' &
+  # #                    occ_tmp$parseGBIF_digital_voucher == TRUE)
+  # #     add_summary(question, value)
+  # #   }  
+  # #   
+  # #   
+  # #   question <- 'in: number of unidentified samples'
+  # #   value <- sum(occ_tmp$parseGBIF_sample_taxon_name_status == 'unidentified' &
+  # #                  occ_tmp$parseGBIF_digital_voucher == TRUE &
+  # #                  occ_tmp$parseGBIF_dataset_result=='in')
+  # #   add_summary(question, value)
+  # #   
+  # #   question <- 'in: number of identified samples'
+  # #   value <- sum(occ_tmp$parseGBIF_sample_taxon_name_status == 'identified' &
+  # #                  occ_tmp$parseGBIF_digital_voucher == TRUE &
+  # #                  occ_tmp$parseGBIF_dataset_result=='in')
+  # #   add_summary(question, value)
+  # #   
+  # #   question <- 'in: number of samples with divergent identifications'
+  # #   value <- sum(occ_tmp$parseGBIF_sample_taxon_name_status == 'divergent identifications' &
+  # #                  occ_tmp$parseGBIF_digital_voucher == TRUE &
+  # #                  occ_tmp$parseGBIF_dataset_result=='in')
+  # #   add_summary(question, value)
+  # #   
+  # #   if(merge_unique_collection_event_incomplete==TRUE)
+  # #   {
+  # #     question <- 'out_to_recover: number of unidentified samples'
+  # #     value <- sum(occ_tmp$parseGBIF_sample_taxon_name_status == 'unidentified' &
+  # #                    occ_tmp$parseGBIF_digital_voucher == TRUE &
+  # #                    occ_tmp$parseGBIF_dataset_result=='out_to_recover')
+  # #     add_summary(question, value)
+  # #     
+  # #     question <- 'out_to_recover: number of identified samples'
+  # #     value <- sum(occ_tmp$parseGBIF_sample_taxon_name_status == 'identified' &
+  # #                    occ_tmp$parseGBIF_digital_voucher == TRUE &
+  # #                    occ_tmp$parseGBIF_dataset_result=='out_to_recover')
+  # #     add_summary(question, value)
+  # #     
+  # #     question <- 'out_to_recover: number of samples with divergent identifications'
+  # #     value <- sum(occ_tmp$parseGBIF_sample_taxon_name_status == 'divergent identifications' &
+  # #                    occ_tmp$parseGBIF_digital_voucher == TRUE &
+  # #                    occ_tmp$parseGBIF_dataset_result=='out_to_recover')
+  # #     add_summary(question, value)
+  # #     
+  # #   }
+  # #   
+  # #   question <- 'number samples: out_to_recover'
+  # #   value <- sum(occ_tmp$parseGBIF_dataset_result=='out_to_recover')
+  # #   add_summary(question, value)
+  # #   
+  # #   # question <- 'number samples: out_to_recover: unidentified sample'
+  # #   # value <- sum(occ_tmp$parseGBIF_dataset_result=='out_to_recover' &
+  # #   #              (occ_tmp$parseGBIF_unidentified_sample == TRUE & occ_tmp$parseGBIF_useful_for_spatial_analysis == TRUE) )
+  # #   # add_summary(question, value)
+  # #   # 
+  # #   # question <- 'number samples: out_to_recover: not useful for spatial analysis'
+  # #   # value <- sum(occ_tmp$parseGBIF_dataset_result=='out_to_recover' &
+  # #   #                (occ_tmp$parseGBIF_unidentified_sample == FALSE & occ_tmp$parseGBIF_useful_for_spatial_analysis == FALSE) )
+  # #   # add_summary(question, value)
+  # #   # 
+  # #   # question <- 'number samples: out_to_recover: unidentified sample and not useful for spatial analysis'
+  # #   # value <- sum(occ_tmp$parseGBIF_dataset_result=='out_to_recover' &
+  # #   #                (occ_tmp$parseGBIF_useful_for_spatial_analysis == FALSE &
+  # #   #                   occ_tmp$parseGBIF_unidentified_sample == TRUE) )
+  # #   # add_summary(question, value)
+  # #   
+  # #   if(merge_unique_collection_event_incomplete==TRUE)
+  # #   {
+  # #     question <- 'total samples with any field merged'
+  # #     value <- NROW(occ_tmp %>%
+  # #                     dplyr::filter(parseGBIF_merged==TRUE))
+  # #     add_summary(question, value)
+  # #   }
+  # #   
+  # #   question <- 'number samples with any field merged: in'
+  # #   value <- NROW(occ_tmp %>%
+  # #                   dplyr::filter(parseGBIF_merged==TRUE &
+  # #                                   parseGBIF_dataset_result=='in'))
+  # #   add_summary(question, value)
+  # #   
+  # #   if(merge_unique_collection_event_incomplete==TRUE)
+  # #   {
+  # #     x_freq_merged_fields <- freq_merged_fields(fields_to_merge, occ_tmp)
+  # #     x_freq_merged_fields$id <- paste0('total merge events in the field: ',x_freq_merged_fields$id)
+  # #     add_summary(x_freq_merged_fields$id, x_freq_merged_fields$val, 'merge events')
+  # #   }
+  # #   
+  # #   x_freq_merged_fields <- freq_merged_fields(fields_to_merge, occ_tmp %>% dplyr::filter(parseGBIF_dataset_result=='in'))
+  # #   x_freq_merged_fields$id <- paste0('merge events in the field - in : ',x_freq_merged_fields$id)
+  # #   add_summary(x_freq_merged_fields$id, x_freq_merged_fields$val, 'merge events')
+  # #   
+  # #   if(merge_unique_collection_event_incomplete==TRUE)
+  # #   {
+  # #     question <- 'number samples with any field merged: out_to_recover'
+  # #     value <- NROW(occ_tmp %>%
+  # #                     dplyr::filter(parseGBIF_merged==TRUE &
+  # #                                     parseGBIF_dataset_result=='out_to_recover'))
+  # #     add_summary(question, value)
+  # #     
+  # #     x_freq_merged_fields <- freq_merged_fields(fields = fields_to_merge, occ_tmp = occ_tmp %>% dplyr::filter(parseGBIF_dataset_result=='out_to_recover'))
+  # #     x_freq_merged_fields$id <- paste0('merge events in the field - out_to_recover : ',x_freq_merged_fields$id)
+  # #     add_summary(x_freq_merged_fields$id, x_freq_merged_fields$val, 'merge events')
+  # #   }
+  # #   
+  # # }
+  # }
+  # }
   }
-  
-  # add_summary()
-  
-  if(merge_occ_out==TRUE)
+}
+  if(merge_unique_collection_event_incomplete==TRUE)
   {
     
     
-    return(list(occ_all = occ_all,
-                occ_in_merge = occ_res_full,
-                occ_in_raw = occ_in,
-                occ_dup = occ_dup,
-                occ_out_to_recover_raw = occ_out_to_recover,
-                occ_out_to_recover_merge = occ_out_to_recover_merge,
-                summary = parseGBIF_summary))
+    return(list(all_data = occ_all,
+                unique_collection_event_complete_merge = occ_res_full,
+                unique_collection_event_complete_raw = occ_in,
+                duplicates = occ_dup,
+                unique_collection_event_incomplete_merge = occ_out_to_recover_merge,
+                unique_collection_event_incomplete_raw = occ_out_to_recover,
+                parseGBIF_general_summary = parseGBIF_general_summary,
+                parseGBIF_merge_fields_summary = parseGBIF_merge_fields_summary,
+                parseGBIF_merge_fields_summary_complete = parseGBIF_merge_fields_summary_complete,
+                parseGBIF_merge_fields_summary_incomplete = parseGBIF_merge_fields_summary_incomplete))
   }else
   {
     
-    return(list(occ_all = occ_all,
-                occ_in_merge = occ_res_full,
-                occ_in_raw = occ_in,
-                occ_dup = occ_dup,
-                occ_out_to_recover_raw = occ_out_to_recover,
-                summary = parseGBIF_summary))
+    return(list(all_data = occ_all,
+                unique_collection_event_complete_merge = occ_res_full,
+                unique_collection_event_complete_raw = occ_in,
+                duplicates = occ_dup,
+                unique_collection_event_incomplete_merge = NA,
+                unique_collection_event_incomplete_raw = occ_out_to_recover,
+                parseGBIF_general_summary = parseGBIF_general_summary,
+                parseGBIF_merge_fields_summary = parseGBIF_merge_fields_summary,
+                parseGBIF_merge_fields_summary_complete = parseGBIF_merge_fields_summary_complete,
+                parseGBIF_merge_fields_summary_incomplete = parseGBIF_merge_fields_summary_incomplete))
   }
   
   

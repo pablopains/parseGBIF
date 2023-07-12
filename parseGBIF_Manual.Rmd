@@ -315,33 +315,63 @@ If there is no identification, at or below the rank of species, for the sample, 
 
 In the case where the key to group the duplicates is incomplete, the accepted TAXON_NAME identified at or below the rank of species is used. If there is no identification, at or below the rank of species, the sample is indicated as unidentified.
 
+#### return list with 10 data frames #### 
+
+* __all_data__ All records processed, merged Unique collection events complete / incomplete and their duplicates 
+* __unique_collection_event_complete_merge__ Merged Unique collection events complete
+* __unique_collection_event_complete_raw__ Raw Unique collection events complete
+* __duplicates__ Duplicates of unique collection events complete / incomplete
+* __unique_collection_event_incomplete_merge__ Merged Unique collection events incomplete, It is NA if merge_unique_collection_event_incomplete is FALSE.
+* __unique_collection_event_incomplete_raw__ Raw Unique collection events incomplete
+* __parseGBIF_general_summary__
+* __parseGBIF_merge_fields_summary__
+* __parseGBIF_merge_fields_summary_complete__
+* __parseGBIF_merge_fields_summary_incomplete__ It is NA if merge_unique_collection_event_incomplete is FALSE
+
+
 ```{r example_export, eval=TRUE, message=FALSE, warning=FALSE}
 
-occ_results <- export_data(occ_digital_voucher_file = file.occ_digital_voucher)
-  
-names(occ_results)
+results <- export_data(occ_digital_voucher_file = file.occ_digital_voucher,
+                           merge_unique_collection_event_incomplete = TRUE)
 
-NROW(occ_results$occ_all)
-NROW(occ_results$occ_in_merge)
-NROW(occ_results$occ_in_raw)
-# NROW(occ_results$occ_out_to_recover_merge)
-NROW(occ_results$occ_out_to_recover_raw)
-NROW(occ_results$occ_dup)
+names(results)
 
-occ_results$summary
+results$parseGBIF_general_summary
+results$parseGBIF_merge_fields_summary
+results$parseGBIF_merge_fields_summary_complete
 
-  file.all <- 'parseGBIF_occ_all.csv'
-  write.csv(occ_results$occ_all,
+NROW(results$all_data)
+NROW(results$unique_collection_event_complete_merge)
+NROW(results$unique_collection_event_incomplete_raw)
+NROW(results$duplicates)
+
+  file.all <- 'parseGBIF_all_data.csv'
+  write.csv(results$all_data,
             file.all, 
             row.names = FALSE, 
             fileEncoding = "UTF-8", 
             na = "")
 
-  file.summary <- 'parseGBIF_summary.csv'
-  write.csv(occ_results$summary,
+  file.summary <- 'parseGBIF_general_summary.csv'
+  write.csv(occ_results$parseGBIF_general_summary,
             file.summary, 
             row.names = FALSE, 
             fileEncoding = "UTF-8", 
             na = "")
+  
+  file.summary <- 'parseGBIF_merge_fields_summary.csv'
+  write.csv(occ_results$parseGBIF_merge_fields_summary,
+            file.summary, 
+            row.names = FALSE, 
+            fileEncoding = "UTF-8", 
+            na = "")
+
+  file.summary <- 'parseGBIF_merge_fields_summary_complete.csv'
+  write.csv(occ_results$parseGBIF_merge_fields_summary_complete,
+            file.summary, 
+            row.names = FALSE, 
+            fileEncoding = "UTF-8", 
+            na = "")
+
 
 ```
