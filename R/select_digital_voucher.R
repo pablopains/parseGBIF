@@ -1,57 +1,49 @@
-#' @title Select a sample among available duplicates
+#' @title Selecting the master digital voucher
 #' @name select_digital_voucher
 #'
 #' @description To group duplicates and choose the digital voucher:
-#'
-#' 1) If the key for grouping duplicates is complete with collector information and collection number, sample duplicates can be grouped. In this case, the voucher with the highest score is selected among the duplicates in the sample.
-#'
-#' 2) If the key to group duplicates is incomplete, sample duplicates cannot be grouped due to missing collector information and/or collection number. In this case, each record is considered a sample, without duplicates, and a voucher is selected for each sample.
-#'
-#' How is the information score calculated?
-#'
-#' moreInformativeRecord = sum of textual quality + quality of geospatial information.
-#'
-#' How is the quality of textual information calculated?
-#'
-#' The Text quality is the sum of the number of flags with text quality equal to TRUE.
-#'
-#' Is there information about the collector?
-#' Is there information about the collection number?
-#' Is there information about the year of collection?
-#' Is there information about the institution code?
-#' Is there information about the catalog number?
-#' Is there information about the collection site?
-#' Is there information about the municipality of collection?
-#' Is there information about the state/province of collection?
-#' Is there information about the bibliographic citation?
-#'
-#' How is the quality of geospatial information calculated?
-#'
-#' The quality of geospatial information is based on geographic issues made available by GBIF.
-#'
-#' GIBF issues on the quality of geospatial information were classified into three levels.
-#'
-#' * Not applicable, with selection_score equal to 0
-#' * Does not affect coordinating accuracy, with selection_score equal to -1
-#' * Potentially affect coordinate accuracy, with selection_score equal to -3
-#' * Records to be excluded from spatial analysis, with selection_score equal to -9
-#'
-#' How is the taxonomic identification of the sample chosen?
-#'
-#' 1) When the key to group the duplicates is complete:
-#' The accepted TAXON_NAME identified at or below the specified level and the most frequent
-#' among the duplicates is chosen.
-#'
-#' In case of a tie in frequency, in alphabetical order, the first accepted TAXON_NAME
-#' identified up to or below the specific level is chosen.
-#'
-#' If there is no identification, equal to or less than the specific level, for the sample,
-#' the sample is indicated as unidentified.
-#'
-#' 2) When the key to group the duplicates is incomplete:
-#' If so, the accepted TAXON_NAME identified at or below the specified level is used.
-#' If there is no identification, equal to or less than the specific level,
-#' the sample is indicated as unidentified.
+#' Unique collection events can result in many ‘duplicate’ GBIF records. We designate one of these ‘duplicate’ records 
+#' as the master digital voucher, to which data from other duplicate vouchers can be merged (see export_data):
+#' 
+#' __Where the collection event key for grouping duplicates is complete__, then duplicates can be grouped / parsed. 
+#' To do so, we evaluate record completeness. Record completeness is calculated based on data-quality scores 
+#' for the information in the following  fields: recordedBy, recordNumber, year, institutionCode, catalogNumber, locality, municipality, 
+#' countryCode, stateProvince and fieldNotes. The spatial coordinates associated with each duplicate are ranked using a score for the 
+#' quality of the geospatial information. This score is calculated using the issues listed in the GBIF table, EnumOccurrenceIssue.  
+#' A score is calculated based on these issues (see above). The duplicate with the highest total score is assigned as the master voucher 
+#' for the unique collection event. Missing information contained in duplicate records of the unique collection event can then be merged 
+#' into the master digital voucher (see export_data). 
+#' 
+#' __Where the collection event key is incomplete__, unique collection event duplicates cannot be parsed. In this case, 
+#' each record is considered as a unique collection event, without duplicates. However, to know the integrity 
+#' of the information, record completeness and quality of the geospatial information, are evaluated as described above.
+#' 
+#' __How is the quality score calculated?__
+#' parseGBIF_digital_voucher = The duplicate with the highest total score, sum of record completeness + quality of geospatial information.
+#' 
+#' __How is record completeness calculated?__
+#' The quality of the duplicate records associated with each collection event key is measured as the 
+#' completeness of a record, using the sum of a number of flags (see below) equal to TRUE.
+#'   
+#' __Flags used to calculate record completeness__
+#' 
+#' * Is there information about the collector?
+#' * Is there information about the collection number?
+#' * Is there information about the year of collection?
+#' * Is there information about the institution code?
+#' * Is there information about the catalog number?
+#' * Is there information about the locality?
+#' * Is there information about the municipality of collection?
+#' * Is there information about the state/province of collection?
+#' * Is there information about the field notes?
+#'   
+#' __The quality of geospatial information is based on geographic issues raised by GBIF.__
+#' GIBF issues relating to geospatial data were classified into three classes based on the data quality 
+#' scores that we assigned to each of the following GBIF issues recorded in the EnumOccurrenceIssue.
+#'  
+#' * Issue does not affect coordinating accuracy, with selection_score equal to -1
+#' * Issue has potential to affect coordinate accuracy, with selection_score equal to -3
+#' * Records with a selection_score equal to -9 are excluded.
 #'
 #' @param occ GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')
 #' @param occ_gbif_issue = result of function extract_gbif_issue()$occ_gbif_issue
@@ -60,18 +52,16 @@
 #' @param enumOccurrenceIssue An enumeration of validation rules for single occurrence records by GBIF file, if NA, will be used, data(EnumOccurrenceIssue)
 #'
 #' @details
-#' * matchStatusDuplicates - "groupable", "not groupable: no recordedBy and no recordNumber",
+#' * parseGBIF_duplicates_grouping_status - "groupable", "not groupable: no recordedBy and no recordNumber",
 #' "not groupable: no recordNumber" or "not groupable: no recordedBy"
-#' * numberTaxonNamesSample -  count of the different accepted scientific names,
-#' identified up to or below the specific level, listed in the sample duplicates, or Zero,
-#' if there is no identification, equal to or below the specific level, for the sample.
-#' * sampleTaxonName - TAXON_name accepted and identified up to or below the specific level
-#' selected for the sample.
-#' * sampleIdentificationStatus - 'Identified', 'divergent identifications', or 'unidentified'
+#' * parseGBIF_num_duplicates number of duplicates records
+#' * parseGBIF_duplicates TRUE/FALSE
+#' * parseGBIF_non_groupable_duplicates TRUE/FALSE
+#' 
 #'
 #' @return list with two data frames: occ_digital voucher_and:
-#' occ_digital_voucher, only with selection result fields and
-#' occ_join_results, with all data processing fields.
+#' occ_digital_voucher,  with all data processing fields and
+#' occ_results, only result fields.
 #'
 #' @author Pablo Hendrigo Alves de Melo,
 #'         Nadia Bystriakova &
@@ -98,8 +88,6 @@
 #' head(res_digital_voucher_and_sample_identification$occ_digital_voucher)
 #' colnames(res_digital_voucher_and_sample_identification$occ_digital_voucher)
 #'
-#' head(res_digital_voucher_and_sample_identification$occ_join_results)
-#' colnames(res_digital_voucher_and_sample_identification$occ_join_results)
 #' }
 #' @export
 select_digital_voucher <-  function(occ = NA,
@@ -479,15 +467,10 @@ select_digital_voucher <-  function(occ = NA,
                   parseGBIF_duplicates,
                   parseGBIF_num_duplicates,
                   parseGBIF_non_groupable_duplicates,
-                  # parseGBIF_unidentified_sample,
-                  # parseGBIF_sample_taxon_name,
                   parseGBIF_duplicates_grouping_status,
-                  # parseGBIF_sample_taxon_name_status,
-                  # parseGBIF_number_taxon_names,
                   Ctrl_coordinates_validated_by_gbif_issue)
 
   return(list(
-    occ_digital_voucher = occ,
-    occ_join_results = cbind(occ_gbif_issue, occ_in, occ_wcvp_check_name, occ_collectorsDictionary, occ)
-  ))
+    occ_digital_voucher = cbind(occ_gbif_issue, occ_in, occ_wcvp_check_name, occ_collectorsDictionary, occ),
+    occ_results = occ  ))
 }

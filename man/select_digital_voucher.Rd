@@ -2,7 +2,7 @@
 % Please edit documentation in R/select_digital_voucher.R
 \name{select_digital_voucher}
 \alias{select_digital_voucher}
-\title{Select a sample among available duplicates}
+\title{Selecting the master digital voucher}
 \usage{
 select_digital_voucher(
   occ = NA,
@@ -25,75 +25,63 @@ select_digital_voucher(
 }
 \value{
 list with two data frames: occ_digital voucher_and:
-occ_digital_voucher, only with selection result fields and
-occ_join_results, with all data processing fields.
+occ_digital_voucher,  with all data processing fields and
+occ_results, only result fields.
 }
 \description{
 To group duplicates and choose the digital voucher:
-\enumerate{
-\item If the key for grouping duplicates is complete with collector information and collection number, sample duplicates can be grouped. In this case, the voucher with the highest score is selected among the duplicates in the sample.
-\item If the key to group duplicates is incomplete, sample duplicates cannot be grouped due to missing collector information and/or collection number. In this case, each record is considered a sample, without duplicates, and a voucher is selected for each sample.
-}
+Unique collection events can result in many ‘duplicate’ GBIF records. We designate one of these ‘duplicate’ records
+as the master digital voucher, to which data from other duplicate vouchers can be merged (see export_data):
 
-How is the information score calculated?
+\strong{Where the collection event key for grouping duplicates is complete}, then duplicates can be grouped / parsed.
+To do so, we evaluate record completeness. Record completeness is calculated based on data-quality scores
+for the information in the following  fields: recordedBy, recordNumber, year, institutionCode, catalogNumber, locality, municipality,
+countryCode, stateProvince and fieldNotes. The spatial coordinates associated with each duplicate are ranked using a score for the
+quality of the geospatial information. This score is calculated using the issues listed in the GBIF table, EnumOccurrenceIssue.
+A score is calculated based on these issues (see above). The duplicate with the highest total score is assigned as the master voucher
+for the unique collection event. Missing information contained in duplicate records of the unique collection event can then be merged
+into the master digital voucher (see export_data).
 
-moreInformativeRecord = sum of textual quality + quality of geospatial information.
+\strong{Where the collection event key is incomplete}, unique collection event duplicates cannot be parsed. In this case,
+each record is considered as a unique collection event, without duplicates. However, to know the integrity
+of the information, record completeness and quality of the geospatial information, are evaluated as described above.
 
-How is the quality of textual information calculated?
+\strong{How is the quality score calculated?}
+parseGBIF_digital_voucher = The duplicate with the highest total score, sum of record completeness + quality of geospatial information.
 
-The Text quality is the sum of the number of flags with text quality equal to TRUE.
+\strong{How is record completeness calculated?}
+The quality of the duplicate records associated with each collection event key is measured as the
+completeness of a record, using the sum of a number of flags (see below) equal to TRUE.
 
-Is there information about the collector?
-Is there information about the collection number?
-Is there information about the year of collection?
-Is there information about the institution code?
-Is there information about the catalog number?
-Is there information about the collection site?
-Is there information about the municipality of collection?
-Is there information about the state/province of collection?
-Is there information about the bibliographic citation?
-
-How is the quality of geospatial information calculated?
-
-The quality of geospatial information is based on geographic issues made available by GBIF.
-
-GIBF issues on the quality of geospatial information were classified into three levels.
+\strong{Flags used to calculate record completeness}
 \itemize{
-\item Not applicable, with selection_score equal to 0
-\item Does not affect coordinating accuracy, with selection_score equal to -1
-\item Potentially affect coordinate accuracy, with selection_score equal to -3
-\item Records to be excluded from spatial analysis, with selection_score equal to -9
+\item Is there information about the collector?
+\item Is there information about the collection number?
+\item Is there information about the year of collection?
+\item Is there information about the institution code?
+\item Is there information about the catalog number?
+\item Is there information about the locality?
+\item Is there information about the municipality of collection?
+\item Is there information about the state/province of collection?
+\item Is there information about the field notes?
 }
 
-How is the taxonomic identification of the sample chosen?
-\enumerate{
-\item When the key to group the duplicates is complete:
-The accepted TAXON_NAME identified at or below the specified level and the most frequent
-among the duplicates is chosen.
-}
-
-In case of a tie in frequency, in alphabetical order, the first accepted TAXON_NAME
-identified up to or below the specific level is chosen.
-
-If there is no identification, equal to or less than the specific level, for the sample,
-the sample is indicated as unidentified.
-\enumerate{
-\item When the key to group the duplicates is incomplete:
-If so, the accepted TAXON_NAME identified at or below the specified level is used.
-If there is no identification, equal to or less than the specific level,
-the sample is indicated as unidentified.
+\strong{The quality of geospatial information is based on geographic issues raised by GBIF.}
+GIBF issues relating to geospatial data were classified into three classes based on the data quality
+scores that we assigned to each of the following GBIF issues recorded in the EnumOccurrenceIssue.
+\itemize{
+\item Issue does not affect coordinating accuracy, with selection_score equal to -1
+\item Issue has potential to affect coordinate accuracy, with selection_score equal to -3
+\item Records with a selection_score equal to -9 are excluded.
 }
 }
 \details{
 \itemize{
-\item matchStatusDuplicates - "groupable", "not groupable: no recordedBy and no recordNumber",
+\item parseGBIF_duplicates_grouping_status - "groupable", "not groupable: no recordedBy and no recordNumber",
 "not groupable: no recordNumber" or "not groupable: no recordedBy"
-\item numberTaxonNamesSample -  count of the different accepted scientific names,
-identified up to or below the specific level, listed in the sample duplicates, or Zero,
-if there is no identification, equal to or below the specific level, for the sample.
-\item sampleTaxonName - TAXON_name accepted and identified up to or below the specific level
-selected for the sample.
-\item sampleIdentificationStatus - 'Identified', 'divergent identifications', or 'unidentified'
+\item parseGBIF_num_duplicates number of duplicates records
+\item parseGBIF_duplicates TRUE/FALSE
+\item parseGBIF_non_groupable_duplicates TRUE/FALSE
 }
 }
 \examples{
@@ -115,8 +103,6 @@ names(res_digital_voucher_and_sample_identification)
 head(res_digital_voucher_and_sample_identification$occ_digital_voucher)
 colnames(res_digital_voucher_and_sample_identification$occ_digital_voucher)
 
-head(res_digital_voucher_and_sample_identification$occ_join_results)
-colnames(res_digital_voucher_and_sample_identification$occ_join_results)
 }
 }
 \seealso{

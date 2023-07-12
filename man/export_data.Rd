@@ -7,7 +7,7 @@
 export_data(
   occ_digital_voucher_file = "",
   occ_digital_voucher = NA,
-  merge_unique_collection_event_incomplete = FALSE,
+  merge_unusable_data = FALSE,
   fields_to_merge = c("Ctrl_fieldNotes", "Ctrl_year", "Ctrl_stateProvince",
     "Ctrl_municipality", "Ctrl_locality", "Ctrl_countryCode", "Ctrl_eventDate",
     "Ctrl_habitat", "Ctrl_level0Name", "Ctrl_level1Name", "Ctrl_level2Name",
@@ -43,7 +43,7 @@ export_data(
 
 \item{occ_digital_voucher}{data frame result of function select_digital_voucher()$occ_digital_voucher}
 
-\item{merge_unique_collection_event_incomplete}{include records unique collection events incomplete in merge processing}
+\item{merge_unusable_data}{include records unique collection events incomplete in merge processing}
 
 \item{fields_to_merge}{fields to merge}
 
@@ -55,27 +55,69 @@ export_data(
 list with 10 data frames
 \itemize{
 \item \strong{all_data} All records processed, merged Unique collection events complete / incomplete and their duplicates
-\item \strong{unique_collection_event_complete_merge} Merged Unique collection events complete
-\item \strong{unique_collection_event_complete_raw} Raw Unique collection events complete
+\item \strong{useable_data_merge} Merged Unique collection events complete
+\item \strong{useable_data_raw} Raw Unique collection events complete
 \item \strong{duplicates} Duplicates of unique collection events complete / incomplete
-\item \strong{unique_collection_event_incomplete_merge} Merged Unique collection events incomplete,
-It is NA if merge_unique_collection_event_incomplete is FALSE.
-\item \strong{unique_collection_event_incomplete_raw} Raw Unique collection events incomplete
+\item \strong{unusable_data_merge} Merged Unique collection events incomplete,
+It is NA if merge_unusable_data is FALSE.
+\item \strong{unusable_data_raw} Raw Unique collection events incomplete
 \item \strong{parseGBIF_general_summary}
 \item \strong{parseGBIF_merge_fields_summary}
-\item \strong{parseGBIF_merge_fields_summary_complete}
-\item \strong{parseGBIF_merge_fields_summary_incomplete} It is NA if merge_unique_collection_event_incomplete is FALSE
+\item \strong{parseGBIF_merge_fields_summary_useable_data}
+\item \strong{parseGBIF_merge_fields_summary_unusable_data} It is NA if merge_unusable_data is FALSE
 }
 }
 \description{
-from the selected digital voucher:
+For each unique collection event key, complete or incomplete,
+outputs will be created which combine information from duplicate records and generate a
+single unique collection event record to replace them.
+The main output fields relating to taxonomic identification and geographic coordinates:
 \itemize{
-\item select the taxonomic identification of the sample,
-\item Select geographic coordinates,
-\item Merge information between fields of duplicates of a sample,
-\item Compare the frequency of content in fields
-\item Generate data summary
-\item Export results
+\item parseGBIF_sample_taxon_name = scientific name chosen as taxonomic identification for unique collection event
+\item parseGBIF_number_taxon_names = number of scientific names found in duplicates of unique collection event
+\item parseGBIF_sample_taxon_name_status = status of choice of 'identified', 'divergent identifications', 'unidentified'
+\item parseGBIF_unidentified_sample = if unique collection event has taxonomic identification
+\item parseGBIF_decimalLatitude = latitude in decimal degrees
+\item parseGBIF_decimalLongitude = longitude in decimal degrees
+\item parseGBIF_useful_for_spatial_analysis = whether the coordinates are useful for spatial analysis.
+\strong{How is the taxon binomial attributed to the unique collection event selected?}
+}
+\enumerate{
+\item Where the unique collection event key is complete:
+The accepted TAXON_NAME selected is that which is most frequently applied to the duplicate vouchers at or below the rank of species.
+Where two named are applied with equal frequency then a mechanical approach, using alphabetical order, is applied, the first listed TAXON_NAME being chosen.
+Where there is no identification, at or below the rank of species, then the unique collection event, the unique collection event is indicated as unidentified.
+\item Where the unique collection event key is incomplete:
+Where the unique collection event key is incomplete, then each record is treated as a unique collection event. If there is no identification, at or below the rank of species, then the unique collection event is classified as unidentified.
+__Geospatial information __
+If the master voucher does not have geographic coordinates, we will seek coordinates from the duplicate records associated with it.
+Finally, the records are separated into three sets of data:
+\strong{useable_data} - Where unique collection event with taxonomic identification and geographic coordinates are complete. This represents the useable dataset.
+\strong{unusable_data}  - Where unique collection event without taxonomic identification and/or geographic coordinates.
+\strong{duplicates} The duplicates of unique collection events complete / incomplete
+}
+
+With this, it is possible to perform:
+Merge information between fields of duplicates of a unique collection event to create a synthetic record for each unique collection event,
+Compare the frequency of content in fields
+Generate a work package summary
+
+For each complete unique collection event key, data fields that are empty in the digital voucher record will be populated with data from the respective duplicates.
+During content merging, we indicate fields associated with the description, location, and data of the unique collection event.
+By default, fields_to_merge parameter of export_data function contains:
+\itemize{
+\item Ctrl_fieldNotes
+\item Ctrl_year
+\item Ctrl_stateProvince
+\item Ctrl_municipality
+\item Ctrl_locality
+\item Ctrl_countryCode
+\item Ctrl_eventDate
+\item Ctrl_habitat
+\item Ctrl_level0Name
+\item Ctrl_level1Name
+\item Ctrl_level2Name
+\item Ctrl_level3Name
 }
 }
 \details{
@@ -86,7 +128,7 @@ Each data frame should be used as needed
 help(export_data)
 
 results <- export_data(occ_digital_voucher_file = file.occ_digital_voucher,
-                       merge_unique_collection_event_incomplete = TRUE)
+                       merge_unusable_data = TRUE)
 
 names(results)
 
