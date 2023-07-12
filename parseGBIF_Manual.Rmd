@@ -19,8 +19,8 @@ options(tinytex.verbose = TRUE)
 
 # parseGBIF Manual
 
-
-parseGBIF package is designed to convert [Global Biodiversity Information Facility - GBIF](https://www.gbif.org/) species occurrence data to a more comprehensible format to be used for further analysis, e.g. spatial. The package provides tools for verifying and standardizing species scientific names and for selecting the most informative species records when duplicates are available. The Manual provides a brief introduction to parseGBIF, with more information available from Help pages accessed via help(function_name).
+The parseGBIF package is designed to repackage [Global Biodiversity Information Facility - GBIF](https://www.gbif.org/) species occurrence records  into a format that optimises its use in further analyses. Currently occurrence records in GBIF can include several duplicate digital records, and in the case of vascular plants, for several physical duplicates of unique collection events (biological collections).
+parseGBIF aims to parse these records to a single, synthetic, record corresponding to a unique collection event to which a standardized scientific name is associated. It does so by providing tools to verify and standardize species scientific names, score the quality of both the naming of a record and of its associated spatial data, and to use those scores to synthesise and parse duplicate records into unique collection events. This Manual provides a brief introduction to parseGBIF, with more information available from Help pages accessed via the help fuction. We believe that this package will be of particular use for analyses of plant occurrence data.
 
 ## Installation
 
@@ -37,10 +37,10 @@ print(citation("parseGBIF"), bibtex = FALSE)
 ```
 
 ## Example
-__parseGBIF makes it easy to get species occurrence records based on GBIF.__
+__Getting species occurrence records from GBIF__
 
 ### 1. GBIF data preparation
-#### 1.1. Obtaining occurrence data of the species records from GBIF
+#### 1.1. Getting occurrence data of the species records from GBIF
   1.1.1. Access a registered account in [GBIF](gbif.org) 
   
   1.1.2. Filter occurrences using available fields, for instance:
@@ -210,9 +210,9 @@ Create a key to group duplicates of a sample.
 It also returns new collectors to be added to the collector dictionary that can be reused in the future.
 
 
-```{r example_collectors_update_dictionary, eval=TRUE, message=FALSE, warning=FALSE}
+```{r example_generate_collection_event_key, eval=TRUE, message=FALSE, warning=FALSE}
 
-  occ_collectorsDictionary <- collectors_update_dictionary(occ=occ,
+  occ_collectorsDictionary <- generate_collection_event_key(occ=occ,
                                         collectorDictionary_checked_file = file.collectorsDictionary.dataset)
 
   names(occ_collectorsDictionary)

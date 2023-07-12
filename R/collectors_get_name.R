@@ -1,11 +1,11 @@
-#' @title Get the last name of the main collector in recordedBy field
+#' @title Get the last name of the main collector
 #' @name collectors_get_name
 #'
-#' @description Returns the last name of the main collector
+#' @description Get the last name of the main collector in recordedBy field
 #'
 #' @param x recordedBy field
 #'
-#' @details Returns the last name of the main collector in recordedBy field
+#' @details Returns the last name
 #'
 #' @return
 #' last name of the main collector

@@ -1,8 +1,25 @@
-#' @title Prepare the list with the main collector's last name
+#' @title Prepare the list with the last name of the main collector
 #' @name collectors_prepare_dictionary
 #'
 #' @description Returns the list with the last name of the main collector associated with the unique key recordedBy.
+#' A necessary step for parsing duplicate records is generating a robust key for each unique collecting event
+#' (aka ‘gathering’) that will support the recognition of duplicate records. For this purpose we generate a string  
+#' combining the plant family name +  first collector’s surname +  the collection number. 
+#' It is therefore essential to consistently record the collector surname and for this purpose we provide a collector
+#' dictionary. To extract the surname of the main collector based on the recordedBy field and assemble a list relating 
+#' the last name of the main collector and the raw data from the recordedBy, use the collectors_prepare_dictionary function.
 #'
+#' It is recommended to check the main collector’s last name in the nameRecordedBy_Standard field. 
+#' Our goal is to standardize the main collector’s last name, which is automatically extracted from the recordedBy field.
+#' We do so by standardizing the text string so that it begins with an uppercase character and to replace non-ascii 
+#' characters, so that collector reponsible for a collection event is always recorded using  the same string of characters.
+#' If the searched recordedBy entry is present in the collector’s dictionary, the function retrieves the last name
+#' of the main collector with reference to the recordedBy field (in which case the CollectorDictionary field will be
+#' flagged as ‘checked’), otherwise, the function will return the last name of the main collector, extracted 
+#' automatically from the recordedBy field .
+#' 
+#' Once verified, the collector’s dictionary can be reused in the future.
+
 #' @param occ GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')
 #' @param collectorDictionary_file Collector dictionary file - point to a file on your local disk or upload via git at https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv.
 #' @details If recordedBy is present in the collector's dictionary, it returns the checked name, if not, it returns the last name of the main collector, extracted from the recordedBy field.
@@ -27,7 +44,7 @@
 #'         Nadia Bystriakova &
 #'         Alexandre Monro
 #'
-#' @seealso \code{\link[parseGBIF]{collectors_get_name}}, \code{\link[parseGBIF]{update_collectorsDictionary}}
+#' @seealso \code{\link[parseGBIF]{collectors_get_name}}, \code{\link[parseGBIF]{generate_collection_event_key}}
 #'
 #' @examples
 #' \donttest{
