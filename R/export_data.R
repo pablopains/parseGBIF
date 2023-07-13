@@ -56,6 +56,7 @@
 #' @param silence if TRUE does not display progress messages
 #'
 #' @details Each data frame should be used as needed
+#' 
 #' @return list with 10 data frames
 #' * __all_data__ All records processed, merged Unique collection events complete / incomplete and their duplicates 
 #' * __useable_data_merge__ Merged Unique collection events complete
@@ -74,6 +75,9 @@
 #'         Alexandre Monro
 #'
 #' @seealso \code{\link[ParsGBIF]{batch_checkName_wcvp}}, \code{\link[ParsGBIF]{extract_gbif_issue}}
+#'
+#' @import dplyr
+#' @import stringr
 #'
 #' @examples
 #' \donttest{
@@ -535,7 +539,7 @@ export_data <- function(occ_digital_voucher_file = '',
     {
       
       index <- occ_res_full$Ctrl_key_family_recordedBy_recordNumber %in% key[i]
-      
+
       if(occ_res_full$parseGBIF_duplicates[index==TRUE][1]==TRUE)
       {
         if(! silence == TRUE)
@@ -543,7 +547,10 @@ export_data <- function(occ_digital_voucher_file = '',
           print(paste0(i, ' - ', tot, ' - ', key[i]))
         }
         
+        x_Ctrl_gbifID <- occ_res_full[index==TRUE, 'Ctrl_gbifID']
+        
         index_dup <- occ_dup$Ctrl_key_family_recordedBy_recordNumber %in% key[i]
+        
         
         if(sum(index_dup)==0)
         {next}
@@ -641,7 +648,7 @@ export_data <- function(occ_digital_voucher_file = '',
               # # if(data_col %>% as.character() !="")
               # if(fields_to_all[ic] == "Ctrl_gbifID" )
               # {
-              x_jonsom <-  paste0('"',fields_to_all[ic],'"',":[",'"', gsub('"','',data_col),'"')
+              x_jonsom <-  paste0('"',fields_to_all[ic],'"',":[",'"', gsub('"','',data_col),'"',':[',x_Ctrl_gbifID,']"')
               # }else
               # {
               # x_jonsom <-  paste0('"',fields_to_all[ic],'"',":[")
@@ -651,10 +658,10 @@ export_data <- function(occ_digital_voucher_file = '',
             # dados
             if(substr(x_jonsom,str_count(x_jonsom),str_count(x_jonsom)) == '[')
             {
-              x_jonsom <- paste0(x_jonsom, '"', gsub('"','',data_col_dup[ix]),';[',x_Ctrl_gbifID_dup,']"')
+              x_jonsom <- paste0(x_jonsom, '"', gsub('"','',data_col_dup[ix]),':[',x_Ctrl_gbifID_dup,']"')
             }else
             {
-              x_jonsom <- paste0(x_jonsom, ",", '"', gsub('"','',data_col_dup[ix]),';[',x_Ctrl_gbifID_dup,']"')
+              x_jonsom <- paste0(x_jonsom, ",", '"', gsub('"','',data_col_dup[ix]),':[',x_Ctrl_gbifID_dup,']"')
             }
             
             

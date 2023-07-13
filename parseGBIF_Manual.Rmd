@@ -458,24 +458,12 @@ names(results)
 
 results$parseGBIF_general_summary
 results$parseGBIF_merge_fields_summary
-results$parseGBIF_merge_fields_summary_complete
+results$parseGBIF_merge_fields_summary_useable_data
 
 NROW(results$all_data)
-NROW(results$unique_collection_event_complete_merge)
-NROW(results$unique_collection_event_incomplete_raw)
+NROW(results$useable_data_merge)
+NROW(results$useable_data_raw)
 NROW(results$duplicates)
-
-index <- results$occ_in_merge$Ctrl_key_family_recordedBy_recordNumber %in% 'ACHATOCARPACEAE_ZARDINI_5592'
-
-print('campos')
-print(jsonlite::fromJSON(results$occ_in_merge$parseGBIF_duplicates_map[index==TRUE]))
-
-print('map')
-print(jsonlite::fromJSON(results$occ_in_merge$parseGBIF_merged_fields[results$occ_in_merge$Ctrl_key_family_recordedBy_recordNumber %in% 'ACHATOCARPACEAE_ZARDINI_5592']))
-
-print('freq')
-print(jsonlite::fromJSON(results$occ_in_merge$parseGBIF_freq_duplicate_or_missing_data[results$occ_in_merge$Ctrl_key_family_recordedBy_recordNumber %in% 'ACHATOCARPACEAE_ZARDINI_5592']))
-
 
 file.all <- 'parseGBIF_all_data.csv'
 write.csv(results$all_data,
@@ -506,16 +494,26 @@ write.csv(results$parseGBIF_merge_fields_summary_complete,
           na = "")
 ```
 
-```{r example_export, eval=TRUE, message=FALSE, warning=FALSE}
-index <- results$occ_in_merge$Ctrl_key_family_recordedBy_recordNumber %in% 'ACHATOCARPACEAE_ZARDINI_5592'
+### Accessing map of merged information and frequency of content in fields
 
-print('campos')
-print(jsonlite::fromJSON(results$occ_in_merge$parseGBIF_duplicates_map[index==TRUE]))
+-  Merged information between fields of duplicates of a unique collection event
 
-print('map')
-print(jsonlite::fromJSON(results$occ_in_merge$parseGBIF_merged_fields[results$occ_in_merge$Ctrl_key_family_recordedBy_recordNumber %in% 'ACHATOCARPACEAE_ZARDINI_5592']))
+```{r example_json1, eval=TRUE, message=FALSE, warning=FALSE}
+index <- results$useable_data_merge$Ctrl_key_family_recordedBy_recordNumber %in% 'ACHATOCARPACEAE_ZARDINI_5592'
 
-print('freq')
-print(jsonlite::fromJSON(results$occ_in_merge$parseGBIF_freq_duplicate_or_missing_data[results$occ_in_merge$Ctrl_key_family_recordedBy_recordNumber %in% 'ACHATOCARPACEAE_ZARDINI_5592']))
+print('merged fields')
+print(jsonlite::fromJSON(results$useable_data_merge$parseGBIF_duplicates_map[index==TRUE]))
+
+print('merged fields map')
+print(jsonlite::fromJSON(results$useable_data_merge$parseGBIF_merged_fields[index==TRUE]))
+
+```
+
+-  Frequency of content in fields between fields of duplicates of a unique collection event
+
+```{r example_json2, eval=TRUE, message=FALSE, warning=FALSE}
+
+print('Frequency of content in fields')
+print(jsonlite::fromJSON(results$useable_data_merge$parseGBIF_freq_duplicate_or_missing_data[index==TRUE]))
 ```
 
