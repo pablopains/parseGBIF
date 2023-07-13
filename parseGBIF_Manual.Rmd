@@ -465,33 +465,57 @@ NROW(results$unique_collection_event_complete_merge)
 NROW(results$unique_collection_event_incomplete_raw)
 NROW(results$duplicates)
 
-  file.all <- 'parseGBIF_all_data.csv'
-  write.csv(results$all_data,
-            file.all, 
-            row.names = FALSE, 
-            fileEncoding = "UTF-8", 
-            na = "")
+index <- results$occ_in_merge$Ctrl_key_family_recordedBy_recordNumber %in% 'ACHATOCARPACEAE_ZARDINI_5592'
 
-  file.summary <- 'parseGBIF_general_summary.csv'
-  write.csv(results$parseGBIF_general_summary,
-            file.summary, 
-            row.names = FALSE, 
-            fileEncoding = "UTF-8", 
-            na = "")
+print('campos')
+print(jsonlite::fromJSON(results$occ_in_merge$parseGBIF_duplicates_map[index==TRUE]))
+
+print('map')
+print(jsonlite::fromJSON(results$occ_in_merge$parseGBIF_merged_fields[results$occ_in_merge$Ctrl_key_family_recordedBy_recordNumber %in% 'ACHATOCARPACEAE_ZARDINI_5592']))
+
+print('freq')
+print(jsonlite::fromJSON(results$occ_in_merge$parseGBIF_freq_duplicate_or_missing_data[results$occ_in_merge$Ctrl_key_family_recordedBy_recordNumber %in% 'ACHATOCARPACEAE_ZARDINI_5592']))
+
+
+file.all <- 'parseGBIF_all_data.csv'
+write.csv(results$all_data,
+          file.all, 
+          row.names = FALSE, 
+          fileEncoding = "UTF-8", 
+          na = "")
+
+file.summary <- 'parseGBIF_general_summary.csv'
+write.csv(results$parseGBIF_general_summary,
+          file.summary, 
+          row.names = FALSE, 
+          fileEncoding = "UTF-8", 
+          na = "")
   
-  file.summary <- 'parseGBIF_merge_fields_summary.csv'
-  write.csv(results$parseGBIF_merge_fields_summary,
-            file.summary, 
-            row.names = FALSE, 
-            fileEncoding = "UTF-8", 
-            na = "")
+file.summary <- 'parseGBIF_merge_fields_summary.csv'
+write.csv(results$parseGBIF_merge_fields_summary,
+          file.summary, 
+          row.names = FALSE, 
+          fileEncoding = "UTF-8", 
+          na = "")
 
-  file.summary <- 'parseGBIF_merge_fields_summary_complete.csv'
-  write.csv(results$parseGBIF_merge_fields_summary_complete,
-            file.summary, 
-            row.names = FALSE, 
-            fileEncoding = "UTF-8", 
-            na = "")
-
-
+file.summary <- 'parseGBIF_merge_fields_summary_complete.csv'
+write.csv(results$parseGBIF_merge_fields_summary_complete,
+          file.summary, 
+          row.names = FALSE, 
+          fileEncoding = "UTF-8", 
+          na = "")
 ```
+
+```{r example_export, eval=TRUE, message=FALSE, warning=FALSE}
+index <- results$occ_in_merge$Ctrl_key_family_recordedBy_recordNumber %in% 'ACHATOCARPACEAE_ZARDINI_5592'
+
+print('campos')
+print(jsonlite::fromJSON(results$occ_in_merge$parseGBIF_duplicates_map[index==TRUE]))
+
+print('map')
+print(jsonlite::fromJSON(results$occ_in_merge$parseGBIF_merged_fields[results$occ_in_merge$Ctrl_key_family_recordedBy_recordNumber %in% 'ACHATOCARPACEAE_ZARDINI_5592']))
+
+print('freq')
+print(jsonlite::fromJSON(results$occ_in_merge$parseGBIF_freq_duplicate_or_missing_data[results$occ_in_merge$Ctrl_key_family_recordedBy_recordNumber %in% 'ACHATOCARPACEAE_ZARDINI_5592']))
+```
+

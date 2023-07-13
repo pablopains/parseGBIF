@@ -909,16 +909,15 @@ export_data <- function(occ_digital_voucher_file = '',
   {
     
     return(list(all_data = occ_all,
-                unique_collection_event_complete_merge = occ_res_full,
-                unique_collection_event_complete_raw = occ_in,
+                useable_data_merge = occ_res_full,
+                useable_data_raw = occ_in,
                 duplicates = occ_dup,
-                unique_collection_event_incomplete_merge = NA,
-                unique_collection_event_incomplete_raw = occ_out_to_recover,
+                unusable_data_merge = NA,
+                unusable_data_raw = occ_out_to_recover,
                 parseGBIF_general_summary = parseGBIF_general_summary,
                 parseGBIF_merge_fields_summary = parseGBIF_merge_fields_summary,
                 parseGBIF_merge_fields_summary_useable_data = parseGBIF_merge_fields_summary_complete,
                 parseGBIF_merge_fields_summary_unusable_data = parseGBIF_merge_fields_summary_incomplete))
   }
-  
   
 }
