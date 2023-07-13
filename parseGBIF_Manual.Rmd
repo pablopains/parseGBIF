@@ -502,10 +502,10 @@ write.csv(results$parseGBIF_merge_fields_summary_complete,
 index <- results$useable_data_merge$Ctrl_key_family_recordedBy_recordNumber %in% 'ACHATOCARPACEAE_ZARDINI_5592'
 
 print('merged fields')
-print(jsonlite::fromJSON(results$useable_data_merge$parseGBIF_duplicates_map[index==TRUE]))
+print(jsonlite::fromJSON(results$useable_data_merge$parseGBIF_merged_fields[index==TRUE]))
 
 print('merged fields map')
-print(jsonlite::fromJSON(results$useable_data_merge$parseGBIF_merged_fields[index==TRUE]))
+print(jsonlite::fromJSON(results$useable_data_merge$parseGBIF_duplicates_map[index==TRUE]))
 
 ```
 
