@@ -1,5 +1,5 @@
-#' @title Preparing occurrence data for use by parseGBIF
-#'
+#' @title Preparing occurrence data downloaded from GBIF for use by parseGBIF
+#' 
 #' @name prepare_gbif_occurrence_data
 #'
 #' @description Prepare occurrence data downloaded from GBIF to be used by ParsGBIF functions

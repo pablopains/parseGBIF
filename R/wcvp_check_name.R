@@ -1,10 +1,13 @@
-#' @title Use the World Checklist of Vascular Plants (WCVP) database to check accepted names and update synonyms
+#' @title Check species names against World Checklist of Vascular Plants (WCVP) database
 #'
 #' @name wcvp_check_name
 #'
-#' @description Use the [World Checklist of Vascular Plants](https://powo.science.kew.org//)
-#' [database](http://sftp.kew.org/pub/data-repositories/WCVP/)
-#' [(about WCVP)](https://powo.science.kew.org/about-wcvp) to check accepted names and update synonyms.
+#' @description Use the [World Checklist of Vascular Plants WCVP](https://powo.science.kew.org//)
+#' [database](http://sftp.kew.org/pub/data-repositories/WCVP/) to check accepted names and update synonyms.
+#' 
+#' The World Checklist of Vascular Plants (WCVP) database is available from the 
+#' [Royal Botanic Gardens, Kew](https://powo.science.kew.org/about-wcvp). 
+#' It can be downloaded to a folder of the user’s choice or into memory using the get_wcvp function. The output has 33 columns.
 #'
 #' @param searchedName scientific name, with or without author
 #' @param wcvp_names WCVP table, wcvp_names.csv file from http://sftp.kew.org/pub/data-repositories/WCVP/ If NA, automatically load the latest version of the database by the function parseGBIF::wcvp_get_data(read_only_to_memory = TRUE)$wcvp_names.

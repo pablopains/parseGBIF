@@ -16,6 +16,7 @@
 #' @param occ GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')
 #' @param collectorDictionary_checked_file Verified collector dictionary file - point to a file on your local disk
 #' @param collectorDictionary_file Collector dictionary file - point to a file on your local disk or upload via git at https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv.
+#' @param silence if TRUE does not display progress messages
 #'
 #' @details Fields created for each incident record:
 #' nameRecordedBy_Standard,
@@ -49,7 +50,8 @@
 #' @export
 generate_collection_event_key <- function(occ=NA,
                                       collectorDictionary_checked_file = NA,
-                                      collectorDictionary_file = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv')
+                                      collectorDictionary_file = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv',
+                                      silence = TRUE)
 {
 
   print('Loading collectorDictionary...')
@@ -82,8 +84,10 @@ generate_collection_event_key <- function(occ=NA,
     data.frame()
 
 
-
-  print('Loading collectorDictionary checked...')
+  if(! silence == TRUE)
+  {
+    print('Loading collectorDictionary checked...')
+  }
 
   if( (!file.exists(collectorDictionary_checked_file)) | collectorDictionary_checked_file=='' | is.na(collectorDictionary_checked_file) )
   {
@@ -150,8 +154,11 @@ generate_collection_event_key <- function(occ=NA,
    recordedBy_unique <- recordedBy_unique %>% toupper()
    # NROW(recordedBy_unique)
 
-   print("let's go...")
-   print(NROW(recordedBy_unique))
+   if(! silence == TRUE)
+   {
+     print("let's go...")
+     print(NROW(recordedBy_unique))
+   }
 
    # atualizando tabela de occorencias
 
@@ -167,8 +174,11 @@ generate_collection_event_key <- function(occ=NA,
       index_occ <- (occ$Ctrl_recordedBy %>% toupper() %in% r) %>% ifelse(is.na(.), FALSE,.)
       num_records <- NROW(occ[index_occ==TRUE,])
       index_ajusted <- (collectorDictionary_checked$Ctrl_recordedBy == r) %>% ifelse(is.na(.), FALSE,.)
-
-      print(paste0(ri, ' de ', rt, ' - ', r,' : ',num_records, ' registros' ))
+      
+      if(! silence == TRUE)
+      {
+        print(paste0(ri, ' de ', rt, ' - ', r,' : ',num_records, ' registros' ))
+      }
 
       if (NROW(collectorDictionary_checked[index_ajusted==TRUE,]) == 0)
       {
@@ -200,8 +210,11 @@ generate_collection_event_key <- function(occ=NA,
          data.frame(Ctrl_nameRecordedBy_Standard  = collectorDictionary_checked_tmp)
 
    }
-
-   print('...finished!')
+   
+   if(! silence == TRUE)
+   {
+      print('...finished!')
+   }
 
    occ$Ctrl_recordNumber_Standard <- str_replace_all(occ$Ctrl_recordNumber, "[^0-9]", "")
 

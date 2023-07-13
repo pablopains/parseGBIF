@@ -53,6 +53,7 @@
 #' @param fields_to_merge fields to merge
 #' @param fields_to_compare fields to compare content frequency
 #' @param fields_to_parse all fields
+#' @param silence if TRUE does not display progress messages
 #'
 #' @details Each data frame should be used as needed
 #' @return list with 10 data frames
@@ -186,11 +187,15 @@ export_data <- function(occ_digital_voucher_file = '',
                                             'parseGBIF_duplicates',
                                             'parseGBIF_num_duplicates',
                                             'parseGBIF_non_groupable_duplicates',	
-                                            'parseGBIF_duplicates_grouping_status')
+                                            'parseGBIF_duplicates_grouping_status'),
+                        silence=TRUE
                         )
 {
+  if(! silence == TRUE)
+  {
+    print('Loading occurrence file...')
+  }
   
-  print('Loading occurrence file...')
   if(occ_digital_voucher_file !=''  )
   {
     if(!file.exists(occ_digital_voucher_file))
@@ -236,8 +241,11 @@ export_data <- function(occ_digital_voucher_file = '',
       dplyr::arrange(Ctrl_key_family_recordedBy_recordNumber)
   }
   
+  if(! silence == TRUE)
+  {
+    print('Selecting...')
+  }
   
-  print('Selecting...')
   recordedBy_unique <- occ_tmp$Ctrl_key_family_recordedBy_recordNumber %>% unique()
   tot <- NROW(recordedBy_unique)
   s<-0
@@ -249,7 +257,10 @@ export_data <- function(occ_digital_voucher_file = '',
   {
     s <- s+1
     
-    if (s%%100==0){print(paste0(s, ' de ',tot))}
+    if(! silence == TRUE)
+    {
+      if (s%%100==0){print(paste0(s, ' de ',tot))}
+    }
     
     sp_name <- ''
     
@@ -485,7 +496,10 @@ export_data <- function(occ_digital_voucher_file = '',
     
   }
   
-  print('Merging...')
+  if(! silence == TRUE)
+  {
+    print('Merging...')
+  }
   
   # merge and compare
   {
@@ -524,7 +538,10 @@ export_data <- function(occ_digital_voucher_file = '',
       
       if(occ_res_full$parseGBIF_duplicates[index==TRUE][1]==TRUE)
       {
-        print(paste0(i, ' - ', tot, ' - ', key[i]))
+        if(! silence == TRUE)
+        {
+          print(paste0(i, ' - ', tot, ' - ', key[i]))
+        }
         
         index_dup <- occ_dup$Ctrl_key_family_recordedBy_recordNumber %in% key[i]
         

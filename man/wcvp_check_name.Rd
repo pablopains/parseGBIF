@@ -2,7 +2,7 @@
 % Please edit documentation in R/wcvp_check_name.R
 \name{wcvp_check_name}
 \alias{wcvp_check_name}
-\title{Use the World Checklist of Vascular Plants (WCVP) database to check accepted names and update synonyms}
+\title{Check species names against World Checklist of Vascular Plants (WCVP) database}
 \usage{
 wcvp_check_name(
   searchedName = "Hemistylus brasiliensis Wedd.",
@@ -21,9 +21,12 @@ wcvp_check_name(
 Data frame with WCVP fields
 }
 \description{
-Use the \href{https://powo.science.kew.org//}{World Checklist of Vascular Plants}
-\href{http://sftp.kew.org/pub/data-repositories/WCVP/}{database}
-\href{https://powo.science.kew.org/about-wcvp}{(about WCVP)} to check accepted names and update synonyms.
+Use the \href{https://powo.science.kew.org//}{World Checklist of Vascular Plants WCVP}
+\href{http://sftp.kew.org/pub/data-repositories/WCVP/}{database} to check accepted names and update synonyms.
+
+The World Checklist of Vascular Plants (WCVP) database is available from the
+\href{https://powo.science.kew.org/about-wcvp}{Royal Botanic Gardens, Kew}.
+It can be downloaded to a folder of the user’s choice or into memory using the get_wcvp function. The output has 33 columns.
 }
 \details{
 About the World Checklist of Vascular Plants https://powo.science.kew.org/about-wcvp

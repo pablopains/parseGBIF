@@ -8,7 +8,8 @@ wcvp_check_name_batch(
   occ = NA,
   wcvp_names = "",
   if_author_fails_try_without_combinations = TRUE,
-  wcvp_selected_fields = "standard"
+  wcvp_selected_fields = "standard",
+  silence = TRUE
 )
 }
 \arguments{
@@ -22,17 +23,24 @@ Remove the authors of combinations, in parentheses.}
 
 \item{wcvp_selected_fields}{WCVP fields selected as return, 'standard' basic columns, 'all' all available columns.
 The default is 'standard'}
+
+\item{silence}{if TRUE does not display progress messages}
 }
 \value{
 list with two data frames: summary, species list and occ_wcvp_check_name, with WCVP fields
 }
 \description{
-In batch, use the \href{https://powo.science.kew.org//}{World Checklist of Vascular Plants}
-\href{http://sftp.kew.org/pub/data-repositories/WCVP/}{database}
-\href{https://powo.science.kew.org/about-wcvp}{(about WCVP)} to check accepted names and update synonyms
+Species’ names can be checked against WCVP database one by one, or in a batch mode.
+To verify individual names, the function wcvp_check_name is used.
 }
 \details{
-See help(checkName_wcvp) and \href{http://sftp.kew.org/pub/data-repositories/WCVP/}{about WCVP database}
+See help(checkName_wcvp)
+\itemize{
+\item \href{http://sftp.kew.org/pub/data-repositories/WCVP/}{about WCVP database}
+\item \href{https://powo.science.kew.org//}{World Checklist of Vascular Plants}
+\item \href{http://sftp.kew.org/pub/data-repositories/WCVP/}{WCVP database}
+\item \href{https://powo.science.kew.org/about-wcvp}{(about WCVP)}
+}
 }
 \examples{
 # These examples take >10 minutes to run and require 'parseGBIF::wcvp_get_data()'

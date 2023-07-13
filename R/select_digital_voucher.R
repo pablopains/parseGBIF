@@ -50,6 +50,7 @@
 #' @param occ_wcvp_check_name = result of function batch_checkName_wcvp()$occ_wcvp_check_name
 #' @param occ_collectorsDictionary = result of function update_collectorsDictionary()$occ_collectorsDictionary
 #' @param enumOccurrenceIssue An enumeration of validation rules for single occurrence records by GBIF file, if NA, will be used, data(EnumOccurrenceIssue)
+#' @param silence if TRUE does not display progress messages
 #'
 #' @details
 #' * parseGBIF_duplicates_grouping_status - "groupable", "not groupable: no recordedBy and no recordNumber",
@@ -94,7 +95,8 @@ select_digital_voucher <-  function(occ = NA,
                                     occ_gbif_issue = NA,
                                     occ_wcvp_check_name = NA,
                                     occ_collectorsDictionary = NA,
-                                    enumOccurrenceIssue = NA)
+                                    enumOccurrenceIssue = NA,
+                                    silence = TRUE)
 {
   {
   require(dplyr)
@@ -327,7 +329,10 @@ select_digital_voucher <-  function(occ = NA,
       {
       s <- s+1
 
-      if (s%%100==0){print(paste0(s, ' de ',tot))}
+      if(! silence == TRUE)
+      {
+        if (s%%100==0){print(paste0(s, ' de ',tot))}
+      }
 
       # if(japrocessado[s]==TRUE){next}
 

@@ -9,7 +9,8 @@ select_digital_voucher(
   occ_gbif_issue = NA,
   occ_wcvp_check_name = NA,
   occ_collectorsDictionary = NA,
-  enumOccurrenceIssue = NA
+  enumOccurrenceIssue = NA,
+  silence = TRUE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ select_digital_voucher(
 \item{occ_collectorsDictionary}{= result of function update_collectorsDictionary()$occ_collectorsDictionary}
 
 \item{enumOccurrenceIssue}{An enumeration of validation rules for single occurrence records by GBIF file, if NA, will be used, data(EnumOccurrenceIssue)}
+
+\item{silence}{if TRUE does not display progress messages}
 }
 \value{
 list with two data frames: occ_digital voucher_and:

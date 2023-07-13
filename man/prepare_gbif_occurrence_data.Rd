@@ -2,7 +2,7 @@
 % Please edit documentation in R/prepare_gbif_occurrence_data.R
 \name{prepare_gbif_occurrence_data}
 \alias{prepare_gbif_occurrence_data}
-\title{Preparing occurrence data for use by parseGBIF}
+\title{Preparing occurrence data downloaded from GBIF for use by parseGBIF}
 \usage{
 prepare_gbif_occurrence_data(gbif_occurrece_file = "", columns = "standard")
 }

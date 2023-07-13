@@ -9,7 +9,8 @@ generate_collection_event_key(
   occ = NA,
   collectorDictionary_checked_file = NA,
   collectorDictionary_file =
-    "https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv"
+    "https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv",
+  silence = TRUE
 )
 }
 \arguments{
@@ -18,6 +19,8 @@ generate_collection_event_key(
 \item{collectorDictionary_checked_file}{Verified collector dictionary file - point to a file on your local disk}
 
 \item{collectorDictionary_file}{Collector dictionary file - point to a file on your local disk or upload via git at https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv.}
+
+\item{silence}{if TRUE does not display progress messages}
 }
 \value{
 list with three data frames:

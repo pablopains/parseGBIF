@@ -2,9 +2,8 @@
 #'
 #' @name wcvp_check_name_batch
 #'
-#' @description In batch, use the [World Checklist of Vascular Plants](https://powo.science.kew.org//)
-#' [database](http://sftp.kew.org/pub/data-repositories/WCVP/)
-#' [(about WCVP)](https://powo.science.kew.org/about-wcvp) to check accepted names and update synonyms
+#' @description Species’ names can be checked against WCVP database one by one, or in a batch mode. 
+#' To verify individual names, the function wcvp_check_name is used.
 #'
 #' @param occ GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')
 #' @param wcvp_names get data frame in parseGBIF::wcvp_get_data(read_only_to_memory = TRUE)$wcvp_names
@@ -13,8 +12,14 @@
 #' Remove the authors of combinations, in parentheses.
 #' @param wcvp_selected_fields WCVP fields selected as return, 'standard' basic columns, 'all' all available columns.
 #' The default is 'standard'
+#' @param silence if TRUE does not display progress messages
 #'
-#' @details See help(checkName_wcvp) and [about WCVP database](http://sftp.kew.org/pub/data-repositories/WCVP/)
+#' @details See help(checkName_wcvp) 
+#' * [about WCVP database](http://sftp.kew.org/pub/data-repositories/WCVP/)
+#' * [World Checklist of Vascular Plants](https://powo.science.kew.org//)
+#' * [WCVP database](http://sftp.kew.org/pub/data-repositories/WCVP/)
+#' * [(about WCVP)](https://powo.science.kew.org/about-wcvp)
+
 #'
 #' @author Pablo Hendrigo Alves de Melo,
 #'         Nadia Bystriakova &
@@ -70,7 +75,8 @@
 wcvp_check_name_batch <- function(occ = NA,
                                  wcvp_names = '',
                                  if_author_fails_try_without_combinations = TRUE,
-                                 wcvp_selected_fields = 'standard')
+                                 wcvp_selected_fields = 'standard',
+                                 silence = TRUE)
 {
 
   if(class(wcvp_names)!='data.frame')
@@ -190,8 +196,11 @@ wcvp_check_name_batch <- function(occ = NA,
   for(i in 1:tot_rec)
   {
     sp_tmp <- name_search_wcvp[i]
-
-    print( paste0( i, '-',tot_rec ,' ',  sp_tmp))
+    
+    if(! silence == TRUE)
+    {
+      print( paste0( i, '-',tot_rec ,' ',  sp_tmp))
+    }
 
     x_tmp <- wcvp_check_name(searchedName = sp_tmp,
                             wcvp_names = wcvp_names,

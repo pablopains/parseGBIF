@@ -35,7 +35,8 @@ export_data(
     "wcvp_reviewed", 
      "wcvp_searchNotes", "parseGBIF_digital_voucher",
     "parseGBIF_duplicates", "parseGBIF_num_duplicates",
-    "parseGBIF_non_groupable_duplicates", "parseGBIF_duplicates_grouping_status")
+    "parseGBIF_non_groupable_duplicates", "parseGBIF_duplicates_grouping_status"),
+  silence = TRUE
 )
 }
 \arguments{
@@ -50,6 +51,8 @@ export_data(
 \item{fields_to_compare}{fields to compare content frequency}
 
 \item{fields_to_parse}{all fields}
+
+\item{silence}{if TRUE does not display progress messages}
 }
 \value{
 list with 10 data frames
