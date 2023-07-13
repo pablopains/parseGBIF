@@ -49,3 +49,5 @@ print(citation("parseGBIF"), bibtex = FALSE)
 #>   parsing species occurrence records." _Methods in Ecology and
 #>   Evolution_, *1*(11), 1-11. doi:doi..... <https://doi.org/doi.....>.
 ```
+
+## **Consult the [parseGBIF Manual](https://github.com/pablopains/parseGBIF/blob/main/parseGBIF_Manual.pdf) for a case study with a complete and replicable workflow**

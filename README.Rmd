@@ -41,4 +41,4 @@ Please site parseGBIF as:
 print(citation("parseGBIF"), bibtex = FALSE)
 ```
 
-
+## **Consult the [parseGBIF Manual](https://github.com/pablopains/parseGBIF/blob/main/parseGBIF_Manual.pdf) for a case study with a complete and replicable workflow**
