@@ -1,5 +1,5 @@
 #' @title Preparing occurrence data downloaded from GBIF for use by parseGBIF
-#' 
+#'
 #' @name prepare_gbif_occurrence_data
 #'
 #' @description Prepare occurrence data downloaded from GBIF to be used by ParsGBIF functions
@@ -60,6 +60,8 @@ prepare_gbif_occurrence_data <- function(gbif_occurrece_file = '',
   occ <- occ[ ,col_sel]
 
   colnames(occ) <- paste0('Ctrl_',colnames(occ))
+
+  occ$Ctrl_hasCoordinate[is.na(occ$Ctrl_hasCoordinate)==TRUE] <- FALSE
 
   return(occ)
 }

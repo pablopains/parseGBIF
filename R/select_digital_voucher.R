@@ -2,31 +2,31 @@
 #' @name select_digital_voucher
 #'
 #' @description To group duplicates and choose the digital voucher:
-#' Unique collection events can result in many ‘duplicate’ GBIF records. We designate one of these ‘duplicate’ records 
+#' Unique collection events can result in many ‘duplicate’ GBIF records. We designate one of these ‘duplicate’ records
 #' as the master digital voucher, to which data from other duplicate vouchers can be merged (see export_data):
-#' 
-#' __Where the collection event key for grouping duplicates is complete__, then duplicates can be grouped / parsed. 
-#' To do so, we evaluate record completeness. Record completeness is calculated based on data-quality scores 
-#' for the information in the following  fields: recordedBy, recordNumber, year, institutionCode, catalogNumber, locality, municipality, 
-#' countryCode, stateProvince and fieldNotes. The spatial coordinates associated with each duplicate are ranked using a score for the 
-#' quality of the geospatial information. This score is calculated using the issues listed in the GBIF table, EnumOccurrenceIssue.  
-#' A score is calculated based on these issues (see above). The duplicate with the highest total score is assigned as the master voucher 
-#' for the unique collection event. Missing information contained in duplicate records of the unique collection event can then be merged 
-#' into the master digital voucher (see export_data). 
-#' 
-#' __Where the collection event key is incomplete__, unique collection event duplicates cannot be parsed. In this case, 
-#' each record is considered as a unique collection event, without duplicates. However, to know the integrity 
+#'
+#' __Where the collection event key for grouping duplicates is complete__, then duplicates can be grouped / parsed.
+#' To do so, we evaluate record completeness. Record completeness is calculated based on data-quality scores
+#' for the information in the following  fields: recordedBy, recordNumber, year, institutionCode, catalogNumber, locality, municipality,
+#' countryCode, stateProvince and fieldNotes. The spatial coordinates associated with each duplicate are ranked using a score for the
+#' quality of the geospatial information. This score is calculated using the issues listed in the GBIF table, EnumOccurrenceIssue.
+#' A score is calculated based on these issues (see above). The duplicate with the highest total score is assigned as the master voucher
+#' for the unique collection event. Missing information contained in duplicate records of the unique collection event can then be merged
+#' into the master digital voucher (see export_data).
+#'
+#' __Where the collection event key is incomplete__, unique collection event duplicates cannot be parsed. In this case,
+#' each record is considered as a unique collection event, without duplicates. However, to know the integrity
 #' of the information, record completeness and quality of the geospatial information, are evaluated as described above.
-#' 
+#'
 #' __How is the quality score calculated?__
 #' parseGBIF_digital_voucher = The duplicate with the highest total score, sum of record completeness + quality of geospatial information.
-#' 
+#'
 #' __How is record completeness calculated?__
-#' The quality of the duplicate records associated with each collection event key is measured as the 
+#' The quality of the duplicate records associated with each collection event key is measured as the
 #' completeness of a record, using the sum of a number of flags (see below) equal to TRUE.
-#'   
+#'
 #' __Flags used to calculate record completeness__
-#' 
+#'
 #' * Is there information about the collector?
 #' * Is there information about the collection number?
 #' * Is there information about the year of collection?
@@ -36,11 +36,11 @@
 #' * Is there information about the municipality of collection?
 #' * Is there information about the state/province of collection?
 #' * Is there information about the field notes?
-#'   
+#'
 #' __The quality of geospatial information is based on geographic issues raised by GBIF.__
-#' GIBF issues relating to geospatial data were classified into three classes based on the data quality 
+#' GIBF issues relating to geospatial data were classified into three classes based on the data quality
 #' scores that we assigned to each of the following GBIF issues recorded in the EnumOccurrenceIssue.
-#'  
+#'
 #' * Issue does not affect coordinating accuracy, with selection_score equal to -1
 #' * Issue has potential to affect coordinate accuracy, with selection_score equal to -3
 #' * Records with a selection_score equal to -9 are excluded.
@@ -58,7 +58,7 @@
 #' * parseGBIF_num_duplicates number of duplicates records
 #' * parseGBIF_duplicates TRUE/FALSE
 #' * parseGBIF_non_groupable_duplicates TRUE/FALSE
-#' 
+#'
 #'
 #' @return list with two data frames: occ_digital voucher_and:
 #' occ_digital_voucher,  with all data processing fields and
@@ -208,7 +208,7 @@ select_digital_voucher <-  function(occ = NA,
                     temLocalidade = ifelse( is.na(Ctrl_locality) | Ctrl_locality=="",
                                             FALSE, TRUE) %>%
                       ifelse(is.na(.), FALSE,.),
-                    
+
                     temNotas = ifelse( is.na(Ctrl_fieldNotes) | Ctrl_fieldNotes=="",
                                                FALSE, TRUE) %>%
                       ifelse(is.na(.), FALSE,.)
@@ -231,8 +231,8 @@ select_digital_voucher <-  function(occ = NA,
   # for
   {
 
-    occ$Ctrl_hasCoordinate[is.na(occ_b$Ctrl_hasCoordinate)==TRUE] <- FALSE
-    
+    # occ$Ctrl_hasCoordinate[is.na(occ$Ctrl_hasCoordinate)==TRUE] <- FALSE
+
     occ <- occ %>%
       dplyr::mutate(Ctrl_geospatial_quality = 0,
                     Ctrl_verbatim_quality = 0,
@@ -241,15 +241,15 @@ select_digital_voucher <-  function(occ = NA,
                     parseGBIF_duplicates = FALSE,
                     parseGBIF_non_groupable_duplicates = FALSE,
                     parseGBIF_num_duplicates = 0,
-                    
+
                     # match status between duplicates
                     parseGBIF_duplicates_grouping_status = '',
-                    
+
                     Ctrl_coordinates_validated_by_gbif_issue = FALSE)
-                    # 
-                    # 
+                    #
+                    #
                     # # parseGBIF_unidentified_sample = TRUE,
-                    # 
+                    #
                     # # sample taxon name
                     # parseGBIF_sample_taxon_name = '',
                     # # sample identification status
@@ -263,7 +263,7 @@ select_digital_voucher <-  function(occ = NA,
     occ <- occ %>%
       dplyr::mutate(Ctrl_coordinates_validated_by_gbif_issue = ifelse(Ctrl_hasCoordinate == FALSE | Ctrl_decimalLatitude==0 | Ctrl_decimalLongitude==0, FALSE,
                                                                    Ctrl_coordinates_validated_by_gbif_issue))
-    
+
     occ <- occ %>%
       dplyr::mutate(Ctrl_geospatial_quality = ifelse(rowSums(occ[,EnumOccurrenceIssue$constant[index_tmp3 == TRUE]])>0, -9,
                                                 ifelse(rowSums(occ[,EnumOccurrenceIssue$constant[index_tmp2 == TRUE]])>0, -3,
@@ -274,10 +274,10 @@ select_digital_voucher <-  function(occ = NA,
                                                      -9, #EnumOccurrenceIssue$
                                                      Ctrl_geospatial_quality))
     # occ <- occ %>%
-    #   dplyr::mutate(Ctrl_geospatial_quality = ifelse(Ctrl_coordinates_validated_by_gbif_issue == FALSE, 
+    #   dplyr::mutate(Ctrl_geospatial_quality = ifelse(Ctrl_coordinates_validated_by_gbif_issue == FALSE,
     #                                                  -9, #EnumOccurrenceIssue$
     #                                                  Ctrl_geospatial_quality))
-    
+
     occ <- occ %>%
       dplyr::mutate(Ctrl_verbatim_quality = (temColetor +
                                             temNumeroColeta +
@@ -323,11 +323,11 @@ select_digital_voucher <-  function(occ = NA,
 
     recordedBy_unique <- occ$Ctrl_key_family_recordedBy_recordNumber %>% unique()
 
-    
+
     recordedBy_unique <- occ$Ctrl_key_family_recordedBy_recordNumber %>% unique()
-    
+
     # recordedBy_unique <- recordedBy_unique_b[64600:64700]
-    # 
+    #
     # r= recordedBy_unique[60]
 
     # japrocessado <<- rep(FALSE,length(recordedBy_unique))
@@ -412,14 +412,14 @@ select_digital_voucher <-  function(occ = NA,
                         # # aqui
                         # parseGBIF_sample_taxon_name = sp_name,
                         # parseGBIF_unidentified_sample = ifelse(sp_name %in% '', TRUE,FALSE),
-                        
+
                         parseGBIF_duplicates_grouping_status = ifelse(FAMILY__==TRUE,
                                                             'not groupable: no recordedBy and no recordNumber',
                                                             ifelse(FAMILY__recordNumber==TRUE,
                                                                    'not groupable: no recordNumber ',
                                                                    ifelse(FAMILY_recordedBy_==TRUE,
                                                                           'not groupable: no recordedBy', 'not groupable')))
-          
+
                         # # aqui
                         # parseGBIF_number_taxon_names = ifelse(sp_name %in% '',
                         #                                      0,
@@ -439,19 +439,19 @@ select_digital_voucher <-  function(occ = NA,
       #   dplyr::mutate(parseGBIF_duplicates_grouping_status = 'groupable',
       #                 parseGBIF_duplicates = num_records > 1,
       #                 parseGBIF_num_duplicates = num_records)
-      # 
+      #
       # occ[index_occ==TRUE, ]$parseGBIF_digital_voucher <-
       #   (occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord ==
       #      max(occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord) )
-      # # 
-      
+      # #
+
       occ[index_occ==TRUE, ] <- occ[index_occ==TRUE, ] %>%
         dplyr::mutate(parseGBIF_duplicates_grouping_status = 'groupable',
                       parseGBIF_duplicates = num_records > 1,
                       parseGBIF_num_duplicates = num_records,
                       parseGBIF_digital_voucher = (occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord ==
                                                      max(occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord)))
-      
+
       #
       # 64600+
       if (sum(occ[index_occ==TRUE, ]$parseGBIF_digital_voucher)>1)
@@ -473,14 +473,14 @@ select_digital_voucher <-  function(occ = NA,
         # print(paste0('6 - Selection of the more informative record ', 100/sum(index_end),' %'))
 
       }
-      
+
       }
-      
+
       {
-        
-        
+
+
       }
-      
+
     }
 
   }
