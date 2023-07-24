@@ -62,7 +62,7 @@
 <!-- badges: start -->
 
 <!-- badges: end -->
-<p>parseGBIF package is designed to convert <a href="https://www.gbif.org/" class="external-link">Global Biodiversity Information Facility - GBIF</a> species occurrence data to a more comprehensible format to be used for further analysis, e.g. spatial. The package provides tools for verifying and standardizing species scientific names and for selecting the most informative species records when duplicates are available. The Manual provides a brief introduction to parseGBIF, with more information available from Help pages accessed via help(function_name).</p>
+<p>The parseGBIF package is designed to repackage <a href="https://www.gbif.org/" class="external-link">Global Biodiversity Information Facility - GBIF</a> species occurrence records into a format that optimises its use in further analyses. Currently occurrence records in GBIF can include several duplicate digital records, and in the case of vascular plants, for several physical duplicates of unique collection events (biological collections). parseGBIF aims to parse these records to a single, synthetic, record corresponding to a unique collection event to which a standardized scientific name is associated. It does so by providing tools to verify and standardize species scientific names, score the quality of both the naming of a record and of its associated spatial data, and to use those scores to synthesise and parse duplicate records into unique collection events. This Manual provides a brief introduction to parseGBIF, with more information available from Help pages accessed via the help fuction. We believe that this package will be of particular use for analyses of plant occurrence data.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -71,170 +71,17 @@
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"pablopains/parseGBIF"</span><span class="op">)</span></span></code></pre></div>
 <p>Please site parseGBIF as:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"parseGBIF"</span><span class="op">)</span>, bibtex <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"parseGBIF"</span><span class="op">)</span>, bibtex <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; To cite package 'parseGBIF' in publications use:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Melo P, Bystriakova N, Monro A (2023). "ParsGBIF: An R package for</span></span>
+<span><span class="co">#&gt;   parsing species occurrence records." _Methods in Ecology and</span></span>
+<span><span class="co">#&gt;   Evolution_, *1*(11), 1-11. doi:doi..... &lt;https://doi.org/doi.....&gt;.</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+<h2 id="consult-the-parsegbif-manual-for-a-case-study-with-a-complete-and-replicable-workflow">
+<strong>Consult the <a href="https://github.com/pablopains/parseGBIF/blob/main/parseGBIF_Manual.pdf" class="external-link">parseGBIF Manual</a> for a case study with a complete and replicable workflow</strong><a class="anchor" aria-label="anchor" href="#consult-the-parsegbif-manual-for-a-case-study-with-a-complete-and-replicable-workflow"></a>
 </h2>
-<p><strong>parseGBIF makes it easy to get species occurrence records based on GBIF.</strong></p>
-<div class="section level3">
-<h3 id="id_1-gbif-data-preparation">1. GBIF data preparation<a class="anchor" aria-label="anchor" href="#id_1-gbif-data-preparation"></a>
-</h3>
-<div class="section level4">
-<h4 id="id_11-obtaining-occurrence-data-of-the-species-records-from-gbif">1.1. Obtaining occurrence data of the species records from GBIF<a class="anchor" aria-label="anchor" href="#id_11-obtaining-occurrence-data-of-the-species-records-from-gbif"></a>
-</h4>
-<p>1.1.1. Access a registered account in <a href="gbif.org">GBIF</a></p>
-<p>1.1.2. Filter occurrences using available fields, for instance:</p>
-<ul>
-<li>Basis of record: <em>Preserved specimen</em>
-</li>
-<li>Occurrence status: <em>present</em>
-</li>
-<li>Scientific name: <em>Botanical family name</em> (e.g. Achatocarpaceae) or <strong>filter by other fields</strong>
-</li>
-</ul>
-<p>1.1.3. Request to download information in <strong>DARWIN CORE ARCHIVE FORMAT</strong></p>
-<p>1.1.4. Download compressed file and unzip downloaded file</p>
-<p>1.1.5. Use the <strong>occurrence.txt</strong> file as input to the prepare_gbif_occurrence_data(gbif_occurrece_file = ‘occurrence.txt’) function</p>
-</div>
-<div class="section level4">
-<h4 id="id_12-preparing-occurrence-data-downloaded-from-gbif">1.2. Preparing occurrence data downloaded from GBIF<a class="anchor" aria-label="anchor" href="#id_12-preparing-occurrence-data-downloaded-from-gbif"></a>
-</h4>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span>  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">parseGBIF</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="va">occ_file</span> <span class="op">&lt;-</span> <span class="st">'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt'</span></span>
-<span>  </span>
-<span>  <span class="va">occ</span> <span class="op">&lt;-</span> <span class="fu">parseGBIF</span><span class="fu">::</span><span class="fu"><a href="reference/prepare_gbif_occurrence_data.html">prepare_gbif_occurrence_data</a></span><span class="op">(</span>gbif_occurrece_file <span class="op">=</span> <span class="va">occ_file</span>, columns <span class="op">=</span> <span class="st">'standard'</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span>  <span class="va">col_standard</span> <span class="op">&lt;-</span> <span class="fu">parseGBIF</span><span class="fu">::</span><span class="fu"><a href="reference/select_gbif_fields.html">select_gbif_fields</a></span><span class="op">(</span>columns <span class="op">=</span> <span class="st">'standard'</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">col_standard</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="id_13-extracting-gbif-issue">1.3. Extracting GBIF issue<a class="anchor" aria-label="anchor" href="#id_13-extracting-gbif-issue"></a>
-</h4>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">EnumOccurrenceIssue</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">EnumOccurrenceIssue</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span> <span class="va">occ_gbif_issue</span> <span class="op">&lt;-</span> <span class="fu">parseGBIF</span><span class="fu">::</span><span class="fu"><a href="reference/extract_gbif_issue.html">extract_gbif_issue</a></span><span class="op">(</span>occ <span class="op">=</span> <span class="va">occ</span><span class="op">)</span></span></code></pre></div>
-</div>
-</div>
-<div class="section level3">
-<h3 id="id_2-check-species-names-against-wcvp-database">2. Check species names against WCVP database<a class="anchor" aria-label="anchor" href="#id_2-check-species-names-against-wcvp-database"></a>
-</h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span>  <span class="va">wcvp_names</span> <span class="op">&lt;-</span> <span class="fu">get_wcvp</span><span class="op">(</span>read_only_to_memory <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">$</span><span class="va">wcvp_names</span></span>
-<span>  </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">wcvp_names</span><span class="op">)</span></span></code></pre></div>
-<p>Species’ names can be checked against WCVP database one by one or in a batch mode. To verify individual names, the function checkName_wcvp is used.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span>  <span class="va">name.checked</span> <span class="op">&lt;-</span> <span class="fu">checkName_wcvp</span><span class="op">(</span>searchedName <span class="op">=</span> <span class="st">'Achatocarpus mollis H.Walter'</span>,</span>
-<span>                 wcvp_names <span class="op">=</span> <span class="va">wcvp_names</span>,</span>
-<span>                 if_author_fails_try_without_combinations <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span>  <span class="va">name.checked</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span><span class="op">:</span><span class="fl">5</span>,<span class="fl">22</span>,<span class="fl">23</span>,<span class="fl">40</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span>  <span class="va">names.checked</span> <span class="op">&lt;-</span> <span class="fu">batch_checkName_wcvp</span><span class="op">(</span>occ <span class="op">=</span> <span class="va">occ</span>,</span>
-<span>                                                   wcvp_names <span class="op">=</span>  <span class="va">wcvp_names</span>,</span>
-<span>                                                   if_author_fails_try_without_combinations <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                                                   wcvp_selected_fields <span class="op">=</span> <span class="st">'standard'</span><span class="op">)</span></span>
-<span>  </span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># hybrid separator</span></span>
-<span><span class="fu"><a href="reference/standardize_scientificName.html">standardize_scientificName</a></span><span class="op">(</span><span class="st">'Leucanthemum ×superbum (Bergmans ex J.W.Ingram) D.H.Kent'</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># variety </span></span>
-<span><span class="fu"><a href="reference/standardize_scientificName.html">standardize_scientificName</a></span><span class="op">(</span><span class="st">'Platymiscium pubescens subsp. fragrans (Rusby) Klitg.'</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># library(parseGBIF)</span></span>
-<span><span class="fu">get_lastNameRecordedBy</span><span class="op">(</span><span class="st">'Melo, P.H.A, Bystriakova, N. &amp; Monro, A.'</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">get_lastNameRecordedBy</span><span class="op">(</span><span class="st">'Monro, A.; Bystriakova, N. &amp; Melo, P.H.A'</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">get_lastNameRecordedBy</span><span class="op">(</span><span class="st">'Bystriakova, N., Monro, A.,Melo, P.H.A'</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="id_3-collectors-dictionary">3. Collectors Dictionary<a class="anchor" aria-label="anchor" href="#id_3-collectors-dictionary"></a>
-</h3>
-<div class="section level4">
-<h4 id="id_31-prepare-dictionary-collectors">3.1 Prepare dictionary collectors<a class="anchor" aria-label="anchor" href="#id_31-prepare-dictionary-collectors"></a>
-</h4>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">collectorsDictionary.dataset</span> <span class="op">&lt;-</span> <span class="fu">prepare_collectorsDictionary</span><span class="op">(</span>occ <span class="op">=</span> <span class="va">occ</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="id_32-check-the-main-collectors-last-name">3.2 Check the main collector’s last name<a class="anchor" aria-label="anchor" href="#id_32-check-the-main-collectors-last-name"></a>
-</h4>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span>  <span class="va">file.collectorsDictionary.dataset</span> <span class="op">&lt;-</span>  <span class="st">'file_collectorsDictionary_dataset.csv'</span></span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">collectorsDictionary.dataset</span>,</span>
-<span>            <span class="va">file.collectorsDictionary.dataset</span>, </span>
-<span>            row.names <span class="op">=</span> <span class="cn">FALSE</span>, </span>
-<span>            fileEncoding <span class="op">=</span> <span class="st">"UTF-8"</span>, </span>
-<span>            na <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="id_33-update-dictionary-collectors">3.3 Update dictionary collectors<a class="anchor" aria-label="anchor" href="#id_33-update-dictionary-collectors"></a>
-</h4>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span>  <span class="va">occ_collectorsDictionary</span> <span class="op">&lt;-</span> <span class="fu">update_collectorsDictionary</span><span class="op">(</span>occ<span class="op">=</span><span class="va">occ</span>,</span>
-<span>                                        collectorDictionary_checked_file <span class="op">=</span> <span class="va">file.collectorsDictionary.dataset</span><span class="op">)</span></span></code></pre></div>
-</div>
-</div>
-<div class="section level3">
-<h3 id="id_4-select-digital-voucher">4. Select digital voucher<a class="anchor" aria-label="anchor" href="#id_4-select-digital-voucher"></a>
-</h3>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span>  <span class="va">occ_digital_voucher</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/select_digital_voucher.html">select_digital_voucher</a></span><span class="op">(</span>occ <span class="op">=</span> <span class="va">occ</span>,</span>
-<span>  occ_gbif_issue <span class="op">=</span> <span class="va">occ_gbif_issue</span><span class="op">$</span><span class="va">occ_gbif_issue</span>,</span>
-<span>  occ_checkName_wcvp <span class="op">=</span> <span class="va">names.checked</span><span class="op">$</span><span class="va">occ_checkName_wcvp</span> ,</span>
-<span>  occ_collectorsDictionary <span class="op">=</span> <span class="va">occ_collectorsDictionary</span><span class="op">$</span><span class="va">occ_collectorsDictionary</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="id_5-export-of-results">5. Export of results<a class="anchor" aria-label="anchor" href="#id_5-export-of-results"></a>
-</h3>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span>  <span class="va">occ_resuts</span> <span class="op">&lt;-</span>  <span class="fu"><a href="reference/export_data.html">export_data</a></span><span class="op">(</span>occ_digital_voucher_file <span class="op">=</span> <span class="va">file.occ_digital_voucher</span> <span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">occ_resuts</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">NROW</a></span><span class="op">(</span><span class="va">occ_resuts</span><span class="op">$</span><span class="va">occ_in</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">NROW</a></span><span class="op">(</span><span class="va">occ_resuts</span><span class="op">$</span><span class="va">occ_out_to_recover</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">NROW</a></span><span class="op">(</span><span class="va">occ_resuts</span><span class="op">$</span><span class="va">occ_dup</span><span class="op">)</span></span>
-<span>  </span>
-<span>  </span>
-<span>  <span class="va">file.in</span> <span class="op">&lt;-</span>  <span class="st">'parseGBIF_occ_in.csv'</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">occ_resuts</span><span class="op">$</span><span class="va">occ_in</span>,</span>
-<span>            <span class="va">file.in</span>, </span>
-<span>            row.names <span class="op">=</span> <span class="cn">FALSE</span>, </span>
-<span>            fileEncoding <span class="op">=</span> <span class="st">"UTF-8"</span>, </span>
-<span>            na <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="va">file.occ_out_to_recover</span> <span class="op">&lt;-</span>  <span class="st">'parseGBIF_occ_out_to_recover.csv'</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">occ_resuts</span><span class="op">$</span><span class="va">occ_out_to_recover</span>,</span>
-<span>            <span class="va">file.occ_out_to_recover</span>, </span>
-<span>            row.names <span class="op">=</span> <span class="cn">FALSE</span>, </span>
-<span>            fileEncoding <span class="op">=</span> <span class="st">"UTF-8"</span>, </span>
-<span>            na <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
-<span></span>
-<span></span>
-<span>  <span class="va">file.dup</span> <span class="op">&lt;-</span>  <span class="st">'parseGBIF_occ_dup.csv'</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">occ_resuts</span><span class="op">$</span><span class="va">occ_dup</span>,</span>
-<span>            <span class="va">file.dup</span>, </span>
-<span>            row.names <span class="op">=</span> <span class="cn">FALSE</span>, </span>
-<span>            fileEncoding <span class="op">=</span> <span class="st">"UTF-8"</span>, </span>
-<span>            na <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span></code></pre></div>
-</div>
 </div>
 </div>
   </div>

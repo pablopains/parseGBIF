@@ -1,20 +1,21 @@
 #' @title Generating the collection event key
-#' @name generate_collection_event_key 
+#' @name generate_collection_event_key
 #'
-#' @description This generates a key to identify the physical and digital duplicates, of a given collection event. 
-#' It combines the primary collector's surname, the collector's number and the botanical family, a key is created 
+#' @description This generates a key to identify the physical and digital duplicates, of a given collection event.
+#' It combines the primary collector's surname, the collector's number and the botanical family, a key is created
 #' (family + recordByStandardized + recordNumber_Standard) that allows grouping the duplicates of the same unique
 #' collection event.
-#' 
+#'
 #' It also identifiesnew collectors to be added to the collector dictionary and that can be reused in the future.
-#' 
+#'
 #' Include recordedByStandardized field with verified main collector's last name.
 #' Include recordNumber_Standard field with only numbers from recordNumber.
 #' Create the collection event key to group duplicates in the key_family_recordedBy_recordNumber field,
 #' composed of the fields: family + recordedByStandardized + recordNumber_Standard.
 #'
 #' @param occ GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')
-#' @param collectorDictionary_checked_file Verified collector dictionary file - point to a file on your local disk
+#' @param collectorDictionary_checked_file Verified collector dictionary file - point to a file on your local disk (use file or data frame)
+#' @param collectorDictionary_checked Verified collector dictionary data frame (use file or data frame)
 #' @param collectorDictionary_file Collector dictionary file - point to a file on your local disk or upload via git at https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv.
 #' @param silence if TRUE does not display progress messages
 #'
@@ -42,7 +43,10 @@
 #' \donttest{
 #' collectorsDictionaryFromDataset <- prepare_lastNameRecordedBy(occ=occ,
 #'                                                               collectorDictionary_checked_file='collectorDictionary_checked.csv')
-#'}
+#'
+#' names(collectorsDictionaryFromDataset)
+#'
+#' }
 #'
 #' @import stringr
 #' @import dplyr
@@ -50,6 +54,7 @@
 #' @export
 generate_collection_event_key <- function(occ=NA,
                                       collectorDictionary_checked_file = NA,
+                                      collectorDictionary_checked = NA,
                                       collectorDictionary_file = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv',
                                       silence = TRUE)
 {
@@ -89,15 +94,12 @@ generate_collection_event_key <- function(occ=NA,
     print('Loading collectorDictionary checked...')
   }
 
-  if( (!file.exists(collectorDictionary_checked_file)) | collectorDictionary_checked_file=='' | is.na(collectorDictionary_checked_file) )
+  if( !is.na(collectorDictionary_checked_file) )
   {
-    stop("Invalid Collector's Dictionary checked!")
-
+    collectorDictionary_checked <- readr::read_csv(collectorDictionary_checked_file,
+                                                   locale = readr::locale(encoding = "UTF-8"),
+                                                   show_col_types = FALSE)
   }
-
-  collectorDictionary_checked <- readr::read_csv(collectorDictionary_checked_file,
-                                         locale = readr::locale(encoding = "UTF-8"),
-                                         show_col_types = FALSE)
 
 
   if(NROW(collectorDictionary_checked)==0 | any(colnames(collectorDictionary_checked) %in% c('Ctrl_nameRecordedBy_Standard',
@@ -115,7 +117,8 @@ generate_collection_event_key <- function(occ=NA,
 
 
   collectorDictionary_checked <- collectorDictionary_checked %>%
-    dplyr::mutate(Ctrl_recordedBy = Ctrl_recordedBy %>% toupper()) %>%
+    dplyr::mutate(Ctrl_recordedBy = Ctrl_recordedBy %>% toupper(),
+                  Ctrl_nameRecordedBy_Standard = Ctrl_nameRecordedBy_Standard %>% toupper()) %>%
     data.frame()
 
 
@@ -157,7 +160,7 @@ generate_collection_event_key <- function(occ=NA,
    if(! silence == TRUE)
    {
      print("let's go...")
-     print(NROW(recordedBy_unique))
+     # print(NROW(recordedBy_unique))
    }
 
    # atualizando tabela de occorencias
@@ -165,20 +168,30 @@ generate_collection_event_key <- function(occ=NA,
    rt <- NROW(recordedBy_unique)
    ri <- 0
 
+   occ$Ctrl_recordedBy <- occ$Ctrl_recordedBy %>% toupper()
+
    r=recordedBy_unique[1]
+   s <- 0
+
    for (r in recordedBy_unique)
    {
       ri <- ri + 1
+      s <- s+1
+
 
       if (is.na(r)) {next}
-      index_occ <- (occ$Ctrl_recordedBy %>% toupper() %in% r) %>% ifelse(is.na(.), FALSE,.)
+      # index_occ <- (occ$Ctrl_recordedBy %>% toupper() %in% r) %>% ifelse(is.na(.), FALSE,.)
+      index_occ <- (occ$Ctrl_recordedBy %in% r) %>% ifelse(is.na(.), FALSE,.)
       num_records <- NROW(occ[index_occ==TRUE,])
       index_ajusted <- (collectorDictionary_checked$Ctrl_recordedBy == r) %>% ifelse(is.na(.), FALSE,.)
-      
+
       if(! silence == TRUE)
       {
         print(paste0(ri, ' de ', rt, ' - ', r,' : ',num_records, ' registros' ))
       }
+
+      if(s%%1000==0){print(paste0(s, ' de ',tot))}
+
 
       if (NROW(collectorDictionary_checked[index_ajusted==TRUE,]) == 0)
       {
@@ -210,7 +223,7 @@ generate_collection_event_key <- function(occ=NA,
          data.frame(Ctrl_nameRecordedBy_Standard  = collectorDictionary_checked_tmp)
 
    }
-   
+
    if(! silence == TRUE)
    {
       print('...finished!')

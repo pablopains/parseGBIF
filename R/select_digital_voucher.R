@@ -231,6 +231,8 @@ select_digital_voucher <-  function(occ = NA,
   # for
   {
 
+    occ$Ctrl_hasCoordinate[is.na(occ_b$Ctrl_hasCoordinate)==TRUE] <- FALSE
+    
     occ <- occ %>%
       dplyr::mutate(Ctrl_geospatial_quality = 0,
                     Ctrl_verbatim_quality = 0,
@@ -268,9 +270,13 @@ select_digital_voucher <-  function(occ = NA,
                                                        ifelse(rowSums(occ[,EnumOccurrenceIssue$constant[index_tmp1 == TRUE]])>0, -1, 0))))
 
     occ <- occ %>%
-      dplyr::mutate(Ctrl_geospatial_quality = ifelse(Ctrl_hasCoordinate == FALSE, 
+      dplyr::mutate(Ctrl_geospatial_quality = ifelse(Ctrl_hasCoordinate == FALSE,
                                                      -9, #EnumOccurrenceIssue$
                                                      Ctrl_geospatial_quality))
+    # occ <- occ %>%
+    #   dplyr::mutate(Ctrl_geospatial_quality = ifelse(Ctrl_coordinates_validated_by_gbif_issue == FALSE, 
+    #                                                  -9, #EnumOccurrenceIssue$
+    #                                                  Ctrl_geospatial_quality))
     
     occ <- occ %>%
       dplyr::mutate(Ctrl_verbatim_quality = (temColetor +
@@ -317,6 +323,12 @@ select_digital_voucher <-  function(occ = NA,
 
     recordedBy_unique <- occ$Ctrl_key_family_recordedBy_recordNumber %>% unique()
 
+    
+    recordedBy_unique <- occ$Ctrl_key_family_recordedBy_recordNumber %>% unique()
+    
+    # recordedBy_unique <- recordedBy_unique_b[64600:64700]
+    # 
+    # r= recordedBy_unique[60]
 
     # japrocessado <<- rep(FALSE,length(recordedBy_unique))
 
@@ -422,15 +434,26 @@ select_digital_voucher <-  function(occ = NA,
         next
       }
 
+      # # juntar
+      # occ[index_occ==TRUE, ] <- occ[index_occ==TRUE, ] %>%
+      #   dplyr::mutate(parseGBIF_duplicates_grouping_status = 'groupable',
+      #                 parseGBIF_duplicates = num_records > 1,
+      #                 parseGBIF_num_duplicates = num_records)
+      # 
+      # occ[index_occ==TRUE, ]$parseGBIF_digital_voucher <-
+      #   (occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord ==
+      #      max(occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord) )
+      # # 
+      
       occ[index_occ==TRUE, ] <- occ[index_occ==TRUE, ] %>%
         dplyr::mutate(parseGBIF_duplicates_grouping_status = 'groupable',
                       parseGBIF_duplicates = num_records > 1,
-                      parseGBIF_num_duplicates = num_records)
-
-      occ[index_occ==TRUE, ]$parseGBIF_digital_voucher <-
-        (occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord ==
-           max(occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord) )
-
+                      parseGBIF_num_duplicates = num_records,
+                      parseGBIF_digital_voucher = (occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord ==
+                                                     max(occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord)))
+      
+      #
+      # 64600+
       if (sum(occ[index_occ==TRUE, ]$parseGBIF_digital_voucher)>1)
       {
 
@@ -479,3 +502,4 @@ select_digital_voucher <-  function(occ = NA,
     occ_digital_voucher = cbind(occ_gbif_issue, occ_in, occ_wcvp_check_name, occ_collectorsDictionary, occ),
     occ_results = occ  ))
 }
+

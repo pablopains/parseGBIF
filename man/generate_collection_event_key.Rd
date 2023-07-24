@@ -8,6 +8,7 @@
 generate_collection_event_key(
   occ = NA,
   collectorDictionary_checked_file = NA,
+  collectorDictionary_checked = NA,
   collectorDictionary_file =
     "https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv",
   silence = TRUE
@@ -16,7 +17,9 @@ generate_collection_event_key(
 \arguments{
 \item{occ}{GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')}
 
-\item{collectorDictionary_checked_file}{Verified collector dictionary file - point to a file on your local disk}
+\item{collectorDictionary_checked_file}{Verified collector dictionary file - point to a file on your local disk (use file or data frame)}
+
+\item{collectorDictionary_checked}{Verified collector dictionary data frame (use file or data frame)}
 
 \item{collectorDictionary_file}{Collector dictionary file - point to a file on your local disk or upload via git at https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv.}
 
@@ -53,6 +56,9 @@ key_year_recordedBy_recordNumber
 \donttest{
 collectorsDictionaryFromDataset <- prepare_lastNameRecordedBy(occ=occ,
                                                               collectorDictionary_checked_file='collectorDictionary_checked.csv')
+
+names(collectorsDictionaryFromDataset)
+
 }
 
 }

@@ -277,7 +277,7 @@ the collector's number and the botanical family, a key is created
 grouping the duplicates of the same unique collection event.
 
 It also identifiesnew collectors to be added to the collector dictionary
-and that can be reused in the future. in the future.
+and that can be reused in the future.
 
 ```{r example_generate_collection_event_key, eval=TRUE, message=FALSE, warning=FALSE}
 

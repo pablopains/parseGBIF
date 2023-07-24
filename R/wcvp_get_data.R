@@ -115,11 +115,11 @@ wcvp_get_data <- function(url_source = "http://sftp.kew.org/pub/data-repositorie
   {wcvp_distribution = NA}
 
 
-  if(read_only_to_memory==TRUE)
-  {
-    files.rem <- list.files(path = path_results, full.names = TRUE)
-    file.remove(files.rem)
-  }
+  # if(read_only_to_memory==TRUE)
+  # {
+  #   files.rem <- list.files(path = path_results, full.names = TRUE)
+  #   file.remove(files.rem)
+  # }
 
   return(list(wcvp_names = wcvp_names,
               wcvp_distribution =  wcvp_distribution))
