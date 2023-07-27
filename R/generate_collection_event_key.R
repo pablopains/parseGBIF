@@ -187,10 +187,11 @@ generate_collection_event_key <- function(occ=NA,
 
       if(! silence == TRUE)
       {
-        print(paste0(ri, ' de ', rt, ' - ', r,' : ',num_records, ' registros' ))
+        # print(paste0(ri, ' de ', rt, ' - ', r,' : ',num_records, ' registros' ))
+        if(s%%1000==0){print(paste0(s, ' de ',rt))}
+
       }
 
-      if(s%%1000==0){print(paste0(s, ' de ',tot))}
 
 
       if (NROW(collectorDictionary_checked[index_ajusted==TRUE,]) == 0)
