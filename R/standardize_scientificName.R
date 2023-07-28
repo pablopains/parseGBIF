@@ -55,7 +55,9 @@ standardize_scientificName <- function(searchedName = 'Alomia angustata (Gardner
 
   if(length(sp)>1)
   {
-    if(grepl(padrao[1],searchedName, fixed = T)|grepl(padrao[2],searchedName, fixed = T)|grepl(padrao[3],searchedName, fixed = T) )
+    if((grepl(padrao[1],searchedName, fixed = T) & !grepl('Sivar.',searchedName, fixed = T)) |
+       grepl(padrao[2],searchedName, fixed = T)|
+       grepl(padrao[3],searchedName, fixed = T) )
     {
       ip <- 1
       for(ip in 1:length(padrao))
