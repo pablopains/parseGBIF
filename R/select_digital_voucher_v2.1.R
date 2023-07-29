@@ -1,5 +1,5 @@
 #' @title Selecting the master digital voucher
-#' @name select_digital_voucher_v2
+#' @name select_digital_voucher_v2.1
 #'
 #' @description To group duplicates and choose the digital voucher:
 #' Unique collection events can result in many ‘duplicate’ GBIF records. We designate one of these ‘duplicate’ records
