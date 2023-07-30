@@ -411,7 +411,7 @@ export_data_v2.1 <- function(occ_digital_voucher_file = '',
               next
             }
 
-            data_col_dup_ix <- gsub('\\{|\\}', ' ', data_col_dup[ix])
+            data_col_dup_ix <- gsub('\\{|\\}|\\[|\\]', ' ', data_col_dup[ix])
 
             x_Ctrl_gbifID_dup <- occ_dup[index_dup==TRUE, 'Ctrl_gbifID'][ix]
 
@@ -455,14 +455,14 @@ export_data_v2.1 <- function(occ_digital_voucher_file = '',
               # x_jonsom <- paste0(x_jonsom, '"', gsub('"','',data_col_dup[ix]),':[',x_Ctrl_gbifID_dup,']"')
 
               # x_jonsom <- paste0(x_jonsom, '"', gsub('"','',data_col_dup[ix]),'"')
-              x_jonsom <- paste0(x_jonsom, '"', gsub('"','',gsub('\\{|\\}', ' ', data_col_dup_ix)),'"')
+              x_jonsom <- paste0(x_jonsom, '"', gsub('"','',data_col_dup_ix),'"')
 
             }else
             {
               # x_jonsom <- paste0(x_jonsom, ",", '"', gsub('"','',data_col_dup[ix]),':[',x_Ctrl_gbifID_dup,']"')
 
               # x_jonsom <- paste0(x_jonsom, ",", '"', gsub('"','',data_col_dup[ix]),'"')
-              x_jonsom <- paste0(x_jonsom, ",", '"', gsub('"','',gsub('\\{|\\}', ' ', data_col_dup_ix)),'"')
+              x_jonsom <- paste0(x_jonsom, ",", '"', gsub('"','',data_col_dup_ix),'"')
 
             }
 
