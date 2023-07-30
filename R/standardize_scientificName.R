@@ -146,6 +146,5 @@ standardize_scientificName <- function(searchedName = 'Alomia angustata (Gardner
               taxonAuthors= taxon_authors,
               taxonAuthors_last= taxon_authors_last))
 }
-
 # searchedName = "Senna glutinosa nothosubsp. luerssenii (Domin) Randell"
 # standardize_scientificName(searchedName)
