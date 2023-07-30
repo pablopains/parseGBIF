@@ -411,9 +411,13 @@ export_data_v2.1 <- function(occ_digital_voucher_file = '',
               next
             }
 
+            data_col_dup_ix <- gsub('\\{|\\}', ' ', data_col_dup[ix])
+
             x_Ctrl_gbifID_dup <- occ_dup[index_dup==TRUE, 'Ctrl_gbifID'][ix]
 
-            x_data_col_dup <- toupper(data_col_dup[ix])
+            x_data_col_dup <- toupper(data_col_dup_ix)
+
+            # x_data_col_dup <- gsub('\\{|\\}', ' ', x_data_col_dup)
 
             if(x_data_col == x_data_col_dup)
             {
@@ -421,9 +425,9 @@ export_data_v2.1 <- function(occ_digital_voucher_file = '',
             }
 
             # # nao armazear dados repetidos entre duplicatas
-            # if(any(data_col_dup[ix] == data_col_dup[-ix] %>%
+            # if(any(data_col_dup_ix == data_col_dup[-ix] %>%
             #        ifelse(is.na(.), FALSE,.) )==TRUE )
-            if(grepl(data_col_dup[ix], x_jonsom) %>% ifelse(is.na(.), FALSE,.))
+            if(grepl(data_col_dup_ix, x_jonsom) %>% ifelse(is.na(.), FALSE,.))
             {
               next
             }
@@ -449,11 +453,17 @@ export_data_v2.1 <- function(occ_digital_voucher_file = '',
             if(substr(x_jonsom,str_count(x_jonsom),str_count(x_jonsom)) == '[')
             {
               # x_jonsom <- paste0(x_jonsom, '"', gsub('"','',data_col_dup[ix]),':[',x_Ctrl_gbifID_dup,']"')
-              x_jonsom <- paste0(x_jonsom, '"', gsub('"','',data_col_dup[ix]),'"')
+
+              # x_jonsom <- paste0(x_jonsom, '"', gsub('"','',data_col_dup[ix]),'"')
+              x_jonsom <- paste0(x_jonsom, '"', gsub('"','',gsub('\\{|\\}', ' ', data_col_dup_ix)),'"')
+
             }else
             {
               # x_jonsom <- paste0(x_jonsom, ",", '"', gsub('"','',data_col_dup[ix]),':[',x_Ctrl_gbifID_dup,']"')
-              x_jonsom <- paste0(x_jonsom, ",", '"', gsub('"','',data_col_dup[ix]),'"')
+
+              # x_jonsom <- paste0(x_jonsom, ",", '"', gsub('"','',data_col_dup[ix]),'"')
+              x_jonsom <- paste0(x_jonsom, ",", '"', gsub('"','',gsub('\\{|\\}', ' ', data_col_dup_ix)),'"')
+
             }
 
 
@@ -465,7 +475,7 @@ export_data_v2.1 <- function(occ_digital_voucher_file = '',
               # print('merge')
 
               occ_res_full[index==TRUE,
-                           fields_to_all[ic]] <- data_col_dup[ix]
+                           fields_to_all[ic]] <- data_col_dup_ix
 
 
               # x_Ctrl_gbifID <- occ_res_full[index==TRUE, 'Ctrl_gbifID']
