@@ -45,15 +45,19 @@ standardize_scientificName <- function(searchedName = 'Alomia angustata (Gardner
   searchedName_raw <- searchedName
   searchedName_ori <- searchedName
 
+  taxon_authors_last <- ''
+
   sp <- stringr::str_split(searchedName, ' ', simplify = T)
-  padrao <- c('var.', 'subsp.', ' f. ')
-  padrao_s <- c('var.', 'subsp.', 'f.')
+  padrao <- c('var.', 'nothosubsp.' , 'subsp.', ' f. ')
+  padrao_s <- c('var.', 'nothosubsp.' , 'subsp.', 'f.')
+
 
   if(length(sp)>1)
   {
     if((grepl(padrao[1],searchedName, fixed = T) & !grepl('Sivar.',searchedName, fixed = T)) |
        grepl(padrao[2],searchedName, fixed = T)|
-       grepl(padrao[3],searchedName, fixed = T) )
+       grepl(padrao[3],searchedName, fixed = T) |
+       grepl(padrao[4],searchedName, fixed = T))
     {
       ip <- 1
       for(ip in 1:length(padrao))
@@ -142,3 +146,6 @@ standardize_scientificName <- function(searchedName = 'Alomia angustata (Gardner
               taxonAuthors= taxon_authors,
               taxonAuthors_last= taxon_authors_last))
 }
+
+# searchedName = "Senna glutinosa nothosubsp. luerssenii (Domin) Randell"
+# standardize_scientificName(searchedName)
