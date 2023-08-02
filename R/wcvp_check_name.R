@@ -4,9 +4,9 @@
 #'
 #' @description Use the [World Checklist of Vascular Plants WCVP](https://powo.science.kew.org//)
 #' [database](http://sftp.kew.org/pub/data-repositories/WCVP/) to check accepted names and update synonyms.
-#' 
-#' The World Checklist of Vascular Plants (WCVP) database is available from the 
-#' [Royal Botanic Gardens, Kew](https://powo.science.kew.org/about-wcvp). 
+#'
+#' The World Checklist of Vascular Plants (WCVP) database is available from the
+#' [Royal Botanic Gardens, Kew](https://powo.science.kew.org/about-wcvp).
 #' It can be downloaded to a folder of the user’s choice or into memory using the get_wcvp function. The output has 33 columns.
 #'
 #' @param searchedName scientific name, with or without author
@@ -163,7 +163,8 @@ wcvp_check_name <- function(searchedName = 'Hemistylus brasiliensis Wedd.',
   {
     x <- wcvp_names[index==TRUE,] %>%
       dplyr::add_row()  %>%
-      dplyr::mutate(searchedName=searchedName,
+      dplyr::mutate(#searchedName=searchedName,
+                    searchedName = sp_wcvp$standardizeName,
                     taxon_status_of_searchedName = NA,
                     plant_name_id_of_searchedName = NA,
                     taxon_authors_of_searchedName = NA,
@@ -195,7 +196,8 @@ wcvp_check_name <- function(searchedName = 'Hemistylus brasiliensis Wedd.',
       index_synonym <- wcvp_names$plant_name_id %in% x$accepted_plant_name_id
 
       x <- wcvp_names[index_synonym==TRUE,] %>%
-        dplyr::mutate(searchedName=searchedName,
+        dplyr::mutate(#searchedName=searchedName,
+                      searchedName = sp_wcvp$standardizeName,
                       taxon_status_of_searchedName = taxon_status_of_searchedName,
                       plant_name_id_of_searchedName = plant_name_id_of_searchedName,
                       taxon_authors_of_searchedName = taxon_authors_of_searchedName,
@@ -206,7 +208,8 @@ wcvp_check_name <- function(searchedName = 'Hemistylus brasiliensis Wedd.',
     {
       x <- wcvp_names[index==TRUE,] %>%
         # dplyr::add_row()  %>%
-        dplyr::mutate(searchedName=searchedName,
+        dplyr::mutate(#searchedName=searchedName,
+                      searchedName = sp_wcvp$standardizeName,
                       taxon_status_of_searchedName = NA,
                       plant_name_id_of_searchedName = NA,
                       taxon_authors_of_searchedName = NA,
@@ -237,7 +240,8 @@ wcvp_check_name <- function(searchedName = 'Hemistylus brasiliensis Wedd.',
       {
 
         x <- wcvp_names[index_status==TRUE,] %>%
-          dplyr::mutate(searchedName=searchedName,
+          dplyr::mutate(#searchedName=searchedName,
+                        searchedName = sp_wcvp$standardizeName,
                         taxon_status_of_searchedName = taxon_status_of_searchedName,
                         plant_name_id_of_searchedName = plant_name_id_of_searchedName,
                         taxon_authors_of_searchedName = taxon_authors_of_searchedName,
@@ -251,7 +255,8 @@ wcvp_check_name <- function(searchedName = 'Hemistylus brasiliensis Wedd.',
 
         x <- wcvp_names[1==2,] %>%
           dplyr::add_row()  %>%
-          dplyr::mutate(searchedName=searchedName,
+          dplyr::mutate(#searchedName=searchedName,
+                        searchedName = toupper(sp_wcvp$standardizeName),
                         taxon_status_of_searchedName = taxon_status_of_searchedName,
                         plant_name_id_of_searchedName = plant_name_id_of_searchedName,
                         taxon_authors_of_searchedName = taxon_authors_of_searchedName,
