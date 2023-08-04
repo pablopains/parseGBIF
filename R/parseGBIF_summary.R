@@ -295,10 +295,6 @@ parseGBIF_summary <- function(parseGBIF_all_data = NA,
     if (any(occ_tmp$parseGBIF_merged_fields != ''))
     {
 
-      parseGBIF_general_summary <- add_summary('----------', '----------', '----------',parseGBIF_general_summary); parseGBIF_general_summary
-
-      condition <- 'count total merge actions in field'
-
     x_freq_merged_fields <- freq_merged_fields(fields_to_merge, occ_tmp)
     x_freq_merged_fields$id <- paste0(x_freq_merged_fields$id,' : total merge actions')
     parseGBIF_merge_fields_summary <- add_summary(x_freq_merged_fields$id, x_freq_merged_fields$val, condition, parseGBIF_merge_fields_summary)
@@ -311,11 +307,8 @@ parseGBIF_summary <- function(parseGBIF_all_data = NA,
     parseGBIF_merge_fields_summary_complete
     }
 
-    if(any(colnames(occ_tmp) %in% 'merge_unusable_data'))
+    if(NROW(occ_tmp %>% dplyr::filter(parseGBIF_dataset_result=='unusable'))>0 )
     {
-      parseGBIF_general_summary <- add_summary('----------', '----------', '----------',parseGBIF_general_summary); parseGBIF_general_summary
-
-      condition <- 'count total merge actions in field'
 
       x_freq_merged_fields <- freq_merged_fields(fields_to_merge, occ_tmp %>% dplyr::filter(parseGBIF_dataset_result=='unusable'))
       x_freq_merged_fields$id <- paste0(x_freq_merged_fields$id,' : merge actions ')
