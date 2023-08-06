@@ -71,12 +71,24 @@ wcvp_get_data_v2.1 <- function(url_source = "http://sftp.kew.org/pub/data-reposi
     path_results <- tempdir()
   }
 
+  # ultima versao
+  nomes <- 'wcvp.zip'
+  destfile <- paste0(path_results,'/',nomes)
+
 
   if(load_rda_data==TRUE)
   {
     print('load...')
 
-    destfile <- 'dataWCVP/wcvp_names.zip'
+    # url_d <- 'https://github.com/pablopains/parseGBIF/blob/main/dataWCVP/wcvp_names.zip'
+    url_d <- 'https://github.com/pablopains/parseGBIF/raw/main/dataWCVP/wcvp_names.zip'
+
+    print(paste0('downloading: ',url_d))
+
+    downloader::download(url = url_d, destfile = destfile, mode = "wb")
+
+
+    # destfile <- 'dataWCVP/wcvp_names.zip'
     utils::unzip(destfile, exdir = path_results)
 
     files <- paste0(path_results,'/','wcvp_names.csv')
@@ -88,9 +100,6 @@ wcvp_get_data_v2.1 <- function(url_source = "http://sftp.kew.org/pub/data-reposi
 
   }else
   {
-  # ultima versao
-  nomes <- 'wcvp.zip'
-  destfile <- paste0(path_results,'/',nomes)
 
 
   # update?
