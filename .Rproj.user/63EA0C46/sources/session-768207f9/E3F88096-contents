@@ -74,6 +74,8 @@ wcvp_get_data_v2 <- function(url_source = "http://sftp.kew.org/pub/data-reposito
   {
     destfile <- '/dataWCVP/wcvp_names.zip'
     utils::unzip(destfile, exdir = path_results)
+    
+    
   }
   else
   {

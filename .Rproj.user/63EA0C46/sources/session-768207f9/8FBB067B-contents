@@ -1137,13 +1137,9 @@
                                      
                                      if(NROW(wcvp_names_t)==0)
                                      {
-                                       wcvp_names_t <<-  wcvp_get_data_v2(read_only_to_memory = TRUE,
+                                       wcvp_names_t <<-  wcvp_get_data_v2.1(read_only_to_memory = TRUE,
                                                                         load_rda_data = TRUE)$wcvp_names 
-                                       # %>%
-                                       #       dplyr::mutate(TAXON_NAME_U = taxon_name %>% toupper(),
-                                       #                     TAXON_AUTHORS_U = taxon_authors %>% toupper() %>% gsub ("\\s+", "", .)) %>%
-                                       #       data.frame(stringsAsFactors = FALSE)
-                                         
+
                                      }
                                      
                                      
