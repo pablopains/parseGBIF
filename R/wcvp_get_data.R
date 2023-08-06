@@ -9,6 +9,7 @@
 #' @param path_results download destination folder, if read_only_to_memory FALSE
 #' @param update TRUE to update and load files, FALSE to keep local version and load files, if read_only_to_memory FALSE
 #' @param load_distribution TRUE to load file with geographical distribution of species, if read_only_to_memory FALSE
+#' @param load_rda_data Load the WCVP name database from the rda file distributed with the package. To ensure updates, it is recommended to reinstall the package frequently.
 #'
 #' @details http://sftp.kew.org/pub/data-repositories/WCVP/ This is the public SFTP (Secure File Transfer Protocol) site of the Royal Botanic Gardens, Kew. This space contains data resources publicly accessible to the user `anonymous'.  No password required for access. Use of data made available via this site may be subject to legal and licensing restrictions. The README in the top-level directory for each data resource provides specific information about its terms of use.
 #'
@@ -52,7 +53,8 @@ wcvp_get_data <- function(url_source = "http://sftp.kew.org/pub/data-repositorie
                      read_only_to_memory = FALSE,
                      path_results = 'C:/parseGBIF',
                      update = FALSE,
-                     load_distribution = FALSE)
+                     load_distribution = FALSE,
+                     load_rda_data = FALSE)
 {
   require(dplyr)
 

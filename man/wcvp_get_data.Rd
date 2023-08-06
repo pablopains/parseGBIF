@@ -9,7 +9,8 @@ wcvp_get_data(
   read_only_to_memory = FALSE,
   path_results = "C:/parseGBIF",
   update = FALSE,
-  load_distribution = FALSE
+  load_distribution = FALSE,
+  load_rda_data = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ wcvp_get_data(
 \item{update}{TRUE to update and load files, FALSE to keep local version and load files, if read_only_to_memory FALSE}
 
 \item{load_distribution}{TRUE to load file with geographical distribution of species, if read_only_to_memory FALSE}
+
+\item{load_rda_data}{Load the WCVP name database from the rda file distributed with the package. To ensure updates, it is recommended to reinstall the package frequently.}
 }
 \value{
 list with two data frames: wcvp_names and wcvp_distribution
