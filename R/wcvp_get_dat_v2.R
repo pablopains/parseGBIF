@@ -74,8 +74,20 @@ wcvp_get_data_v2 <- function(url_source = "http://sftp.kew.org/pub/data-reposito
   # update?
   if(load_rda_data==TRUE)
   {
+
     destfile <- 'dataWCVP/wcvp_names.zip'
+
     utils::unzip(destfile, exdir = path_results)
+
+    files <- paste0(path_results,'/','wcvp_names.rda')
+
+    print(paste0('loading wcvp_names rda: ', files))
+
+    wcvp_names <- load(files) %>%
+      dplyr::mutate(TAXON_NAME_U = taxon_name %>% toupper(),
+                    TAXON_AUTHORS_U = taxon_authors %>% toupper() %>% gsub ("\\s+", "", .)) %>%
+      data.frame(stringsAsFactors = FALSE)
+
   }
   else
   {
@@ -95,23 +107,17 @@ wcvp_get_data_v2 <- function(url_source = "http://sftp.kew.org/pub/data-reposito
 
       if(!file.exists(files))
       {
-        print(paste0('loading rda: ', files))
-
         utils::unzip(destfile, exdir = path_results)
-
-        files <- paste0(path_results,'/','wcvp_names.rda')
-        wcvp_names <- load(files)
-
       }
 
-      print(paste0('loading csv:', files))
+      print(paste0('loading wcvp_names csv:', files))
 
       wcvp_names <- utils::read.table(files, sep="|", header=TRUE, quote = "", fill=TRUE, encoding = "UTF-8") %>%
         data.frame(stringsAsFactors = F) %>%
         dplyr::mutate(TAXON_NAME_U = taxon_name %>% toupper(),
                       TAXON_AUTHORS_U = taxon_authors %>% toupper() %>% gsub ("\\s+", "", .))
 
-      print(paste0(' wcvp_names :', NROW(wcvp_names)))
+      print(paste0(' wcvp_distribution :', NROW(wcvp_names)))
 
       if(load_distribution == TRUE)
       {
