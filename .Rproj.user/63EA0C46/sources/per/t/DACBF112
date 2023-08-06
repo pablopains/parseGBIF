@@ -1,0 +1,26 @@
+{
+    "id": "DACBF112",
+    "path": "C:/parseGBIF - github.com/parseGBIF/R/wcvp_get_data_v2.1.R",
+    "project_path": "R/wcvp_get_data_v2.1.R",
+    "type": "r_source",
+    "hash": "150747902",
+    "contents": "",
+    "dirty": false,
+    "created": 1691364812059.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "62,76",
+        "scrollLine": "52"
+    },
+    "folds": "83|3|104|2|\n",
+    "lastKnownWriteTime": 1691365318,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1691365318097,
+    "read_only": false,
+    "read_only_alternatives": []
+}

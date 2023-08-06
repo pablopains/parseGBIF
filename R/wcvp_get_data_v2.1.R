@@ -58,6 +58,10 @@ wcvp_get_data_v2.1 <- function(url_source = "http://sftp.kew.org/pub/data-reposi
 {
   require(dplyr)
 
+
+  # update
+  # https://github.com/pablopains/parseGBIF/raw/main/dataWCVP/wcvp_names.zip
+
   wcvp_distribution <- NA
 
   if(read_only_to_memory==FALSE)
