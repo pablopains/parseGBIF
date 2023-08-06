@@ -76,7 +76,7 @@ wcvp_get_data_v2.1 <- function(url_source = "http://sftp.kew.org/pub/data-reposi
   {
     print('load...')
 
-    destfile <- 'wcvp_names.zip'
+    destfile <- 'dataWCVP/wcvp_names.zip'
     utils::unzip(destfile, exdir = path_results)
 
     files <- paste0(path_results,'/','wcvp_names.csv')
