@@ -58,8 +58,6 @@ wcvp_get_data_v2 <- function(url_source = "http://sftp.kew.org/pub/data-reposito
 {
   require(dplyr)
 
-  wcvp_distribution <- NA
-
   if(read_only_to_memory==FALSE)
   {
     # criar pasta para salvar raultados do dataset
@@ -74,20 +72,8 @@ wcvp_get_data_v2 <- function(url_source = "http://sftp.kew.org/pub/data-reposito
   # update?
   if(load_rda_data==TRUE)
   {
-
-    destfile <- 'dataWCVP/wcvp_names.zip'
-
+    destfile <- '/dataWCVP/wcvp_names.zip'
     utils::unzip(destfile, exdir = path_results)
-
-    files <- paste0(path_results,'/','wcvp_names.rda')
-
-    print(paste0('loading wcvp_names rda: ', files))
-
-    wcvp_names <- load(files) %>%
-      dplyr::mutate(TAXON_NAME_U = taxon_name %>% toupper(),
-                    TAXON_AUTHORS_U = taxon_authors %>% toupper() %>% gsub ("\\s+", "", .)) %>%
-      data.frame(stringsAsFactors = FALSE)
-
   }
   else
   {
@@ -103,36 +89,38 @@ wcvp_get_data_v2 <- function(url_source = "http://sftp.kew.org/pub/data-reposito
 
       downloader::download(url = url_d, destfile = destfile, mode = "wb")
 
-      files <- paste0(path_results,'/','wcvp_names.csv')
-
-      if(!file.exists(files))
-      {
-        utils::unzip(destfile, exdir = path_results)
-      }
-
-      print(paste0('loading wcvp_names csv:', files))
-
-      wcvp_names <- utils::read.table(files, sep="|", header=TRUE, quote = "", fill=TRUE, encoding = "UTF-8") %>%
-        data.frame(stringsAsFactors = F) %>%
-        dplyr::mutate(TAXON_NAME_U = taxon_name %>% toupper(),
-                      TAXON_AUTHORS_U = taxon_authors %>% toupper() %>% gsub ("\\s+", "", .))
-
-      print(paste0(' wcvp_distribution :', NROW(wcvp_names)))
-
-      if(load_distribution == TRUE)
-      {
-        files <- paste0(path_results,'/','wcvp_distribution.csv')
-        print(paste0('loading: ', files))
-        wcvp_distribution <- utils::read.table(files, sep="|", header=TRUE, quote = "", fill=TRUE, encoding = "UTF-8") %>%
-          data.frame(stringsAsFactors = F)
-        print(paste0('wcvp_distribution :', NROW(wcvp_distribution)))
-      }
-
   }
   }
 
+  files <- paste0(path_results,'/','wcvp_names.csv')
+
+  if(!file.exists(files))
+  {
+
+    utils::unzip(destfile, exdir = path_results)
+
+  }
+
+  print(paste0('loading: ', files))
+
+  wcvp_names <- utils::read.table(files, sep="|", header=TRUE, quote = "", fill=TRUE, encoding = "UTF-8") %>%
+    data.frame(stringsAsFactors = F) %>%
+    dplyr::mutate(TAXON_NAME_U = taxon_name %>% toupper(),
+                  TAXON_AUTHORS_U = taxon_authors %>% toupper() %>% gsub ("\\s+", "", .))
 
 
+  print(paste0(' wcvp_names :', NROW(wcvp_names)))
+
+  if(load_distribution == TRUE)
+  {
+    files <- paste0(path_results,'/','wcvp_distribution.csv')
+    print(paste0('loading: ', files))
+    wcvp_distribution <- utils::read.table(files, sep="|", header=TRUE, quote = "", fill=TRUE, encoding = "UTF-8") %>%
+      data.frame(stringsAsFactors = F)
+    print(paste0('wcvp_distribution :', NROW(wcvp_distribution)))
+  }
+  else
+  {wcvp_distribution = NA}
 
 
   # if(read_only_to_memory==TRUE)
