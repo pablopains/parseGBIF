@@ -64,7 +64,7 @@ extract_gbif_issue <- function(occ = NA,
                                enumOccurrenceIssue = NA)
 {
   {
-    if (NROW(enumOccurrenceIssue)==0)
+    if (NROW(enumOccurrenceIssue)==1)
     {
       data(EnumOccurrenceIssue)
     }else
