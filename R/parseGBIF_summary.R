@@ -202,13 +202,13 @@ parseGBIF_summary <- function(parseGBIF_all_data = NA,
     parseGBIF_general_summary <- add_summary('----------', '----------', '----------',parseGBIF_general_summary); parseGBIF_general_summary
 
     {
-    question <- 'Taxonomic diversity, based on GBIF taxonomy, from scientificName'
+    question <- 'Taxonomic diversity, based on GBIF taxonomy, from GBIF scientificName'
     ind <-  unique(occ_tmp$Ctrl_scientificName[occ_tmp$Ctrl_taxonRank %in%  c('SPECIES', 'SUBSPECIES', 'VARIETY')])
     value <- NROW(ind)
     condition <- "count scientificName where Ctrl_taxonRank = 'SPECIES' OR 'SUBSPECIES' OR 'VARIETY' "
     parseGBIF_general_summary <- add_summary(question, value, condition, parseGBIF_general_summary); parseGBIF_general_summary
 
-    question <- 'Taxonomic diversity, based on GBIF taxonomy, from scientificName / suitable for geospatial analysis'
+    question <- 'Taxonomic diversity, based on GBIF taxonomy, from GBIF scientificName / suitable for geospatial analysis'
     ind <-  unique(occ_tmp$Ctrl_scientificName[occ_tmp$Ctrl_taxonRank %in% c('SPECIES', 'SUBSPECIES', 'VARIETY') &
                                                  occ_tmp$parseGBIF_useful_for_spatial_analysis==TRUE])
     value <- NROW(ind)
@@ -217,13 +217,13 @@ parseGBIF_summary <- function(parseGBIF_all_data = NA,
     }
 
     {
-      question <- 'Taxonomic diversity, based on GBIF taxonomy, from standardized scientificName'
+      question <- 'Taxonomic diversity, based on GBIF taxonomy, from standardized GBIF scientificName'
       ind <-  unique(occ_tmp$wcvp_searchedName)
       value <- NROW(ind)
       condition <- "count wcvp_searchedName "
       parseGBIF_general_summary <- add_summary(question, value, condition, parseGBIF_general_summary); parseGBIF_general_summary
 
-      question <- 'Taxonomic diversity, based on GBIF taxonomy, from standardized scientificName / suitable for geospatial analysis'
+      question <- 'Taxonomic diversity, based on GBIF taxonomy, from standardized GBIF scientificName / suitable for geospatial analysis'
       ind <-  unique(occ_tmp$wcvp_searchedName[occ_tmp$parseGBIF_useful_for_spatial_analysis==TRUE])
       value <- NROW(ind)
       condition <- "count wcvp_searchedName where (parseGBIF_useful_for_spatial_analysis = TRUE)"

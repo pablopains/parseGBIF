@@ -1,0 +1,131 @@
+
+digital_voucher <- select_digital_voucher_v2.2(occ = occ,
+                                               occ_gbif_issue = occ_gbif_issue$occ_gbif_issue,
+                                               occ_wcvp_check_name = names.checked$occ_wcvp_check_name ,
+                                               occ_collectorsDictionary = occ_collectorsDictionary$occ_collectorsDictionary)
+
+names(digital_voucher)
+
+result <- export_data_v2.3(occ_digital_voucher = digital_voucher$occ_digital_voucher)
+
+names(result)
+
+occ_digital_voucher$all_data$wcvp_searchedName
+occ_digital_voucher$all_data$parseGBIF_wcvp_plant_name_id
+
+
+x <- occ_digital_voucher$all_data
+
+xn <- names.checked$occ_wcvp_check_name %>%
+  dplyr::mutate(wcvp_plant_name_id = as.character(wcvp_plant_name_id)) %>%
+  dplyr::select(wcvp_plant_name_id,
+                wcvp_taxon_rank,
+                wcvp_taxon_status,
+                wcvp_family,
+                wcvp_taxon_name,
+                wcvp_taxon_authors,
+                wcvp_reviewed) %>%
+  # wcvp_searchedName,
+  #wcvp_searchNotes) %>%
+  dplyr::distinct_all()
+
+colnames(xn) <- paste0('parseGBIF_',colnames(xn))
+
+x <- left_join(x,
+               xn,
+               by = 'parseGBIF_wcvp_plant_name_id')
+
+
+x <- x %>%
+  dplyr::select(Ctrl_gbifID,
+                Ctrl_bibliographicCitation,
+                Ctrl_language,
+                Ctrl_institutionCode,
+                Ctrl_collectionCode,
+                Ctrl_datasetName,
+                Ctrl_basisOfRecord,
+                Ctrl_catalogNumber,
+                Ctrl_recordNumber,
+                Ctrl_recordedBy,
+                Ctrl_occurrenceStatus,
+                Ctrl_eventDate,
+                Ctrl_year,
+                Ctrl_month,
+                Ctrl_day,
+                Ctrl_habitat,
+                Ctrl_fieldNotes,
+                Ctrl_eventRemarks,
+                Ctrl_countryCode,
+                Ctrl_stateProvince,
+                Ctrl_municipality,
+                Ctrl_county,
+                Ctrl_locality,
+                Ctrl_level0Name,
+                Ctrl_level1Name,
+                Ctrl_level2Name,
+                Ctrl_level3Name,
+                Ctrl_identifiedBy,
+                Ctrl_dateIdentified,
+                Ctrl_scientificName,
+                Ctrl_decimalLatitude,
+                Ctrl_decimalLongitude,
+
+                Ctrl_taxonRank,
+
+                Ctrl_nameRecordedBy_Standard,
+                Ctrl_recordNumber_Standard,
+                Ctrl_key_family_recordedBy_recordNumber,
+                Ctrl_geospatial_quality,
+                Ctrl_verbatim_quality,
+                Ctrl_moreInformativeRecord,
+                Ctrl_coordinates_validated_by_gbif_issue,
+
+                wcvp_plant_name_id,
+                wcvp_taxon_rank,
+                wcvp_taxon_status,
+                wcvp_family,
+                wcvp_taxon_name,
+                wcvp_taxon_authors,
+                wcvp_reviewed,
+                wcvp_searchedName,
+                wcvp_searchNotes,
+
+                parseGBIF_digital_voucher,
+                parseGBIF_duplicates,
+                parseGBIF_num_duplicates,
+                parseGBIF_non_groupable_duplicates,
+                parseGBIF_duplicates_grouping_status,
+                parseGBIF_unidentified_sample,
+                parseGBIF_sample_taxon_name,
+                parseGBIF_sample_taxon_name_status,
+                parseGBIF_number_taxon_names,
+                parseGBIF_useful_for_spatial_analysis,
+                parseGBIF_decimalLatitude,
+                parseGBIF_decimalLongitude,
+                parseGBIF_dataset_result,
+
+                # parseGBIF_freq_duplicate_or_missing_data,
+                # parseGBIF_duplicates_map,
+                # parseGBIF_merged_fields,
+                # parseGBIF_merged,
+
+                parseGBIF_wcvp_plant_name_id,
+                parseGBIF_wcvp_taxon_rank,
+                parseGBIF_wcvp_taxon_status,
+                parseGBIF_wcvp_family,
+                parseGBIF_wcvp_taxon_name,
+                parseGBIF_wcvp_taxon_authors,
+                parseGBIF_wcvp_accepted_plant_name_id,
+                parseGBIF_wcvp_reviewed,
+                parseGBIF_wcvp_searchedName,
+                # parseGBIF_wcvp_taxon_status_of_searchedName,
+                # parseGBIF_wcvp_plant_name_id_of_searchedName,
+                # parseGBIF_wcvp_taxon_authors_of_searchedName,
+                # parseGBIF_wcvp_verified_author,
+                # parseGBIF_wcvp_verified_speciesName,
+                parseGBIF_wcvp_searchNotes)
+
+
+
+occ_digital_voucher$all_data$wcvp_searchedName
+

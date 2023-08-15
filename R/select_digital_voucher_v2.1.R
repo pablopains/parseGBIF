@@ -273,7 +273,9 @@ select_digital_voucher_v2.1 <-  function(occ = NA,
                     wcvp_taxon_name,
                     wcvp_taxon_status,
                     wcvp_searchNotes,
-                    # Ctrl_taxonRank,
+                    # aqui
+                    Ctrl_taxonRank,
+                    # aqui
                     Ctrl_geospatial_quality,
                     Ctrl_verbatim_quality,
                     Ctrl_moreInformativeRecord,

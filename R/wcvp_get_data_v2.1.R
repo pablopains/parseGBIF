@@ -50,11 +50,11 @@
 #'
 #' @export
 wcvp_get_data_v2.1 <- function(url_source = "http://sftp.kew.org/pub/data-repositories/WCVP/",
-                     read_only_to_memory = FALSE,
-                     path_results = 'C:/parseGBIF',
-                     update = FALSE,
-                     load_distribution = FALSE,
-                     load_rda_data = FALSE)
+                               read_only_to_memory = FALSE,
+                               path_results = 'C:/parseGBIF',
+                               update = FALSE,
+                               load_distribution = FALSE,
+                               load_rda_data = FALSE)
 {
   require(dplyr)
 
@@ -68,83 +68,76 @@ wcvp_get_data_v2.1 <- function(url_source = "http://sftp.kew.org/pub/data-reposi
   {
     # criar pasta para salvar raultados do dataset
     if (!dir.exists(path_results)){dir.create(path_results)}
-    path_results <- paste0(path_results,'/dataWCVP')
-    if (!dir.exists(path_results)){dir.create(path_results)}
+    #   path_results <- paste0(path_results,'/dataWCVP')
+    #   if (!dir.exists(path_results)){dir.create(path_results)}
   }else
   {
     path_results <- tempdir()
   }
 
-  # ultima versao
-  nomes <- 'wcvp.zip'
-  destfile <- paste0(path_results,'/',nomes)
+  destfile <- paste0(path_results,'/wcvp.zip')
+  files <- paste0(path_results,'/','wcvp_names.csv')
 
 
   if(load_rda_data==TRUE)
   {
     print('load...')
 
-    # url_d <- 'https://github.com/pablopains/parseGBIF/blob/main/dataWCVP/wcvp_names.zip'
-    url_d <- 'https://github.com/pablopains/parseGBIF/raw/main/dataWCVP/wcvp_names.zip'
+    if(!file.exists(files))
+    {
+      # url_d <- 'https://github.com/pablopains/parseGBIF/blob/main/dataWCVP/wcvp_names.zip'
+      url_d <- 'https://github.com/pablopains/parseGBIF/raw/main/dataWCVP/wcvp_names.zip'
 
-    print(paste0('downloading: ',url_d))
+      print(paste0('downloading: ',url_d))
+      downloader::download(url = url_d, destfile = destfile, mode = "wb")
+      # destfile <- 'dataWCVP/wcvp_names.zip'
+      utils::unzip(destfile, exdir = path_results)
+    }
 
-    downloader::download(url = url_d, destfile = destfile, mode = "wb")
+    wcvp_names <- utils::read.table(files, sep="|", header=TRUE, quote = "", fill=TRUE, encoding = "UTF-8") %>%
+      data.frame(stringsAsFactors = F) %>%
+      dplyr::mutate(TAXON_NAME_U = taxon_name %>% toupper(),
+                    TAXON_AUTHORS_U = taxon_authors %>% toupper() %>% gsub ("\\s+", "", .))
+    # ultima versao
+  }else
+  {
 
+    # update?
 
-    # destfile <- 'dataWCVP/wcvp_names.zip'
-    utils::unzip(destfile, exdir = path_results)
+    # files <- paste0(path_results,'/','wcvp_names.csv')
 
-    files <- paste0(path_results,'/','wcvp_names.csv')
+    if(!file.exists(files) | update == TRUE )
+    {
+      if(update == TRUE | read_only_to_memory == TRUE | (!file.exists(destfile)) )
+      {
+        url_d <- paste0(url_source,'/',nomes)
+
+        print(paste0('downloading: ',url_d))
+
+        downloader::download(url = url_d, destfile = destfile, mode = "wb")
+
+        utils::unzip(destfile, exdir = path_results)
+      }
+    }
+
+    print(paste0('loading: ', files))
 
     wcvp_names <- utils::read.table(files, sep="|", header=TRUE, quote = "", fill=TRUE, encoding = "UTF-8") %>%
       data.frame(stringsAsFactors = F) %>%
       dplyr::mutate(TAXON_NAME_U = taxon_name %>% toupper(),
                     TAXON_AUTHORS_U = taxon_authors %>% toupper() %>% gsub ("\\s+", "", .))
 
-  }else
-  {
 
+    print(paste0(' wcvp_names :', NROW(wcvp_names)))
 
-  # update?
-
-  if(update == TRUE | read_only_to_memory == TRUE | (!file.exists(destfile)))
-  {
-    url_d <- paste0(url_source,'/',nomes)
-
-    print(paste0('downloading: ',url_d))
-
-    downloader::download(url = url_d, destfile = destfile, mode = "wb")
-
-  }
-
-  files <- paste0(path_results,'/','wcvp_names.csv')
-
-  if(!file.exists(files))
-  {
-
-    utils::unzip(destfile, exdir = path_results)
-
-  }
-
-  print(paste0('loading: ', files))
-
-  wcvp_names <- utils::read.table(files, sep="|", header=TRUE, quote = "", fill=TRUE, encoding = "UTF-8") %>%
-    data.frame(stringsAsFactors = F) %>%
-    dplyr::mutate(TAXON_NAME_U = taxon_name %>% toupper(),
-                  TAXON_AUTHORS_U = taxon_authors %>% toupper() %>% gsub ("\\s+", "", .))
-
-
-  print(paste0(' wcvp_names :', NROW(wcvp_names)))
-
-  if(load_distribution == TRUE)
-  {
-    files <- paste0(path_results,'/','wcvp_distribution.csv')
-    print(paste0('loading: ', files))
-    wcvp_distribution <- utils::read.table(files, sep="|", header=TRUE, quote = "", fill=TRUE, encoding = "UTF-8") %>%
-      data.frame(stringsAsFactors = F)
-    print(paste0('wcvp_distribution :', NROW(wcvp_distribution)))
-  }
+    if(load_distribution == TRUE)
+    {
+      files <- paste0(path_results,'/','wcvp_distribution.csv')
+      print(paste0('loading: ', files))
+      wcvp_distribution <- utils::read.table(files, sep="|", header=TRUE, quote = "", fill=TRUE, encoding = "UTF-8") %>%
+        data.frame(stringsAsFactors = F)
+      print(paste0('wcvp_distribution :', NROW(wcvp_distribution)))
+    }
   }
 
   # if(read_only_to_memory==TRUE)

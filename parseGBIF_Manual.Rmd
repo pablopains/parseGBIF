@@ -84,7 +84,7 @@ functions, run prepare_gbif_occurrence_data.
 
 ```{r example_prepare_gbif_occurrence_data, eval=TRUE, message=FALSE, warning=FALSE}
 library(parseGBIF)
-  
+
 occ_file <- 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt'
   
 occ <- parseGBIF::prepare_gbif_occurrence_data(gbif_occurrece_file = occ_file, columns = 'standard')

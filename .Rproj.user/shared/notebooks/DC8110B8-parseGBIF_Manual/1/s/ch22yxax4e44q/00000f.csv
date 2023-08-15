@@ -1,0 +1,8 @@
+"0",""
+"0","  file.collectorsDictionary.dataset <-  'file_collectorsDictionary_dataset.csv'"
+"0",""
+"0","  write.csv(collectorsDictionary.dataset,"
+"0","            file.collectorsDictionary.dataset, "
+"0","            row.names = FALSE, "
+"0","            fileEncoding = ""UTF-8"", "
+"0","            na = """")"

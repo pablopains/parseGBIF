@@ -1,0 +1,433 @@
+# Preparing R
+{
+  #' @details limpar memória
+  rm(list = ls())
+  
+  #' @details direcionar memória para processamento temporário em disco
+  { 
+    if (!dir.exists("c:/R_temp")){dir.create("c:/R_temp")}
+    tempdir <- function() "c:/R_temp"
+    unlockBinding("tempdir", baseenv()) 
+    assignInNamespace("tempdir", tempdir, ns="base", envir=baseenv())
+    assign("tempdir", tempdir, baseenv())
+    lockBinding("tempdir", baseenv())
+    tempdir()
+  }
+  
+  #' @details carregar funcões para mensurar tempos de processamento
+  {
+    tempo_processo <- data.frame(nome_processo=NA,
+                                 tempo_processamento=NA)[-1,]
+    
+    inicia_tempo_processamento <- function(nome_processo='',
+                                           tempo_processo=NA)
+    {
+      return(list(ini.time = Sys.time(),
+                  nome_processo=nome_processo,
+                  tempo_processo=tempo_processo))
+    }  
+    
+    get_tempo_processamento <- function(tempo_processo_tmp)
+    {
+      
+      tempo_processamento <- difftime(Sys.time(), tempo_processo_tmp$ini.time , units = 'min')
+      tempo_processo <- rbind(tempo_processo_tmp$tempo_processo,
+                              data.frame(nome_processo=tempo_processo_tmp$nome_processo,
+                                         tempo_processamento=tempo_processamento))
+      print(tempo_processo)
+      return(tempo_processo)
+    }  
+  }
+  
+  #' @details inicar tempo de processamento
+  tempo_processo_tmp <- inicia_tempo_processamento('Preparing R', tempo_processo)
+  #' @details carregar pacotes básicos
+  {
+    devtools::install_github("pablopains/parseGBIF")
+    
+    library(parseGBIF)
+    library(stringr)
+    library(dplyr)
+    
+  }
+  
+  #' @details finalizar tempo de processamento
+  tempo_processo <- get_tempo_processamento(tempo_processo_tmp)
+  
+}
+
+# aws
+# path_data <- 'C:\\parseGBIF\\data\\Rubiaceae'
+# path_wcvp <- 'C:\\parseGBIF\\WCVP'
+
+# # local
+path_data <- 'C:\\Dados\\Kew\\data\\download\\Rubiaceae'
+# path_data <- 'C:\\Users\\Pablo Hendrigo\\Downloads'
+path_wcvp <- 'C:\\Dados\\Kew\\data'
+# occ_file <- 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt'
+
+file.name.log <- paste0(path_data,'\\','log1.csv')
+write.csv(tempo_processo, file.name.log, row.names = FALSE, fileEncoding = "UTF-8", na = "")
+
+
+# prepare_gbif_occurrence_data
+{
+  tempo_processo_tmp <- inicia_tempo_processamento('prepare_gbif_occurrence_data', tempo_processo)
+  
+  occ_file <- paste0(path_data,'\\','occurrence.txt')
+  
+  occ <- parseGBIF::prepare_gbif_occurrence_data(gbif_occurrece_file = occ_file, columns = 'standard')
+  
+  # file.name <- paste0(path_data,'\\','parseGBIF_1_occ_data.csv')
+  # write.csv(occ, file.name, 
+  #           row.names = FALSE, fileEncoding = "UTF-8", na = "")
+  
+  tempo_processo <- get_tempo_processamento(tempo_processo_tmp)
+  write.csv(tempo_processo, file.name.log, row.names = FALSE, fileEncoding = "UTF-8", na = "")
+}
+
+# extract_gbif_issue
+{
+  tempo_processo_tmp <- inicia_tempo_processamento('extract_gbif_issue', tempo_processo)
+  
+  gbif_issue <- parseGBIF::extract_gbif_issue(occ = occ)
+  
+  file.name <- paste0(path_data,'\\','parseGBIF_1_occ_issue.csv')
+  write.csv(gbif_issue$occ_gbif_issue, file.name, 
+            row.names = FALSE, fileEncoding = "UTF-8", na = "")
+  
+  file.name <- paste0(path_data,'\\','parseGBIF_1_summary_issue.csv')
+  write.csv(gbif_issue$summary, file.name, 
+            row.names = FALSE, fileEncoding = "UTF-8", na = "")
+  
+  tempo_processo <- get_tempo_processamento(tempo_processo_tmp)
+  write.csv(tempo_processo, file.name.log, row.names = FALSE, fileEncoding = "UTF-8", na = "")
+  
+}
+
+# 2 wcvp
+{
+  
+  # wcvp_get_data
+  tempo_processo_tmp <- inicia_tempo_processamento('wcvp_get_data', tempo_processo)
+  
+  wcvp_names <- parseGBIF::wcvp_get_data(path_results = path_wcvp)$wcvp_names
+  
+  tempo_processo <- get_tempo_processamento(tempo_processo_tmp)
+  
+  # wcvp_check_name_batch
+  tempo_processo_tmp <- inicia_tempo_processamento('wcvp_check_name_batch', tempo_processo)
+  
+  names.checked <- parseGBIF::wcvp_check_name_batch(occ = occ,
+                                                    wcvp_names =  wcvp_names,
+                                                    if_author_fails_try_without_combinations = TRUE,
+                                                    wcvp_selected_fields = 'standard',
+                                                    silence = FALSE)
+  
+  names(names.checked)
+  
+  file.name <- paste0(path_data,'\\','parseGBIF_2_occ_wcvp_check_name.csv')
+  write.csv(names.checked$occ_wcvp_check_name, file.name, 
+            row.names = FALSE, fileEncoding = "UTF-8", na = "")
+  
+  file.name <- paste0(path_data,'\\','parseGBIF_2_summary_wcvp_check_name.csv')
+  write.csv(names.checked$summary, file.name, 
+            row.names = FALSE, fileEncoding = "UTF-8", na = "")
+  
+  tempo_processo <- get_tempo_processamento(tempo_processo_tmp)
+  write.csv(tempo_processo, file.name.log, row.names = FALSE, fileEncoding = "UTF-8", na = "")
+}
+
+
+# 3 collectors_prepare_dictionary / generate_collection_event_key
+{
+  # collectors_prepare_dictionary
+  tempo_processo_tmp <- inicia_tempo_processamento('collectors_prepare_dictionary', tempo_processo)
+  
+  collectorsDictionary.dataset <- parseGBIF::collectors_prepare_dictionary(occ = occ)
+  
+  file.name <- paste0(path_data,'\\','parseGBIF_3_collectorsDictionary_dataset.csv')
+  write.csv(collectorsDictionary.dataset, file.name, 
+            row.names = FALSE, fileEncoding = "UTF-8", na = "")
+  
+  tempo_processo <- get_tempo_processamento(tempo_processo_tmp)
+  write.csv(tempo_processo, file.name.log, row.names = FALSE, fileEncoding = "UTF-8", na = "")
+  
+  # generate_collection_event_key
+  tempo_processo_tmp <- inicia_tempo_processamento('generate_collection_event_key', tempo_processo)
+  
+  # file.name <- paste0(path_data,'\\','parseGBIF_3_collectorsDictionary_dataset_cheched.csv')
+  # file.name <- paste0(path_data,'\\','parseGBIF_3_collectorsDictionary_dataset_cheched.csv')
+  
+  collectorsDictionary <- generate_collection_event_key(occ=occ,
+                                                        # collectorDictionary_checked_file = file.collectorsDictionary.dataset.checked,
+                                                        collectorDictionary_checked = collectorsDictionary.dataset,
+                                                        silence = FALSE)
+  
+  file.name <- paste0(path_data,'\\','parseGBIF_3_occ_collectorsDictionary.csv')
+  write.csv(collectorsDictionary$occ_collectorsDictionary, file.name, 
+            row.names = FALSE, fileEncoding = "UTF-8", na = "")
+  
+  
+  file.name <- paste0(path_data,'\\','parseGBIF_3_summary_collectorsDictionary.csv')
+  write.csv(collectorsDictionary$summary, file.name, 
+            row.names = FALSE, fileEncoding = "UTF-8", na = "")
+  
+  file.name <- paste0(path_data,'\\','parseGBIF_3_collectorsDictionary_add.csv')
+  write.csv(collectorsDictionary$collectorsDictionary_add, file.name, 
+            row.names = FALSE, fileEncoding = "UTF-8", na = "")
+  
+  tempo_processo <- get_tempo_processamento(tempo_processo_tmp)
+  write.csv(tempo_processo, file.name.log, row.names = FALSE, fileEncoding = "UTF-8", na = "")
+}
+
+{
+  
+  {
+    #' @details limpar memória
+    rm(list = ls())
+    
+    #' @details direcionar memória para processamento temporário em disco
+    { 
+      if (!dir.exists("c:/R_temp")){dir.create("c:/R_temp")}
+      tempdir <- function() "c:/R_temp"
+      unlockBinding("tempdir", baseenv()) 
+      assignInNamespace("tempdir", tempdir, ns="base", envir=baseenv())
+      assign("tempdir", tempdir, baseenv())
+      lockBinding("tempdir", baseenv())
+      tempdir()
+    }
+    
+    #' @details carregar funcões para mensurar tempos de processamento
+    {
+      tempo_processo <- data.frame(nome_processo=NA,
+                                   tempo_processamento=NA)[-1,]
+      
+      inicia_tempo_processamento <- function(nome_processo='',
+                                             tempo_processo=NA)
+      {
+        return(list(ini.time = Sys.time(),
+                    nome_processo=nome_processo,
+                    tempo_processo=tempo_processo))
+      }  
+      
+      get_tempo_processamento <- function(tempo_processo_tmp)
+      {
+        
+        tempo_processamento <- difftime(Sys.time(), tempo_processo_tmp$ini.time , units = 'min')
+        tempo_processo <- rbind(tempo_processo_tmp$tempo_processo,
+                                data.frame(nome_processo=tempo_processo_tmp$nome_processo,
+                                           tempo_processamento=tempo_processamento))
+        print(tempo_processo)
+        return(tempo_processo)
+      }  
+    }
+    
+    #' @details inicar tempo de processamento
+    tempo_processo_tmp <- inicia_tempo_processamento('Preparing R', tempo_processo)
+    #' @details carregar pacotes básicos
+    {
+      # devtools::install_github("pablopains/parseGBIF")
+      
+      library(parseGBIF)
+      library(stringr)
+      library(dplyr)
+      
+    }
+    
+    #' @details finalizar tempo de processamento
+    tempo_processo <- get_tempo_processamento(tempo_processo_tmp)
+    
+  }
+  
+  # aws
+  # path_data <- 'C:\\parseGBIF\\data\\Myrtaceae'
+  # path_wcvp <- 'C:\\parseGBIF\\WCVP'
+  
+  # local
+  # path_data <- 'C:\\Dados\\Kew\\data\\download\\Myrtaceae'
+  path_data <- 'C:\\Users\\Pablo Hendrigo\\Downloads'
+  path_wcvp <- 'C:\\Dados\\Kew\\data'
+  
+  file.name.log <- paste0(path_data,'\\','log2.csv')
+  
+}
+
+# select_digital_voucher_v2.1
+{
+  
+  # 
+  tempo_processo_tmp <- inicia_tempo_processamento('load files results: ', tempo_processo)
+  
+  file.name <- paste0(path_data,'\\','parseGBIF_1_occ_data.csv')
+  occ <- readr::read_delim(file = file.name,
+                           delim = ',',
+                           locale = readr::locale(encoding = "UTF-8"),
+                           show_col_types = FALSE) %>% data.frame()
+  
+  file.name <- paste0(path_data,'\\','parseGBIF_1_occ_issue.csv')
+  occ_gbif_issue <- readr::read_delim(file = file.name,
+                                      delim = ',',
+                                      locale = readr::locale(encoding = "UTF-8"),
+                                      show_col_types = FALSE) %>% data.frame()
+  
+  file.name <- paste0(path_data,'\\','parseGBIF_2_occ_wcvp_check_name.csv')
+  names.checked <- readr::read_delim(file = file.name,
+                                     delim = ',',
+                                     locale = readr::locale(encoding = "UTF-8"),
+                                     show_col_types = FALSE) %>% data.frame()
+  
+  file.name <- paste0(path_data,'\\','parseGBIF_3_occ_collectorsDictionary.csv')
+  occ_collectorsDictionary <- readr::read_delim(file = file.name,
+                                                delim = ',', 
+                                                locale = readr::locale(encoding = "UTF-8"),
+                                                show_col_types = FALSE) %>%
+    data.frame()
+  
+  
+  # divide
+  key <- occ_collectorsDictionary$Ctrl_key_family_recordedBy_recordNumber %>% unique()
+  n_k <- NROW(key)
+  i_key <- 1:n_k
+  
+  ind_k1 <- i_key <= (n_k/3)
+  ind_k2 <- i_key > (n_k/3) & i_key <= ((n_k/3)*2)
+  ind_k3 <- i_key > (n_k/3)*2
+  n_k
+  sum(ind_k1==TRUE) + sum(ind_k2==TRUE) + sum(ind_k3==TRUE)
+  
+  i_k_1 <- occ_collectorsDictionary$Ctrl_key_family_recordedBy_recordNumber %in% key[ind_k1==TRUE]
+  i_k_2 <- occ_collectorsDictionary$Ctrl_key_family_recordedBy_recordNumber %in% key[ind_k2==TRUE]
+  i_k_3 <- occ_collectorsDictionary$Ctrl_key_family_recordedBy_recordNumber %in% key[ind_k3==TRUE]
+  
+  occ_collectorsDictionary[i_k_1==TRUE,]$Ctrl_key_family_recordedBy_recordNumber %>% 
+    unique() %>% NROW() +
+    
+    occ_collectorsDictionary[i_k_2==TRUE,]$Ctrl_key_family_recordedBy_recordNumber %>% 
+    unique() %>% NROW() +
+    
+    occ_collectorsDictionary[i_k_3==TRUE,]$Ctrl_key_family_recordedBy_recordNumber %>% 
+    unique() %>% NROW()
+  
+  occ_collectorsDictionary$Ctrl_key_family_recordedBy_recordNumber %>% 
+    unique() %>% NROW()
+  
+  tempo_processo <- get_tempo_processamento(tempo_processo_tmp)
+  write.csv(tempo_processo, file.name.log, row.names = FALSE, fileEncoding = "UTF-8", na = "")
+  
+  tempo_processo_tmp <- inicia_tempo_processamento('select_digital_voucher 1/3', tempo_processo)
+  occ_digital_voucher_t1 <- select_digital_voucher_v2.1(occ = occ[i_k_1==TRUE,],
+                                                        occ_gbif_issue = occ_gbif_issue[i_k_1==TRUE,],
+                                                        occ_wcvp_check_name = names.checked[i_k_1==TRUE,],
+                                                        occ_collectorsDictionary = occ_collectorsDictionary[i_k_1==TRUE,],
+                                                        silence = FALSE)
+  tempo_processo <- get_tempo_processamento(tempo_processo_tmp)
+  write.csv(tempo_processo, file.name.log, row.names = FALSE, fileEncoding = "UTF-8", na = "")
+  
+  
+  tempo_processo_tmp <- inicia_tempo_processamento('select_digital_voucher 2/3', tempo_processo)
+  occ_digital_voucher_t2 <- select_digital_voucher_v2.1(occ = occ[i_k_2==TRUE,],
+                                                        occ_gbif_issue = occ_gbif_issue[i_k_2==TRUE,],
+                                                        occ_wcvp_check_name = names.checked[i_k_2==TRUE,],
+                                                        occ_collectorsDictionary = occ_collectorsDictionary[i_k_2==TRUE,],
+                                                        silence = FALSE)
+  tempo_processo <- get_tempo_processamento(tempo_processo_tmp)
+  write.csv(tempo_processo, file.name.log, row.names = FALSE, fileEncoding = "UTF-8", na = "")
+  
+  tempo_processo_tmp <- inicia_tempo_processamento('select_digital_voucher 3/3', tempo_processo)
+  occ_digital_voucher_t3 <- select_digital_voucher_v2.1(occ = occ[i_k_3==TRUE,],
+                                                        occ_gbif_issue = occ_gbif_issue[i_k_3==TRUE,],
+                                                        occ_wcvp_check_name = names.checked[i_k_3==TRUE,],
+                                                        occ_collectorsDictionary = occ_collectorsDictionary[i_k_3==TRUE,],
+                                                        silence = FALSE)
+  tempo_processo <- get_tempo_processamento(tempo_processo_tmp)
+  write.csv(tempo_processo, file.name.log, row.names = FALSE, fileEncoding = "UTF-8", na = "")
+  
+  
+  tempo_processo_tmp <- inicia_tempo_processamento('select_digital_voucher save', tempo_processo)
+  
+  occ_digital <- list(all_data =  {} %>% data.frame(stringsAsFactors = FALSE),
+                      useable_data_raw = {},
+                      duplicates = {},
+                      unusable_data_raw = {},
+                      occ_digital_voucher = {},
+                      occ_results = {})
+  
+  occ_digital$all_data <- rbind(occ_digital_voucher_t1$all_data,
+                                occ_digital_voucher_t2$all_data,
+                                occ_digital_voucher_t3$all_data)
+  
+  
+  occ_digital$useable_data_raw <- rbind(occ_digital_voucher_t1$useable_data_raw,
+                                        occ_digital_voucher_t2$useable_data_raw,
+                                        occ_digital_voucher_t3$useable_data_raw)
+  
+  
+  occ_digital$unusable_data_raw <- rbind(occ_digital_voucher_t1$unusable_data_raw,
+                                         occ_digital_voucher_t2$unusable_data_raw,
+                                         occ_digital_voucher_t3$unusable_data_raw)
+  
+  occ_digital$occ_digital_voucher <- rbind(occ_digital_voucher_t1$occ_digital_voucher,
+                                           occ_digital_voucher_t2$occ_digital_voucher,
+                                           occ_digital_voucher_t3$occ_digital_voucher)
+  
+  occ_digital$occ_results <- rbind(occ_digital_voucher_t1$occ_results,
+                                   occ_digital_voucher_t2$occ_results,
+                                   occ_digital_voucher_t3$occ_results)
+  
+  
+  
+  # 4
+  file.name <-  paste0(path_data,'\\','parseGBIF_all_data.csv')
+  write.csv(occ_digital$all_data,
+            file.name, 
+            row.names = FALSE, 
+            fileEncoding = "UTF-8", 
+            na = "")
+  
+  file.name <-  paste0(path_data,'\\','parseGBIF_useable_data_raw.csv')
+  write.csv(occ_digital$useable_data_raw,
+            file.name, 
+            row.names = FALSE, 
+            fileEncoding = "UTF-8", 
+            na = "")
+  
+  
+  file.name <-  paste0(path_data,'\\','parseGBIF_duplicates.csv')
+  write.csv(occ_digital$duplicates,
+            file.name, 
+            row.names = FALSE, 
+            fileEncoding = "UTF-8", 
+            na = "")
+  
+  file.name <-  paste0(path_data,'\\','parseGBIF_unusable_data_raw.csv')
+  write.csv(occ_digital$unusable_data_raw,
+            file.name, 
+            row.names = FALSE, 
+            fileEncoding = "UTF-8", 
+            na = "")
+  
+  file.name <-  paste0(path_data,'\\','parseGBIF_occ_digital_voucher.csv')
+  write.csv(occ_digital$occ_digital_voucher,
+            file.name, 
+            row.names = FALSE, 
+            fileEncoding = "UTF-8", 
+            na = "")
+  
+  file.name <-  paste0(path_data,'\\','parseGBIF_occ_results.csv')
+  write.csv(occ_digital$occ_results,
+            file.name, 
+            row.names = FALSE, 
+            fileEncoding = "UTF-8", 
+            na = "")
+  
+  tempo_processo <- get_tempo_processamento(tempo_processo_tmp)
+  write.csv(tempo_processo, file.name.log, row.names = FALSE, fileEncoding = "UTF-8", na = "")
+  
+}
+
+
+# export_data
+{
+  
+}

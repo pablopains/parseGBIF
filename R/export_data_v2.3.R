@@ -167,6 +167,7 @@ export_data_v2.3 <- function(occ_digital_voucher_file = '',
                                                  'Ctrl_identifiedBy',
                                                  'Ctrl_dateIdentified',
                                                  'Ctrl_scientificName',
+                                                 'Ctrl_taxonRank',
                                                  'Ctrl_decimalLatitude',
                                                  'Ctrl_decimalLongitude',
 
@@ -185,6 +186,7 @@ export_data_v2.3 <- function(occ_digital_voucher_file = '',
                                                  "wcvp_taxon_name",
                                                  "wcvp_taxon_authors",
                                                  "wcvp_reviewed",
+                                                 "wcvp_searchedName",
                                                  "wcvp_searchNotes",
 
                                                  'parseGBIF_digital_voucher',
@@ -200,6 +202,15 @@ export_data_v2.3 <- function(occ_digital_voucher_file = '',
                                                  'parseGBIF_useful_for_spatial_analysis',
                                                  'parseGBIF_decimalLatitude',
                                                  'parseGBIF_decimalLongitude',
+
+                                                 'parseGBIF_wcvp_plant_name_id',
+                                                 'parseGBIF_wcvp_taxon_rank',
+                                                 'parseGBIF_wcvp_taxon_status',
+                                                 'parseGBIF_wcvp_family',
+                                                 'parseGBIF_wcvp_taxon_name',
+                                                 'parseGBIF_wcvp_taxon_authors',
+                                                 # parseGBIF_wcvp_accepted_plant_name_id,
+                                                 'parseGBIF_wcvp_reviewed',
 
                                                  'parseGBIF_dataset_result'),
                              silence=TRUE
@@ -254,7 +265,12 @@ export_data_v2.3 <- function(occ_digital_voucher_file = '',
         # parseGBIF_decimalLongitude = NA,
         # # parseGBIF_notes = '',
         # # parseGBIF_status = FALSE,
-        parseGBIF_freq_duplicate_or_missing_data = '')
+        parseGBIF_freq_duplicate_or_missing_data = '',
+        parseGBIF_duplicates_map = '',
+        parseGBIF_merged_fields = '',
+        parseGBIF_merged = FALSE,
+
+        after = 'parseGBIF_dataset_result')
 
     occ_tmp <- occ_tmp %>%
       dplyr::arrange(Ctrl_key_family_recordedBy_recordNumber)
@@ -269,10 +285,10 @@ export_data_v2.3 <- function(occ_digital_voucher_file = '',
   # in dup out_to_recover
   {
     # NROW(occ_tmp)
-    occ_tmp <- occ_tmp %>%
-      dplyr::mutate(parseGBIF_duplicates_map = rep('',NROW(occ_tmp)),
-                    parseGBIF_merged_fields = rep('',NROW(occ_tmp)),
-                    parseGBIF_merged = rep(FALSE,NROW(occ_tmp)))
+    # occ_tmp <- occ_tmp %>%
+    #   dplyr::mutate(parseGBIF_duplicates_map = rep('',NROW(occ_tmp)),
+    #                 parseGBIF_merged_fields = rep('',NROW(occ_tmp)),
+    #                 parseGBIF_merged = rep(FALSE,NROW(occ_tmp)))
 
     occ_in <- occ_tmp %>%
       dplyr::filter(parseGBIF_dataset_result == 'useable')
