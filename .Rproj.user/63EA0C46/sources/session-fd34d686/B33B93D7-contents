@@ -532,8 +532,8 @@ path_data <- getwd()
         #                                      load_rda_data = TRUE)$wcvp_names 
         
 
-        wcvp_names_t <<- rWCVPdata::wcvp_names  %>%
-          data.frame(stringsAsFactors = FALSE)
+        # wcvp_names_t <<- rWCVPdata::wcvp_names  %>%
+        #   data.frame(stringsAsFactors = FALSE)
         
                 
         # wcvp_names_t <<- rWCVPdata::wcvp_names  %>%
@@ -558,7 +558,7 @@ path_data <- getwd()
     
     wcvpSummary <<- {}
     wcvpOccurrence <<- {}
-    # wcvp_names_t <<- {}
+    wcvp_names_t <<- {}
     
     
     issueGBIFOccurrence <<- {}
@@ -1085,7 +1085,6 @@ path_data <- getwd()
                                      occ_gbif_issue <- extract_gbif_issue(occ = data())
                                      
                                      
-                                     
 
                                      incProgress(100, detail = '100')
                                    })
@@ -1165,13 +1164,14 @@ path_data <- getwd()
                                      # 
                                      # }
                                      
-                                     wcvp_names_t <<- wcvp_names_t  %>%
-                                       dplyr::mutate(TAXON_NAME_U = taxon_name %>% toupper(),
-                                                     TAXON_AUTHORS_U = taxon_authors %>% toupper() %>% gsub ("\\s+", "", .)) %>%
-                                       data.frame(stringsAsFactors = FALSE)
-                                     
-                                     
-                                     
+                                     # wcvp_names_t <<- rWCVPdata::wcvp_names  %>%
+                                     #   data.frame(stringsAsFactors = FALSE)
+                                     # 
+                                     # wcvp_names_t <<- wcvp_names_t  %>%
+                                     #   dplyr::mutate(TAXON_NAME_U = taxon_name %>% toupper(),
+                                     #                 TAXON_AUTHORS_U = taxon_authors %>% toupper() %>% gsub ("\\s+", "", .)) %>%
+                                     #   data.frame(stringsAsFactors = FALSE)
+
                                      # # if(NROW(wcvp_names)==0)
                                      # # {
                                      #   wcvp_names <<- loadWCVP()
@@ -1190,9 +1190,22 @@ path_data <- getwd()
                                      
                                      incProgress(0.5, detail = 'wcvp_check_name_batch...')
                                      
+                                     wcvp_names <-  wcvp_names %>%
+                                       dplyr::select(plant_name_id,
+                                                     taxon_rank,
+                                                     taxon_status,
+                                                     family,
+                                                     taxon_name,
+                                                     taxon_authors,
+                                                     accepted_plant_name_id,
+                                                     reviewed)
+                                     
+                                     wcvp_names$TAXON_NAME_U <- wcvp_names$taxon_name %>% toupper()
+                                     wcvp_names$TAXON_AUTHORS_U <- wcvp_names$taxon_authors %>% toupper() %>% gsub ("\\s+", "", .)
+                                   
+                                   
                                      names.checked <- wcvp_check_name_batch(occ = data(),
-                                                                            wcvp_names =  wcvp_names_t,
-                                                                            if_author_fails_try_without_combinations = TRUE,
+                                                                            wcvp_names = wcvp_names,                                                                            if_author_fails_try_without_combinations = TRUE,
                                                                             wcvp_selected_fields = 'standard',
                                                                             silence = FALSE)
                                      

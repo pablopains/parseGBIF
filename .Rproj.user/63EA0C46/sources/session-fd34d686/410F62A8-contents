@@ -58,6 +58,8 @@
 rm(list = ls())
 devtools::install_github("pablopains/parseGBIF")
 
+renv::install("pablopains/parseGBIF")
+# renv::install("matildabrown/rWCVPdata")
 
 {
   rm(list = ls())

@@ -82,6 +82,8 @@ name_search_wcvp <- occ_tmp$Ctrl_scientificName %>% unique() %>% as.character()
 wcvp_names <-  wcvp_get_data_v2.1(read_only_to_memory = TRUE,
                                      load_rda_data = TRUE)$wcvp_names
 
+colnames(wcvp_names)
+
 i <- 1
 tot_rec <- NROW(name_search_wcvp)
 
