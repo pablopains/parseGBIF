@@ -58,6 +58,6 @@ We recommend using the application locally.
 parseGBIF::parseGBIF_app()
 ```
 
-## **For cloud computing we recommend opening the Jupyter notebook r providing the URL <https://raw.githubusercontent.com/pablopains/parseGBIF/main/Jupyter%20notebook/parseGBIF_workflow.ipynb> [parseGBIF_workflow.ipynb](https://raw.githubusercontent.com/pablopains/parseGBIF/main/Jupyter%20notebook/parseGBIF_workflow.ipynb) and running the workflow**
+## **For cloud computing we recommend opening the Jupyter notebook r providing the URL [parseGBIF_workflow.ipynb](https://raw.githubusercontent.com/pablopains/parseGBIF/main/Jupyter%20notebook/parseGBIF_workflow.ipynb) and running the workflow**
 
 ## **Consult the [parseGBIF Manual](https://github.com/pablopains/parseGBIF/blob/main/parseGBIF_Manual.pdf) for a case study with a complete and replicable workflow**
