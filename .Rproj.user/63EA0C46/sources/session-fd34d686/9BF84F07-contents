@@ -448,3 +448,5 @@ any(occ_all2$parseGBIF_sample_taxon_name_binomial %in% 'NA')
   }
 
 }
+
+parseGBIF::parseGBIF_app()
