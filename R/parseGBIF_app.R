@@ -1,11 +1,7 @@
 #' @title parseGBIF App
 #' @name parseGBIF_app
-#'
 #' @description parseGBIF App
-#' 
-#'
 #' @return CSV files
-#'
 #' @author Pablo Hendrigo Alves de Melo,
 #        Nadia Bystriakova &
 #        Alexandre Monro
@@ -1183,24 +1179,6 @@ parseGBIF_app <- function()
       # Get WCVP
       {
         
-        # DataSummary_wcvp_text <- renderText({ 
-        #   # req(input$getWCVPBtn)
-        #   # req(input$loadWCVPFile)
-        #   
-        #   wcvp_names <<- loadWCVP()
-        #   # paste0(
-        #   #   
-        #   #   
-        #   #   ' Number of records: ', NROW(wcvp_names),
-        #   #   ' / Number of selected columns: ', NCOL(wcvp_names),
-        #   #   ' / Families: ', length(wcvp_names$family %>% unique()),
-        #   #   # ' / Genus: ', length(data()$Ctrl_genus %>% unique()),
-        #   #   ' / Scientific Names: ', length(wcvp_names$taxon_name %>% unique())
-        #   #   
-        #   #   
-        #   # )
-        # })
-        
         applyWCVP <- eventReactive(input$applyWCVPBtn,
                                    {
                                      withProgress(message = 'Processing...1', style = 'notification', value = 0.5, {
@@ -1287,24 +1265,6 @@ parseGBIF_app <- function()
                                                              })
         
         
-        
-        # output$WCVPContents <- DT::renderDataTable(options = list(scrollX = TRUE),
-        #                                            {
-        #                                              
-        #                                              # wcvp_names <<- loadWCVP()
-        #                                              wcvp_names 
-        #                                              
-        #                                              # if(is.null(wcvp_names)==TRUE)
-        #                                              # {wcvp_names <<- loadWCVP()}
-        #                                              # else
-        #                                              # {wcvp_names}
-        #                                              
-        #                                              # wcvp_names
-        #                                              
-        #                                            })
-        
-        
-        
         output$wcvpOccurrenceDownload <- downloadHandler(
           filename = function() {
             paste("wcvpOccurrence - ", Sys.Date(), ".csv", sep="")
@@ -1321,109 +1281,6 @@ parseGBIF_app <- function()
           content = function(file) {
             write.csv(wcvpSummary, file, row.names = FALSE, fileEncoding = "UTF-8", na = "")
           })
-        
-        
-        # loadWCVP <- reactive({
-        #   # req(input$loadWCVPFile)
-        #   
-        #   tryCatch(
-        #     {
-        #       
-        #       print('rWCVPdata...')
-        #       wcvp_names <<- rWCVPdata::wcvp_names  %>%
-        #             dplyr::mutate(TAXON_NAME_U = taxon_name %>% toupper(),
-        #                           TAXON_AUTHORS_U = taxon_authors %>% toupper() %>% gsub ("\\s+", "", .))
-        #       
-        #       # print('web..')
-        #       # wcvp_names <<- wcvp_get_data(read_only_to_memory = TRUE)$wcvp_names  
-        #       
-        #       
-        #       # if(is.na(input$loadWCVPFile$datapath))
-        #       # {
-        #         # print('web..')
-        #         # wcvp_names <<- wcvp_get_data(read_only_to_memory = TRUE)$wcvp_names  
-        #       # }else
-        #       # {
-        #       #   files_tmp <- input$loadWCVPFile$datapath
-        #       #   
-        #       #   print('hd...')
-        #       #   wcvp_names_tmp <- read.table(files_tmp, sep="|", header=TRUE, quote = "", fill=TRUE, encoding = "UTF-8") %>% 
-        #       #     data.frame(stringsAsFactors = F) 
-        #       #   
-        #       #   
-        #       #   wcvp_names <<- wcvp_names_tmp  %>%
-        #       #     dplyr::mutate(TAXON_NAME_U = taxon_name %>% toupper(),
-        #       #                   TAXON_AUTHORS_U = taxon_authors %>% toupper() %>% gsub ("\\s+", "", .))
-        #       # }
-        #       
-        #       
-        #       
-        #       
-        #       
-        #       return(wcvp_names)
-        #     },
-        #     error = function(e) {
-        #       stop(safeError(e))
-        #     }
-        #     
-        #   )
-        #   
-        # })
-        
-        
-        
-        
-        #' getWCVP <- eventReactive(input$getWCVPBtn,
-        #                         {
-        #                           withProgress(message = 'Processing...', style = 'notification', value = 0.1, {
-        #                             
-        #                             # tempo_processo_tmp <<- inicia_tempo_processamento('Get WCVP', tempo_processo)
-        #                             
-        #                             wcvp_tmp <- get_wcvp(url_source = 'http://sftp.kew.org/pub/data-repositories/WCVP/',
-        #                                              path_results = path_data,
-        #                                              update = FALSE)
-        #                             
-        #                             incProgress(50, detail = '50')
-        #                             
-        #                             wcvp_tmp$wcvp_names <- wcvp_tmp$wcvp_names %>%
-        #                               dplyr::filter(taxon_rank %in% c('Species','Subspecies','Variety','Form' ))
-        #                             
-        #                             # taxon_rank
-        #                             # "Species"     "nothosubsp." "Subspecies"  "Form"        "Variety"     "microgene"   "Genus"       ""           
-        #                             # "proles"      "nothof."     "Subvariety"  "nothovar."   "Subform"     "lusus"       "monstr."     "[**]"       
-        #                             # "[*]"         "sublusus"    "Convariety"  "psp."        "subspecioid" "group"       "grex"        "stirps"     
-        #                             # "mut."        "subproles"   "nid"         "provar."     "positio"     "micromorphe" "modif."      "ecas."      
-        #                             # "microf."     "agamosp."
-        #                             
-        #                             # tempo_processo <<- get_tempo_processamento(tempo_processo_tmp)                                   
-        #                             incProgress(100, detail = '100')
-        #                           })
-        #                           
-        #' 
-        #                           wcvp <<- wcvp_tmp
-        #                           
-        #                           return(wcvp)
-        #                           
-        #                         })
-        
-        
-        
-        # output$DataSummary_text <- renderText({ 
-        #   req(input$getWCVPBtn)
-        # 
-        #   paste0(
-        #     
-        #     
-        #     ' Number of records: ', NROW(wcvp_names),
-        #     ' / Number of selected columns: ', NCOL(wcvp_names),
-        #     ' / Families: ', length(wcvp_names$family %>% unique()),
-        #     # ' / Genus: ', length(data()$Ctrl_genus %>% unique()),
-        #     ' / Scientific Names: ', length(wcvp_names$taxon_name %>% unique())
-        #     
-        #     
-        #   )
-        # })
-        
       }
       
       
