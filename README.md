@@ -39,16 +39,9 @@ run
 devtools::install_github("pablopains/parseGBIF")
 ```
 
-Please site parseGBIF as:
+## **Workflow**
 
-``` r
-print(citation("parseGBIF"), bibtex = FALSE)
-#> To cite package 'parseGBIF' in publications use:
-#> 
-#>   Melo P, Bystriakova N, Monro A (2023). "ParsGBIF: An R package for
-#>   parsing species occurrence records." _Methods in Ecology and
-#>   Evolution_, *1*(11), 1-11. doi:doi..... <https://doi.org/doi.....>.
-```
+<img src="parseGBIF_workflow.drawio.png" alt="Workflow" style="height: 100%; width:100%;"/>
 
 ## **Workflow performed in just a few clicks using the app**
 
@@ -61,3 +54,14 @@ parseGBIF::parseGBIF_app()
 ## **For cloud computing we recommend opening the Jupyter notebook r providing the URL [parseGBIF_workflow.ipynb](https://raw.githubusercontent.com/pablopains/parseGBIF/main/Jupyter%20notebook/parseGBIF_workflow.ipynb) and running the workflow**
 
 ## **Consult the [parseGBIF Manual](https://github.com/pablopains/parseGBIF/blob/main/parseGBIF_Manual.pdf) for a case study with a complete and replicable workflow**
+
+Please site parseGBIF as:
+
+``` r
+print(citation("parseGBIF"), bibtex = FALSE)
+#> To cite package 'parseGBIF' in publications use:
+#> 
+#>   Melo P, Bystriakova N, Monro A (2023). "ParsGBIF: An R package for
+#>   parsing species occurrence records." _Methods in Ecology and
+#>   Evolution_, *1*(11), 1-11. doi:doi..... <https://doi.org/doi.....>.
+```

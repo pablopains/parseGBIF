@@ -36,10 +36,8 @@ To install parseGBIF, run
 devtools::install_github("pablopains/parseGBIF")
 ```
 
-Please site parseGBIF as:
-```{r example_citation, eval=TRUE}
-print(citation("parseGBIF"), bibtex = FALSE)
-```
+## **Workflow**
+<img src="parseGBIF_workflow.drawio.png" alt="Workflow" style="height: 100%; width:100%;"/>
 
 ## **Workflow performed in just a few clicks using the app**
 We recommend using the application locally.
@@ -50,8 +48,9 @@ parseGBIF::parseGBIF_app()
 ## **For cloud computing we recommend opening the Jupyter notebook r providing the URL [parseGBIF_workflow.ipynb](https://raw.githubusercontent.com/pablopains/parseGBIF/main/Jupyter%20notebook/parseGBIF_workflow.ipynb) and running the workflow**
 
 
-
-
-
-
 ## **Consult the [parseGBIF Manual](https://github.com/pablopains/parseGBIF/blob/main/parseGBIF_Manual.pdf) for a case study with a complete and replicable workflow**
+
+Please site parseGBIF as:
+```{r example_citation, eval=TRUE}
+print(citation("parseGBIF"), bibtex = FALSE)
+```
