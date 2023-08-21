@@ -1,0 +1,26 @@
+{
+    "id": "B33B93D7",
+    "path": "C:/parseGBIF - github.com/parseGBIF/R/parseGBIF_app.R",
+    "project_path": "R/parseGBIF_app.R",
+    "type": "r_source",
+    "hash": "3780925838",
+    "contents": "",
+    "dirty": false,
+    "created": 1691445089784.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "951,46",
+        "scrollLine": "938"
+    },
+    "folds": "21|3|32|2|\n215|5|226|4|\n335|37|380|37|\n383|37|456|37|\n500|37|540|37|\n597|7|617|6|\n958|7|1258|6|\n1261|7|1365|6|\n1369|7|1429|6|\n1432|7|1581|6|\n",
+    "lastKnownWriteTime": 1692615098,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1692615098206,
+    "read_only": false,
+    "read_only_alternatives": []
+}

@@ -65,3 +65,7 @@ print(citation("parseGBIF"), bibtex = FALSE)
 #>   parsing species occurrence records." _Methods in Ecology and
 #>   Evolution_, *1*(11), 1-11. doi:doi..... <https://doi.org/doi.....>.
 ```
+
+## **Workflow in detail**
+
+<img src="parseGBIF_workflow_detail.drawio.png" alt="Workflow" style="height: 100%; width:100%;"/>

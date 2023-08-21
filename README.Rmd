@@ -54,3 +54,7 @@ Please site parseGBIF as:
 ```{r example_citation, eval=TRUE}
 print(citation("parseGBIF"), bibtex = FALSE)
 ```
+
+
+## **Workflow in detail**
+<img src="parseGBIF_workflow_detail.drawio.png" alt="Workflow" style="height: 100%; width:100%;"/>

@@ -460,7 +460,7 @@ select_digital_voucher_v2.2 <-  function(occ = NA,
         #                 parseGBIF_digital_voucher = (occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord ==
         #                                                max(occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord)))
 
-          occ[index_occ==TRUE, ] <- occ_key %>%
+          occ[index_occ==TRUE, ] <- occ_key %>% #dplyr::select(-wcvp_taxon_name_and_wcvp_plant_name_id) %>%
             dplyr::mutate(parseGBIF_duplicates_grouping_status = 'groupable',
                           parseGBIF_duplicates = num_records > 1,
                           parseGBIF_num_duplicates = num_records,
@@ -524,7 +524,7 @@ select_digital_voucher_v2.2 <-  function(occ = NA,
 
               sp_id <- rep('', num_records)
 
-              occ[index_occ==TRUE, ] <- occ_key %>%
+              occ[index_occ==TRUE, ] <- occ_key %>% dplyr::select(-wcvp_taxon_name_and_wcvp_plant_name_id) %>%
                 dplyr::mutate(
 
                   # não é preciso entre #
@@ -570,7 +570,7 @@ select_digital_voucher_v2.2 <-  function(occ = NA,
                 sp_name_id <- str_split(taxon_name_sample$Var1[1],
                           ';', simplify = TRUE)
 
-                occ[index_occ==TRUE, ] <- occ_key %>%
+                occ[index_occ==TRUE, ] <- occ_key %>% dplyr::select(-wcvp_taxon_name_and_wcvp_plant_name_id) %>%
                   dplyr::mutate(
                     parseGBIF_number_taxon_names = num_taxon_name,
 
@@ -602,7 +602,7 @@ select_digital_voucher_v2.2 <-  function(occ = NA,
                     sp_name_id <- str_split(taxon_name_sample$Var1[ii],
                                             ';', simplify = TRUE)
 
-                    occ[index_occ==TRUE, ] <- occ_key %>%
+                    occ[index_occ==TRUE, ] <- occ_key %>% dplyr::select(-wcvp_taxon_name_and_wcvp_plant_name_id) %>%
                       dplyr::mutate(
                         parseGBIF_number_taxon_names = num_taxon_name,
 

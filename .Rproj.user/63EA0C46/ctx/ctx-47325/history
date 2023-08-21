@@ -1,0 +1,51 @@
+{
+#' @details limpar memória
+rm(list = ls())
+#' @details direcionar memória para processamento temporário em disco
+{
+if (!dir.exists("c:/R_temp")){dir.create("c:/R_temp")}
+tempdir <- function() "c:/R_temp"
+unlockBinding("tempdir", baseenv())
+assignInNamespace("tempdir", tempdir, ns="base", envir=baseenv())
+assign("tempdir", tempdir, baseenv())
+lockBinding("tempdir", baseenv())
+tempdir()
+}
+#' @details carregar funcões para mensurar tempos de processamento
+{
+tempo_processo <- data.frame(nome_processo=NA,
+tempo_processamento=NA)[-1,]
+inicia_tempo_processamento <- function(nome_processo='',
+tempo_processo=NA)
+{
+return(list(ini.time = Sys.time(),
+nome_processo=nome_processo,
+tempo_processo=tempo_processo))
+}
+get_tempo_processamento <- function(tempo_processo_tmp)
+{
+tempo_processamento <- difftime(Sys.time(), tempo_processo_tmp$ini.time , units = 'min')
+tempo_processo <- rbind(tempo_processo_tmp$tempo_processo,
+data.frame(nome_processo=tempo_processo_tmp$nome_processo,
+tempo_processamento=tempo_processamento))
+print(tempo_processo)
+return(tempo_processo)
+}
+#' @details inicar tempo de processamento
+tempo_processo_tmp <- inicia_tempo_processamento('Preparação do ambiente de trabalho em R', tempo_processo)
+#' @details carregar pacotes básicos
+{
+# devtools::install_github("pablopains/parseGBIF")
+library(parseGBIF)
+library(stringr)
+library(dplyr)
+}
+#' @details finalizar tempo de processamento
+tempo_processo <- get_tempo_processamento(tempo_processo_tmp)
+}
+file.name <- 'C:\\Dados\\Kew\\data\\download\\Myrtaceae\\parseGBIF_export\\parseGBIF_export_all_data.csv'
+occ_tmp <- readr::read_delim(file = file.name,
+delim = ',',
+locale = readr::locale(encoding = "UTF-8"),
+show_col_types = FALSE) %>% data.frame()
+occ_tmp$Ctrl_nameRecordedBy_Standard
