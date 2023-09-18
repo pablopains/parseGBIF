@@ -21,7 +21,7 @@
 #' Once verified, the collector’s dictionary can be reused in the future.
 
 #' @param occ GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')
-#' @param collectorDictionary_file Collector dictionary file - point to a file on your local disk or upload via git at https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv.
+#' @param collectorDictionary_file Collector dictionary file - point to a file on your local disk or download via git at https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv.
 #' @param silence if TRUE does not display progress messages
 #'
 #' @details If recordedBy is present in the collector's dictionary, it returns the checked name, if not, it returns the last name of the main collector, extracted from the recordedBy field.

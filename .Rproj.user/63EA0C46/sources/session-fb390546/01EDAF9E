@@ -1,0 +1,24 @@
+{
+    "id": "01EDAF9E",
+    "path": "C:/parseGBIF - github.com/parseGBIF/R/collectors_prepare_dictionary.R",
+    "project_path": "R/collectors_prepare_dictionary.R",
+    "type": "r_source",
+    "hash": "717935886",
+    "contents": "",
+    "dirty": false,
+    "created": 1692672056956.0,
+    "source_on_save": false,
+    "relative_order": 15,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1689207171,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1689207171,
+    "read_only": false,
+    "read_only_alternatives": []
+}

@@ -14,7 +14,7 @@ collectors_prepare_dictionary_v2(
 \arguments{
 \item{occ}{GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')}
 
-\item{collectorDictionary_file}{Collector dictionary file - point to a file on your local disk or upload via git at https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv.}
+\item{collectorDictionary_file}{Collector dictionary file - point to a file on your local disk or download via git at https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv.}
 
 \item{silence}{if TRUE does not display progress messages}
 }

@@ -1,0 +1,66 @@
+## Pacotes
+library(ecodados) # devtools::install_github("paternogbc/ecodados")
+library(here)
+library(tidyverse)
+library(sf)
+library(raster)
+library(rgdal)
+library(spData) # devtools::install_github("nowosad/spData")
+library(rnaturalearth)
+library(geobr)
+library(ggplot2)
+library(ggspatial)
+library(tmap)
+library(tmaptools)
+library(grid)
+library(mapview)
+library(leaflet)
+library(viridis)
+library(knitr)
+library(sidrar)
+library(landscapetools)
+
+
+# Dados
+world <- world
+volcano <- volcano
+geo_anfibios_locais <- ecodados::geo_anfibios_locais
+geo_anfibios_especies <- ecodados::geo_anfibios_especies
+geo_vetor_nascentes <- ecodados::geo_vetor_nascentes
+geo_vetor_hidrografia <- ecodados::geo_vetor_hidrografia
+geo_vetor_cobertura <- ecodados::geo_vetor_cobertura
+geo_vetor_rio_claro <- ecodados::geo_vetor_rio_claro
+geo_vetor_brasil <- ecodados::geo_vetor_brasil
+geo_vetor_brasil_anos <- ecodados::geo_vetor_brasil_anos
+geo_vetor_am_sul <- ecodados::geo_vetor_am_sul
+geo_vetor_biomas <- ecodados::geo_vetor_biomas
+geo_vetor_mata_atlantica <- ecodados::geo_vetor_mata_atlantica
+geo_raster_srtm <- ecodados::geo_raster_srtm
+geo_raster_bioclim <- ecodados::geo_raster_bioclim
+geo_raster_globcover_mata_atlantica <- ecodados::geo_raster_globcover_mata_atlantica
+
+
+## Dados vetoriais de polígonos do mundo
+data(world)
+world
+plot(world[1], main = "Mapa do mundo")
+
+
+occ_pto <- sp::SpatialPointsDataFrame(occ_tmp[ind_sel==TRUE, c('Ctrl_decimalLongitude',
+                                                               'Ctrl_decimalLatitude') ] ,
+                                         data.frame(occ_tmp[ind_sel==TRUE,]))
+
+proj4string(occ_pto) <- rgdal::CRSargs(sp::CRS("+proj=longlat +datum=WGS84 +no_defs"))
+
+plot(occ_pto,
+     pch = 20,
+     col = "blue",
+     add = TRUE)
+
+
+## Dados de altitude de um vulcão
+volcano[1:5, 1:5]
+raster_layer <- raster::raster(volcano)
+raster_layer
+## Plot raster layers
+plot(raster_layer, col = viridis::viridis(n = 100))

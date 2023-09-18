@@ -36,6 +36,7 @@
 #' @export
 standardize_scientificName <- function(searchedName = 'Alomia angustata (Gardner) Benth. ex Baker')
 {
+  # searchedName = '×Zygocolax veitchii (J.H.Veitch ex Rolfe) Rolfe'
   require(stringr)
 
   x <- {}
@@ -76,6 +77,13 @@ standardize_scientificName <- function(searchedName = 'Alomia angustata (Gardner
           if(length(sp)>10){if(indx[10]==T){infrataxa <- sp[11]}}
           if(length(sp)>11){if(indx[11]==T){infrataxa <- sp[12]}}
           if(length(sp)>12){if(indx[12]==T){infrataxa <- sp[13]}}
+
+          # if(str_sub(sp[1],1,1) == "×")
+          # {
+          #    sp[1] <- str_sub(sp[1],2,nchar(sp[1]))
+          #    searchedName <- str_sub(searchedName,2,nchar(searchedName))
+          #    searchedName_ori <- str_sub(searchedName_ori,2,nchar(searchedName_ori))
+          # }
 
           if(str_detect(searchedName_raw, '×')==TRUE)
           {
@@ -122,7 +130,10 @@ standardize_scientificName <- function(searchedName = 'Alomia angustata (Gardner
 
   sp2 <- stringr::str_split(searchedName, ' ', simplify = T)
 
-  taxon_authors <- str_sub(searchedName_ori, str_locate(searchedName_ori, sp2[length(sp2)])[2]+2, nchar(searchedName_ori))
+  taxon_authors <-''
+  try( {taxon_authors <- str_sub(searchedName_ori, str_locate(searchedName_ori, sp2[length(sp2)])[2]+2, nchar(searchedName_ori))},
+                          silent = TRUE)
+  taxon_authors
 
   if(length(sp2)==4 &!is.na(taxon_authors)){if(paste0(sp2[3], ' ',sp2[4])==taxon_authors){taxon_authors <- ''}}
 
