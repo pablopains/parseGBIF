@@ -8,7 +8,7 @@ download_gbif_data_from_doi(
   gbif_doi_url,
   folder = "",
   keep_only_occurrence_file = TRUE,
-  overwrite = TRUE
+  overwrite = FALSE
 )
 }
 \arguments{

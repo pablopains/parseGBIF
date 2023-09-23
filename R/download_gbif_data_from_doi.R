@@ -38,7 +38,7 @@
 download_gbif_data_from_doi <- function(gbif_doi_url,
                                         folder = '',
                                         keep_only_occurrence_file = TRUE,
-                                        overwrite = TRUE)
+                                        overwrite = FALSE)
 {
 
   if(!dir.exists(folder))
@@ -58,7 +58,7 @@ download_gbif_data_from_doi <- function(gbif_doi_url,
   url_file_zip_GBIF <- li_dr_txt[41]
   path_file_zip_GBIF <- paste0(folder,'\\dataGBIF.zip')
 
-  if((!file.exists(url_file_zip_GBIF)) |
+  if((!file.exists(path_file_zip_GBIF)) |
      overwrite == TRUE)
   {
     downloader::download(url_file_zip_GBIF, path_file_zip_GBIF, mode = "wb")
@@ -67,17 +67,15 @@ download_gbif_data_from_doi <- function(gbif_doi_url,
 
     if(keep_only_occurrence_file == TRUE)
     {
-      # files_tmp <- list.files(path =  folder, full.names = TRUE, recursive = TRUE)
-      # ind_files <- grepl(paste0('occurrence.txt|',family_name,'.zip'), files_tmp)
-      # file.remove( list.files(path =  paste0(folder,'\\dataset'), full.names = TRUE)  )
-      # file.remove(files_tmp[ind_files==FALSE], recursive = TRUE)
-
       files_tmp <- list.files(path =  folder, full.names = TRUE)
-      ind_files <- grepl(paste0('occurrence.txt|','dataGBIF.zip'), files_tmp)
-      # file.remove(files_tmp[ind_files==FALSE])
+      # ind_files <- grepl(paste0('occurrence.txt|','dataGBIF.zip'), files_tmp)
 
-      # Delete Dir
-      unlink(files_tmp[ind_files==FALSE],recursive = TRUE)
+      ind_del <- grepl('citations.txt|meta.xml|metadata.xml|multimedia.txt|rights.txt|verbatim.txt',
+                       files_tmp)
+      unlink(files_tmp[ind_del==TRUE],recursive = TRUE)
+
+      unlink(paste0(folder,'\\dataset'),recursive = TRUE)
+
     }
 
   }
