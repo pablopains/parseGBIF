@@ -7,7 +7,8 @@
 download_gbif_data_from_doi(
   gbif_doi_url,
   folder = "",
-  keep_only_occurrence_file = TRUE
+  keep_only_occurrence_file = TRUE,
+  overwrite = TRUE
 )
 }
 \arguments{
@@ -16,6 +17,8 @@ download_gbif_data_from_doi(
 \item{folder}{Save folder}
 
 \item{keep_only_occurrence_file}{Keep only occurrence.txt file}
+
+\item{overwrite}{overwrite files}
 
 \item{subfolder}{Save in subfolder}
 }
