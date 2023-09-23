@@ -41,7 +41,7 @@ head(occ)
 }
 }
 \seealso{
-\code{\link[ParsGBIF]{select_gbif_fields}}, \code{\link[ParsGBIF]{extract_gbif_issue}}
+\code{\link[parseGBIF]{select_gbif_fields}}, \code{\link[parseGBIF]{extract_gbif_issue}}
 }
 \author{
 Pablo Hendrigo Alves de Melo,

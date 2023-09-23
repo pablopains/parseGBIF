@@ -19,7 +19,7 @@
 #'         Nadia Bystriakova &
 #'         Alexandre Monro
 #'
-#' @seealso \code{\link[ParsGBIF]{select_gbif_fields}}, \code{\link[ParsGBIF]{extract_gbif_issue}}
+#' @seealso \code{\link[parseGBIF]{select_gbif_fields}}, \code{\link[parseGBIF]{extract_gbif_issue}}
 #'
 #' @importFrom readr read_delim
 #'

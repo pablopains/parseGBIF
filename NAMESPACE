@@ -3,6 +3,7 @@
 export(collectors_get_name)
 export(collectors_prepare_dictionary)
 export(collectors_prepare_dictionary_v2)
+export(download_gbif_data_from_doi)
 export(export_data)
 export(export_data_v2.3)
 export(extract_gbif_issue)
