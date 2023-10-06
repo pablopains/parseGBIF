@@ -39,6 +39,10 @@ run
 devtools::install_github("pablopains/parseGBIF")
 ```
 
+## **Presentation video**
+
+[See](https://www.youtube.com/watch?v=3U7Fs7DuKyU)
+
 ## **Workflow**
 
 <img src="parseGBIF_workflow.drawio.png" alt="Workflow" style="height: 100%; width:100%;"/>
