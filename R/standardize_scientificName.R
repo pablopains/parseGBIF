@@ -111,6 +111,17 @@ standardize_scientificName <- function(searchedName = 'Alomia angustata (Gardner
 
         searchedName <- paste0(sp[1], ' × ', sp[3])
 
+        if(substr(sp[1],1,1)=="×")
+        {
+          searchedName <- substr(sp[1],2,nchar(sp[1]))
+
+          if(length(sp)>1)
+          {
+            searchedName <- paste0(substr(sp[1],2,nchar(sp[1])), ' ', sp[2])
+          }
+          # return(sobren)
+        }
+
       }else
       {
         if((str_sub(sp[2],1,1)==toupper(str_sub(sp[2],1,1)) |
@@ -132,7 +143,7 @@ standardize_scientificName <- function(searchedName = 'Alomia angustata (Gardner
 
   taxon_authors <-''
   try( {taxon_authors <- str_sub(searchedName_ori, str_locate(searchedName_ori, sp2[length(sp2)])[2]+2, nchar(searchedName_ori))},
-                          silent = TRUE)
+       silent = TRUE)
   taxon_authors
 
   if(length(sp2)==4 &!is.na(taxon_authors)){if(paste0(sp2[3], ' ',sp2[4])==taxon_authors){taxon_authors <- ''}}
@@ -157,5 +168,22 @@ standardize_scientificName <- function(searchedName = 'Alomia angustata (Gardner
               taxonAuthors= taxon_authors,
               taxonAuthors_last= taxon_authors_last))
 }
+
+# standardize_scientificName(searchedName = '×Cryptbergia rubra')
+
 # searchedName = "Senna glutinosa nothosubsp. luerssenii (Domin) Randell"
 # standardize_scientificName(searchedName)
+
+
+# # hibrido no genero
+# if(substr(xx[1],1,1)=="×")
+# {
+#   sobren <- xx[1]
+#
+#   if(length(xx)>1)
+#   {
+#     sobren <- paste0(xx[1], ' ', xx[2])
+#   }
+#   return(sobren)
+# }
+

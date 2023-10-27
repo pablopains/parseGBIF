@@ -27,8 +27,7 @@
 #' @examples
 #' \donttest{
 #'
-#'
-#' results <- export_data_v2.1(occ_digital_voucher_file = '',
+#' results <- export_data_v2.3(occ_digital_voucher_file = '',
 #' occ_digital_voucher = occ_digital$all_data,
 #' merge_unusable_data = TRUE,
 #' silence = FALSE)

@@ -21,7 +21,7 @@
 #'
 #' @seealso \code{\link[parseGBIF]{prepare_gbif_occurrence_data}}, \code{\link[parseGBIF]{extract_gbif_issue}}
 #'
-#' @importFrom downloader
+#' @import downloader
 #'
 #' @examples
 #' \donttest{
@@ -58,8 +58,10 @@ download_gbif_data_from_doi <- function(gbif_doi_url,
   url_file_zip_GBIF <- li_dr_txt[41]
   path_file_zip_GBIF <- paste0(folder,'\\dataGBIF.zip')
 
-  if((!file.exists(path_file_zip_GBIF)) |
-     overwrite == TRUE)
+  # if( ( !file.exists(path_file_zip_GBIF)) | (!file.exists(paste0(folder,'\\occurrence.txt'))) |
+  #    overwrite == TRUE)
+  if( (!file.exists(paste0(folder,'\\occurrence.txt'))) |
+      overwrite == TRUE)
   {
     downloader::download(url_file_zip_GBIF, path_file_zip_GBIF, mode = "wb")
 

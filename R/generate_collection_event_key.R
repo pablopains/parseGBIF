@@ -50,6 +50,7 @@
 #'
 #' @import stringr
 #' @import dplyr
+#' @import rscopus
 #'
 #' @export
 generate_collection_event_key <- function(occ=NA,
@@ -84,10 +85,9 @@ generate_collection_event_key <- function(occ=NA,
     stop("Empty Collector's Dictionary!")
   }
 
-  collectorDictionary <- collectorDictionary %>%
+  collectorDictionary_tmp <- collectorDictionary <- collectorDictionary %>%
     dplyr::mutate(Ctrl_recordedBy = Ctrl_recordedBy %>% toupper()) %>%
     data.frame()
-
 
   if(! silence == TRUE)
   {
@@ -145,6 +145,12 @@ generate_collection_event_key <- function(occ=NA,
                                        by = c('Ctrl_recordedBy')) %>%
       dplyr::select(colunas)
 
+   ####
+   collectorDictionary_checked_new <- rbind( collectorDictionary_checked_new %>%
+                                               dplyr::select(colunas),
+                                             collectorDictionary_tmp %>%
+                                               dplyr::select(colunas)) %>%
+     dplyr::arrange(Ctrl_nameRecordedBy_Standard)
    ####
 
    occ <- occ %>%
@@ -231,7 +237,6 @@ generate_collection_event_key <- function(occ=NA,
    }
 
    occ$Ctrl_recordNumber_Standard <- str_replace_all(occ$Ctrl_recordNumber, "[^0-9]", "")
-
 
    occ$Ctrl_recordNumber_Standard <- ifelse(is.na(occ$Ctrl_recordNumber_Standard) |
                                                    occ$Ctrl_recordNumber_Standard=='',"",occ$Ctrl_recordNumber_Standard  %>% strtoi())

@@ -77,15 +77,25 @@ print(citation("parseGBIF"), bibtex = FALSE)
 prepare_gbif_occurrence_data(gbif_occurrece_file = 'occurrence.txt')
 function
 
+```{r example_prepare_gbif_occurrence_data, eval=TRUE, message=FALSE, warning=FALSE}
+ library(parseGBIF)
+
+ folder_download <- tempdir()
+ 
+ download_gbif_data_from_doi(gbif_doi_url = 'https://doi.org/10.15468/dl.nbcqc6', folder = folder_download, keep_only_occurrence_file = TRUE)
+ 
+```
+
 #### 1.2. Preparing occurrence data downloaded from GBIF
 
 To prepare occurrence data downloaded from GBIF to be used by parseGBIF
 functions, run prepare_gbif_occurrence_data.
 
 ```{r example_prepare_gbif_occurrence_data, eval=TRUE, message=FALSE, warning=FALSE}
-library(parseGBIF)
 
-occ_file <- 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt'
+# occ_file <- 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt'
+
+occ_file <- paste0(folder_download,'\\','occurrence.txt')
   
 occ <- parseGBIF::prepare_gbif_occurrence_data(gbif_occurrece_file = occ_file, columns = 'standard')
   

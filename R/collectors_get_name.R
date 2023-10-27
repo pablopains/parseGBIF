@@ -32,7 +32,6 @@ collectors_get_name <- function(x)
 
   # require(stringr)
 
-
    x = gsub("[?]","",x) # teste pablo 10-02-2020
 
    x = gsub("[.]"," ",x) # teste pablo 10-02-2020
@@ -103,12 +102,29 @@ collectors_get_name <- function(x)
 
       xx = xx[xx!=""]
 
+      # # hibrido no genero
+      # if(substr(xx[1],1,1)=="×")
+      # {
+      #   sobren <- xx[1]
+      #
+      #   if(length(xx)>1)
+      #   {
+      #     sobren <- paste0(xx[1], ' ', xx[2])
+      #   }
+      #   return(sobren)
+      # }
+
       if (max(nchar(xx))>2) {
-         vll = which(nchar(xx)==max(nchar(xx)))
+
+        vll = which(nchar(xx)==max(nchar(xx)))
          if (length(vll)>1) {
             vll = vll[length(vll)]
          }
          sobren = xx[vll]
+
+        # teste sobrenome
+        # sobren = xx[length(vll)]
+
       } else {
          sb = strsplit(x,",")[[1]]
          sb = str_trim(sb)
@@ -121,7 +137,10 @@ collectors_get_name <- function(x)
       }
    } else {
       xx = strsplit(x," ")[[1]]
+
+      # aqui pega a palavra com maior comprimento
       sobren = xx[length(xx)]
+
    }
    sobren = str_trim(sobren)
    sobren = gsub("?","", sobren)
@@ -134,4 +153,199 @@ collectors_get_name <- function(x)
       return(NA)
    }
 }
+
+# library(stringr)
+#
+# collectors_get_name(x='×Cryptbergia rubra')
+
+# INCLUIR / NA SEPARAÇÃO DOS COLETOR PRINCIPAL DE ET ALI
+
+# SUBSTITUIR
+# HALINA ANDRYŁOJĆ
+# ANIOŁ J.
+# ARHANGEL'SKIY
+# ARHIPOVIČA
+# BARTOŇOVÁ,V.
+# DVOŘÁK,FRANTIŠEK & GRÜLL,F.
+# DVOŘÁK,FRANTIŠEK, SEDLÁČEK,J. & TOMÁNEK,J.
+# DVOŘÁK,JOSEF
+# DVOŘÁKOVÁ,H.
+# DVOŘÁKOVÁ,M.
+# DVOŘÁČKOVÁ,K.
+
+# GRAŻYNA
+# GRA�YNA
+# GRŰLL F.
+# HANÁČEK,C.
+# KATARZYNA GŁÓWCZYŃSKA
+# BARBARA GŁOWIŃSKA
+# M. IVANAUSKIENĖ
+# JAŃCZAK MARIA
+# JAŻDŻEWSKA NATALIA
+# JEDLIČKA
+# KAČIČNIK M.
+# KOZIOŁ,E. & CHARYTONOWICZ,H.
+# KOZŁOWSKA O.
+# KOŚCIAN M.
+# MALHOBĀ
+# MALNAČS
+# # JADWIGA DZI�GIELEWSKA
+# # EKWI�SKA
+# ELŻBIETA NOCUŃ
+
+# MIEßLER,O.
+# [MISSING; EX HERB. F. KÆSER]
+# NÁBĚLEK,FRANTIŠEK
+# NÁBĚLEK,VOJTĚCH
+
+# EDVARD J. HAVNØ
+# BĀRTULE
+# BŁASZCZYK
+# BŁASZCZYK
+# BŁAWAT
+# BŁOCKI
+# BŁOŃSKI
+# DOLNÍČKOVÁ,IVA
+# BEATA DOMAGAŁA
+
+# PANČIĆ
+# PLUHAŘ,V.
+# PODPĚRA,J. & ŠIRJAEV,G.
+# I. RESMERITĂ
+# RIMEICĀNE
+# STEŠEVIĆ,DANIJELA
+# VAĎURA,M.
+# VLČKOVÁ,PAVLA
+# WOŹNIAK A.
+# WSZAŁEK-ROŻEK KATARZYNA, AFRANOWICZ-CIEŚLAK RENATA, BARTŁOMIEJ HAJEK, MARKOWSKI RYSZARD, CHOJNACKI WŁODZIMIERZ
+# ZDVOŘÁK,P. & DUCHÁČEK,M.
+# HUMBERTO DE ´BARREIRO
+# EUGENIUSZ ĆWIKLIŃSKI
+# ČÁP,J. & ČÁPOVÁ,J.
+# ŻUCHOWSKI PIOTR
+# FILIP ŻYŁOWSKI
+# ZIĘTEK A.
+
+
+# COLLECTOR(S): WILLIAM J. HESS, GEROULD S. WILHELM
+# COLLECTORS: A & M COLLOTZI 410
+# COLLECTORS: A BEETLE B02318
+
+# FA'ASUAGA
+# FALP'EV
+# D'AGOSTINO
+# D'AGRICULTURE
+# D'ALBERTIS
+# D'ALLEIZETTE
+# D´ALEIZETTE
+# GAL'PERINA
+# KONDRAT'EVA
+# F. LEONT'EV
+# LEONT'EV F.
+# LEONT'EVA
+# AFANDI MA'ROEF
+# M'BOUNGOU, R; BURGT, XM VAN DER; MPANDZOU, A; DOUHI, L; NKONDI, F; MERKLINGER, F
+# MEL'GUNOV
+# MUL'TANOVSKAYA
+# NIKOL'SKAYA
+# O'BYRNE
+# N. PAL'CHEVSKIY
+# E.V. PIS'MARKINA;D.S. LABUTIN;M.V. PUZYR'KINA
+# G. RYL'SKIY
+# RYL'SKIY
+# I. SHEREMET'EVA;A. SCHERBAKOV
+# SIN'KOVA M. A.
+# SOLOV'EVA O.S
+# STREL'NIKOVA T.O.
+
+# TIRAR - E PEGAR O ULTIMO
+# FAMBART-TINEL
+# FÉLIX-DA-SILVA, M.M.
+# FERREIRA-SILVA
+
+# OU PERNULTIMO ?
+# JUAN S. POSADA-MONTOYA
+# SOUKUP-CARMONA, --
+# PARECE MAIS PRECISO
+
+
+
+# GRUPO, EQUIPE TEAM, GROUP
+# GRUPO DE TRABAJO SPB MIG
+
+
+# NAO PEGAR COM MAIS DE UM PONTO NO NOME
+# EWANGO C.E.N. & GAKIMA J.B.
+
+# GADELHA NETO, PC; BARBOSA, MR; LIMA, IB; SILVA, CS
+# JR. FILHO, NETO, SOBRINHO,
+# FERREIRA-JUNIOR
+# F. SILVA FILHO; S. PUGUES
+# FILHO NETO, SJ
+# FILHO, A. .C.
+# FILHO NETO	FILHO NETO, SJ
+# SE SOBRAR SO 1 PALARA FILHO, DEIXAR
+# FILHO, W.E.
+# FILHO, W.H.; COELHO, L.A. & TEIXEIRA, R.N.C.
+# FILHO-ALCOFORADO, FG
+# SADDI F.A. MATTOS FILHO
+# SADDIR A. MATTOS FILHO
+
+
+# EVITAR ENTRE ( )
+# AUDIBERT HIPPOLYTE (CONSERVATOIRE BOTANIQUE NATIONAL MÉDITERRANÉEN DE PORQUEROLLES)
+
+# DEGEN R
+# DEGEN, A. VON
+# DEGEN,A. DE
+# DEGEN,A. VON
+
+# FERNANDO N. BIURRUN
+# FERNANDO O. ZULOAGA
+
+# FRANCISCO  SOARES PINHEIRO
+# FRANCISCO A. VIVAR C.;H. SARANGO;BALCÁZAR
+# FRANCISCO ALVARADO; JOSE GONZÁLEZ ; ULISES CHAVARRÍA
+
+# COLLECTOR(S): ALAN R. BATTEN, STEPHEN M. MURPHY, JANICE C. DAWE
+# COLLECTOR(S): ALBERT W. JOHNSON, LESLIE A. VIERECK, HERBERT R. MELCHIOR
+# COLLECTOR(S): ALF ERLING PORSILD, AUGUST JOHANN JULIUS BREITUNG
+# COLLECTOR(S): ALF SCHMITT
+# COLLECTOR(S): ALLAIRE K. DIAMOND, ALAN R. BATTEN
+# COLLECTOR(S): ALLISON W. CUSICK
+# COLLECTOR(S): AMY LARSEN
+
+# COLLECTORS: A BRYANT 100
+# COLLECTORS: A BRYANT 177
+# COLLECTORS: A BRYANT 18
+# COLLECTORS: A BRYANT 184
+# COLLECTORS: A SIMMONDS
+# COLLECTORS: A. PINKARD
+# COLLECTORS: A. ROSTAD
+# COLLECTORS: A. SCHNEIDER
+# COLLECTORS: ALF LUNDEGREN
+# COLLECTORS: ANDREW L. BRYANT
+# COLLECTORS: AVEN NELSON
+# COLLECTORS: B BLAZIER 11
+# COLLECTORS: B KLINGER
+
+# CHRISTOPHER A. BENDER
+
+# collectors_get_name(x='BETHANY LESTER| CHRISTINA LUND, SARAH HUNKINS')
+#
+# collectors_get_name(x='aaaaaaa bbbbbbb| CHRISTINA LUND, SARAH HUNKINS')
+#
+# collectors_get_name(x='CASTRO-SANTOS A DE')
+
+# CATHERINE A. GEURDS
+
+# X	LESTER	BETHANY LESTER; FRANK FARRUGGIA
+# X	LESTER	BETHANY LESTER; FRANK FARRUGGIA, JEN RIDDELL
+# X	LESTER	BETHANY LESTER; KITTY LUND
+# X	LESTER	BETHANY LESTER; LES LANDRUM
+# X	LEWIS	BETHANY LEWIS
+
+
+# CANDIDO ET ALLI
+# L. CAPELARI JR.
 

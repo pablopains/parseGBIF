@@ -226,6 +226,11 @@ select_digital_voucher_v2.2 <-  function(occ = NA,
       dplyr::mutate(Ctrl_coordinates_validated_by_gbif_issue = ifelse(Ctrl_hasCoordinate == FALSE | Ctrl_decimalLatitude==0 | Ctrl_decimalLongitude==0, FALSE,
                                                                    Ctrl_coordinates_validated_by_gbif_issue))
 
+    # aqui 15-10-2023
+    occ <- occ %>%
+      dplyr::mutate(Ctrl_coordinates_validated_by_gbif_issue = ifelse(is.na(Ctrl_coordinates_validated_by_gbif_issue), FALSE,
+                                                                      Ctrl_coordinates_validated_by_gbif_issue))
+
     occ <- occ %>%
       dplyr::mutate(Ctrl_geospatial_quality = ifelse(rowSums(occ[,EnumOccurrenceIssue$constant[index_tmp3 == TRUE]])>0, -9,
                                                 ifelse(rowSums(occ[,EnumOccurrenceIssue$constant[index_tmp2 == TRUE]])>0, -3,

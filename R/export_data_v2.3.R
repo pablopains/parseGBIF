@@ -78,6 +78,7 @@
 #'
 #' @import dplyr
 #' @import stringr
+#' @import jsonify
 #'
 #' @examples
 #' \donttest{
@@ -440,55 +441,17 @@ export_data_v2.3 <- function(occ_digital_voucher_file = '',
               next
             }
 
-
-            # x <- occ_tmp$Ctrl_fieldNotes
-            # ind <- grepl('\\/', x)
-            # any(ind)
-            #
-            # x <- occ_tmp$Ctrl_fieldNotes
-            # ind <- grepl('\\\\', x)
-            # any(ind)
-            #
-            # x <- gsub('\\{|\\}|\\[|\\]|\\(|\\)|\\\\|\\/', ' ', x)
-            # ind <- grepl('\\\\', x)
-            # any(ind)
-            #
-            # ind <- grepl('\\/', x)
-            # any(ind)
-
-
             # bug aqui
             if(nchar(data_col_dup[ix])>10000)
             {
               next
             }
 
-            # data_col_dup_ix <- gsub('\\{|\\}|\\[|\\]|\\(|\\)|\\\\|\\/', ' ', data_col_dup[ix])
-            # data_col_dup_ix <- gsub('\\{|\\}|\\[|\\]|\\(|\\)|\\\\|\\*', ' ', data_col_dup[ix])
-
             data_col_dup_ix <- gsub('\\{|\\}|\\[|\\]|\\(|\\)|\\\\|\\*', '', data_col_dup[ix])
-
-            # data_col_dup_ix <- data_col_dup[ix]
-
-            # xx <- '"teste* \"\b\f\t\r\n.'
-            # data_col_dup_ix <- gsub('\\{|\\}|\\[|\\]|\\(|\\)|\\\\|\\*|\\"|\b', ' ', xx)
-            # data_col_dup_ix
-            #
-            # data_col_dup_ix <- gsub('\\{|\\}|\\[|\\]|\\(|\\)|\\\\|\\*|\\"|\b', ' ', data_col_dup[ix])
-            #
-            # library(rebus)
-            # grepl(OPEN_BRACKET, "a[b")
-            #
-            # BOUNDARY %R%
-            #   repeated(group(ip_element %R% DOT), 3) %R%
-            #   ip_element %R%
-            #   BOUNDARY
 
             x_Ctrl_gbifID_dup <- occ_dup[index_dup==TRUE, 'Ctrl_gbifID'][ix]
 
             x_data_col_dup <- toupper(data_col_dup_ix)
-
-            # x_data_col_dup <- gsub('\\{|\\}', ' ', x_data_col_dup)
 
             if(x_data_col == x_data_col_dup)
             {
@@ -511,11 +474,6 @@ export_data_v2.3 <- function(occ_digital_voucher_file = '',
               }
 
             }
-
-            # if(grepl(data_col_dup_ix, x_jonsom) %>% ifelse(is.na(.), FALSE,.))
-            # {
-            #   next
-            # }
 
 
             # armazena informações novas para o campo
