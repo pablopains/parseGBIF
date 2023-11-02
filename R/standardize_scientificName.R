@@ -36,6 +36,15 @@
 #' @export
 standardize_scientificName <- function(searchedName = 'Alomia angustata (Gardner) Benth. ex Baker')
 {
+
+  if(is.na(searchedName))
+  {
+    return(list(searchedName = '',
+                standardizeName = '',
+                taxonAuthors= '',
+                taxonAuthors_last= ''))
+  }
+
   # searchedName = '×Zygocolax veitchii (J.H.Veitch ex Rolfe) Rolfe'
   require(stringr)
 

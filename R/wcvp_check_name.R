@@ -122,6 +122,26 @@ wcvp_check_name <- function(searchedName = 'Hemistylus brasiliensis Wedd.',
     stop("wcvp_names:  Inform wcvp_names data frame!")
   }
 
+  if(is.na(searchedName))
+  {
+    searchedName = ""
+  }
+
+  if(searchedName=="" )
+  {
+    x <- wcvp_names[0,] %>%
+      dplyr::add_row()  %>%
+      dplyr::mutate(searchedName = searchedName,
+                    taxon_status_of_searchedName = NA,
+                    plant_name_id_of_searchedName = NA,
+                    taxon_authors_of_searchedName = NA,
+                    verified_author = 0,
+                    verified_speciesName = 0,
+                    searchNotes='Not found')
+    colnames(x) <- str_c('wcvp_',colnames(x))
+    return(x)
+  }
+
   x <- {}
   taxon_status <- ''
   sp_wcvp <- standardize_scientificName(searchedName)

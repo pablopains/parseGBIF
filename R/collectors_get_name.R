@@ -145,6 +145,7 @@ collectors_get_name <- function(x)
    sobren = str_trim(sobren)
    sobren = gsub("?","", sobren)
    sobren = paste(sobren,sep="-")
+   sobren = toupper(sobren)
    if (length(sobren)>0){
       x = strsplit(sobren,"\\|")[[1]]
       sobren = x[1]
