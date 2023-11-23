@@ -41,6 +41,18 @@ collectors_get_name <- function(x)
       x = strsplit(x,"\\|")[[1]][1]
    }
 
+   x = gsub("COLLECTOR(S): ","",x)
+   x = gsub("COLLECTORS: ","",x)
+
+   x = gsub("COLLABORATION; ","",x)
+   "PROJETO FLORA CRISTALINO; "
+   "PROJETO FLORA CRISTALINO;"
+
+   "ET AL.; "
+   "ET AL.;"
+
+
+
    x = gsub("[á|à|â|ã|ä]","a",x)
    x = gsub("[Á|À|Â|Ã|Ä]","A",x)
 
@@ -90,9 +102,13 @@ collectors_get_name <- function(x)
      x = gsub("Ø","O",x)
      x = gsub("Ă","A",x)
      x = gsub("Ę","E",x)
-     x = gsub("COLLECTOR(S): ","",x)
-     x = gsub("COLLECTORS: ","",x)
      x = gsub("  "," ",x)
+
+     x = gsub("`","",x)
+     x = gsub("’","",x)
+
+
+
 
    }
 
