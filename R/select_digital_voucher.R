@@ -109,34 +109,9 @@ select_digital_voucher <-  function(occ = NA,
       EnumOccurrenceIssue <- enumOccurrenceIssue
     }
 
-    # occ <- readr::read_csv(occurrence_collectorsDictionary_file,
-    #                        locale = locale(encoding = "UTF-8"),
-    #                        show_col_types = FALSE)
-    #
-    #
-    # # file.csv <- paste0(path.result,'\\4_issueGBIFOccurrence - 2023-04-23.csv')
-    # occ_issue <- readr::read_csv(issueGBIFOccurrence_file,
-    #                              locale = readr::locale(encoding = "UTF-8"),
-    #                              show_col_types = FALSE)
-    #
-    #
-    # # file.csv <- paste0(path.result,'\\occ_wcpv - 2023-04-23.csv')
-    # occ_wcvo <- readr::read_csv(wcvp_occurence_file,
-    #                             locale = readr::locale(encoding = "UTF-8"),
-    #                             show_col_types = FALSE)
-
     occ_in <- occ
 
     occ <- cbind(occ_gbif_issue, occ_in, occ_wcvp_check_name, occ_collectorsDictionary)
-
-
-    occ$Ctrl_taxonRank %>% unique()
-
-    # "FAMILY"
-    # "GENUS"
-    # "SPECIES"
-    # "VARIETY"
-    # "FORM"
 
 
     # occ$wcvp_taxon_rank %>% unique()
@@ -144,10 +119,6 @@ select_digital_voucher <-  function(occ = NA,
 
     # occ$wcvp_taxon_status %>% unique()
     occ$wcvp_taxon_status <- ifelse(is.na(occ$wcvp_taxon_status),'',occ$wcvp_taxon_status)
-
-    # EnumOccurrenceIssue <- readr::read_csv(enumOccurrenceIssue_file,
-    #                                        locale = readr::locale(encoding = "UTF-8"),
-    #                                        show_col_types = FALSE)
 
     occ_issue <- colnames(occ)
 
@@ -246,16 +217,7 @@ select_digital_voucher <-  function(occ = NA,
                     parseGBIF_duplicates_grouping_status = '',
 
                     Ctrl_coordinates_validated_by_gbif_issue = FALSE)
-                    #
-                    #
-                    # # parseGBIF_unidentified_sample = TRUE,
-                    #
-                    # # sample taxon name
-                    # parseGBIF_sample_taxon_name = '',
-                    # # sample identification status
-                    # parseGBIF_sample_taxon_name_status = '',
-                    # # number of taxon names for the sample
-                    # parseGBIF_number_taxon_names = 0)
+
 
     occ <- occ %>%
       dplyr::mutate(Ctrl_coordinates_validated_by_gbif_issue = ifelse(rowSums(occ[,EnumOccurrenceIssue$constant[index_tmp3 == TRUE]])==0,TRUE,FALSE))
@@ -263,6 +225,11 @@ select_digital_voucher <-  function(occ = NA,
     occ <- occ %>%
       dplyr::mutate(Ctrl_coordinates_validated_by_gbif_issue = ifelse(Ctrl_hasCoordinate == FALSE | Ctrl_decimalLatitude==0 | Ctrl_decimalLongitude==0, FALSE,
                                                                    Ctrl_coordinates_validated_by_gbif_issue))
+
+    # aqui 15-10-2023
+    occ <- occ %>%
+      dplyr::mutate(Ctrl_coordinates_validated_by_gbif_issue = ifelse(is.na(Ctrl_coordinates_validated_by_gbif_issue), FALSE,
+                                                                      Ctrl_coordinates_validated_by_gbif_issue))
 
     occ <- occ %>%
       dplyr::mutate(Ctrl_geospatial_quality = ifelse(rowSums(occ[,EnumOccurrenceIssue$constant[index_tmp3 == TRUE]])>0, -9,
@@ -299,10 +266,14 @@ select_digital_voucher <-  function(occ = NA,
 
     occ <- occ %>%
       dplyr::select(Ctrl_key_family_recordedBy_recordNumber,
+
+                    wcvp_plant_name_id,
                     wcvp_taxon_name,
                     wcvp_taxon_status,
                     wcvp_searchNotes,
-                    # Ctrl_taxonRank,
+                    # aqui
+                    Ctrl_taxonRank,
+                    # aqui
                     Ctrl_geospatial_quality,
                     Ctrl_verbatim_quality,
                     Ctrl_moreInformativeRecord,
@@ -315,14 +286,37 @@ select_digital_voucher <-  function(occ = NA,
                     parseGBIF_duplicates_grouping_status,
                     # parseGBIF_sample_taxon_name_status,
                     # parseGBIF_number_taxon_names,
-                    Ctrl_coordinates_validated_by_gbif_issue)
+                    Ctrl_coordinates_validated_by_gbif_issue,
 
+                    Ctrl_decimalLatitude,
+                    Ctrl_decimalLongitude)
+
+    # aqui add nomes e coordenadas
+
+    occ <- occ %>%
+      dplyr::mutate(
+        parseGBIF_unidentified_sample = TRUE,
+
+        # new
+        parseGBIF_wcvp_plant_name_id = '',
+
+        parseGBIF_sample_taxon_name = '',
+        parseGBIF_sample_taxon_name_status = '',
+        parseGBIF_number_taxon_names = 0,
+        parseGBIF_useful_for_spatial_analysis = FALSE,
+        parseGBIF_decimalLatitude = NA,
+        parseGBIF_decimalLongitude = NA)
+        # parseGBIF_notes = '',
+        # parseGBIF_status = FALSE,
+        # parseGBIF_freq_duplicate_or_missing_data = '')
+    #
+    # occ <- occ %>%
+    #   dplyr::arrange(Ctrl_key_family_recordedBy_recordNumber)
+    # #
+    #
+    # aqui chave
     index <- str_sub(occ$Ctrl_key_family_recordedBy_recordNumber, str_count(occ$Ctrl_key_family_recordedBy_recordNumber)-2, str_count(occ$Ctrl_key_family_recordedBy_recordNumber)) %in% '_NA'
     occ$Ctrl_key_family_recordedBy_recordNumber[index==TRUE] <- str_sub(occ$Ctrl_key_family_recordedBy_recordNumber[index==TRUE], 1, str_count(occ$Ctrl_key_family_recordedBy_recordNumber[index==TRUE])-2)
-
-
-    recordedBy_unique <- occ$Ctrl_key_family_recordedBy_recordNumber %>% unique()
-
 
     recordedBy_unique <- occ$Ctrl_key_family_recordedBy_recordNumber %>% unique()
 
@@ -334,6 +328,8 @@ select_digital_voucher <-  function(occ = NA,
 
     tot <- NROW(recordedBy_unique)
     s <- 0
+
+    # r <- 'ACHATOCARPACEAE_ALCORN_'
 
     for (r in recordedBy_unique)
     {
@@ -355,9 +351,12 @@ select_digital_voucher <-  function(occ = NA,
 
       index_occ <- (occ$Ctrl_key_family_recordedBy_recordNumber %in% r) %>% ifelse(is.na(.), FALSE,.)
 
-      num_records <- NROW(occ[index_occ==TRUE,])
+      occ_key <- occ[index_occ==TRUE,]
 
-      if (num_records == 0)
+      # num_records <- NROW(occ[index_occ==TRUE,])
+      num_records <- NROW(occ_key)
+
+      if(num_records == 0)
       {
         print(r)
         print('table')
@@ -398,92 +397,313 @@ select_digital_voucher <-  function(occ = NA,
       {
         # incluir filtro espacial
 
-        # aqui
         # # nomes
         # sp_name <- ifelse(occ[index_occ==TRUE, ]$wcvp_taxon_status == 'Accepted',
         #                   occ[index_occ==TRUE, ]$wcvp_taxon_name %>% as.character(),
         #                   '')
 
-        occ[index_occ==TRUE, ] <- occ[index_occ==TRUE, ] %>%
+        sp_name <- ifelse(occ_key$wcvp_taxon_status == 'Accepted',
+                          occ_key$wcvp_taxon_name %>% as.character(),
+                          '')
+
+        sp_id <- ifelse(occ_key$wcvp_taxon_status == 'Accepted',
+                          occ_key$wcvp_plant_name_id %>% as.character(),
+                          '')
+
+        occ[index_occ==TRUE, ] <- occ_key %>%
           dplyr::mutate(parseGBIF_digital_voucher = TRUE,
                         parseGBIF_non_groupable_duplicates = TRUE,
                         parseGBIF_duplicates = FALSE,
                         parseGBIF_num_duplicates = 1,
-                        # # aqui
-                        # parseGBIF_sample_taxon_name = sp_name,
-                        # parseGBIF_unidentified_sample = ifelse(sp_name %in% '', TRUE,FALSE),
+
+                        # new
+                        parseGBIF_wcvp_plant_name_id = sp_id,
+
+                        # aqui
+                        parseGBIF_sample_taxon_name = sp_name,
+                        parseGBIF_unidentified_sample = ifelse(sp_name == '', TRUE,FALSE),
 
                         parseGBIF_duplicates_grouping_status = ifelse(FAMILY__==TRUE,
-                                                            'not groupable: no recordedBy and no recordNumber',
-                                                            ifelse(FAMILY__recordNumber==TRUE,
-                                                                   'not groupable: no recordNumber ',
-                                                                   ifelse(FAMILY_recordedBy_==TRUE,
-                                                                          'not groupable: no recordedBy', 'not groupable')))
+                                                                      'not groupable: no recordedBy and no recordNumber',
+                                                                      ifelse(FAMILY__recordNumber==TRUE,
+                                                                             'not groupable: no recordNumber ',
+                                                                             ifelse(FAMILY_recordedBy_==TRUE,
+                                                                                    'not groupable: no recordedBy', 'not groupable'))),
 
-                        # # aqui
-                        # parseGBIF_number_taxon_names = ifelse(sp_name %in% '',
-                        #                                      0,
-                        #                                      1),
-                        # parseGBIF_sample_taxon_name_status = ifelse(sp_name %in% '',
-                        #                                          'unidentified',
-                        #                                          'identified')
+                        # aqui
+                        parseGBIF_number_taxon_names = ifelse(sp_name == '',
+                                                              0,
+                                                              1),
+                        parseGBIF_sample_taxon_name_status = ifelse(sp_name == '',
+                                                                    'unidentified',
+                                                                    'identified'),
+
+                        parseGBIF_decimalLatitude = ifelse(Ctrl_coordinates_validated_by_gbif_issue==TRUE,
+                                                           Ctrl_decimalLatitude,
+                                                           NA),
+
+                        parseGBIF_decimalLongitude = ifelse(Ctrl_coordinates_validated_by_gbif_issue==TRUE,
+                                                            Ctrl_decimalLongitude,
+                                                            NA),
+
+                        parseGBIF_useful_for_spatial_analysis = Ctrl_coordinates_validated_by_gbif_issue
+
 
           )
 
         # print('1 - Unmatched samples')
         next
-      }
-
-      # # juntar
-      # occ[index_occ==TRUE, ] <- occ[index_occ==TRUE, ] %>%
-      #   dplyr::mutate(parseGBIF_duplicates_grouping_status = 'groupable',
-      #                 parseGBIF_duplicates = num_records > 1,
-      #                 parseGBIF_num_duplicates = num_records)
-      #
-      # occ[index_occ==TRUE, ]$parseGBIF_digital_voucher <-
-      #   (occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord ==
-      #      max(occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord) )
-      # #
-
-      occ[index_occ==TRUE, ] <- occ[index_occ==TRUE, ] %>%
-        dplyr::mutate(parseGBIF_duplicates_grouping_status = 'groupable',
-                      parseGBIF_duplicates = num_records > 1,
-                      parseGBIF_num_duplicates = num_records,
-                      parseGBIF_digital_voucher = (occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord ==
-                                                     max(occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord)))
-
-      #
-      # 64600+
-      if (sum(occ[index_occ==TRUE, ]$parseGBIF_digital_voucher)>1)
+      }else
       {
-
-        index_end <- occ[index_occ==TRUE, ]$parseGBIF_digital_voucher == TRUE
-
-        n_tmp <- NROW(occ[index_occ==TRUE, ]$parseGBIF_digital_voucher[index_end==TRUE])
-
-        if (n_tmp==1)
+        # digital voucher
         {
-          occ[index_occ==TRUE, ]$parseGBIF_digital_voucher[index_end==FALSE] <- FALSE
-        } else
+
+        # occ[index_occ==TRUE, ] <- occ[index_occ==TRUE, ] %>%
+        #   dplyr::mutate(parseGBIF_duplicates_grouping_status = 'groupable',
+        #                 parseGBIF_duplicates = num_records > 1,
+        #                 parseGBIF_num_duplicates = num_records,
+        #                 parseGBIF_digital_voucher = (occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord ==
+        #                                                max(occ[index_occ==TRUE, ]$Ctrl_moreInformativeRecord)))
+
+          occ[index_occ==TRUE, ] <- occ_key %>% #dplyr::select(-wcvp_taxon_name_and_wcvp_plant_name_id) %>%
+            dplyr::mutate(parseGBIF_duplicates_grouping_status = 'groupable',
+                          parseGBIF_duplicates = num_records > 1,
+                          parseGBIF_num_duplicates = num_records,
+                          parseGBIF_digital_voucher = (occ_key$Ctrl_moreInformativeRecord ==
+                                                         max(occ_key$Ctrl_moreInformativeRecord)))
+
+
+
+        #
+        # 64600+
+
+        if (sum(occ[index_occ==TRUE, ]$parseGBIF_digital_voucher)>1)
+        # if (sum(occ_key$parseGBIF_digital_voucher)>1)
         {
-          occ[index_occ==TRUE, ]$parseGBIF_digital_voucher[index_end==FALSE] <- FALSE
-          occ[index_occ==TRUE, ]$parseGBIF_digital_voucher[index_end==TRUE][2:n_tmp] <- FALSE
+
+          index_end <- occ[index_occ==TRUE, ]$parseGBIF_digital_voucher == TRUE
+          # index_end <- occ_key$parseGBIF_digital_voucher == TRUE
+
+          n_tmp <- NROW(occ[index_occ==TRUE, ]$parseGBIF_digital_voucher[index_end==TRUE])
+          # n_tmp <- NROW(occ_key$parseGBIF_digital_voucher[index_end==TRUE])
+
+          if (n_tmp==1)
+          {
+            occ[index_occ==TRUE, ]$parseGBIF_digital_voucher[index_end==FALSE] <- FALSE
+          } else
+          {
+            occ[index_occ==TRUE, ]$parseGBIF_digital_voucher[index_end==FALSE] <- FALSE
+            occ[index_occ==TRUE, ]$parseGBIF_digital_voucher[index_end==TRUE][2:n_tmp] <- FALSE
+          }
+
+          # print(paste0('6 - Selection of the more informative record ', 100/sum(index_end),' %'))
+
         }
 
-        # print(paste0('6 - Selection of the more informative record ', 100/sum(index_end),' %'))
+        }
 
+        occ_key <- occ[index_occ==TRUE,]
+
+        occ_key$wcvp_taxon_name_and_wcvp_plant_name_id <- paste0(occ_key$wcvp_taxon_name,
+                                                                 ';',
+                                                                 occ_key$wcvp_plant_name_id)
+
+        # nomes coordenadas
+        {
+          sp_name <- ''
+
+          # index_occ <- (occ$Ctrl_key_family_recordedBy_recordNumber %in% r) %>% ifelse(is.na(.), FALSE,.)
+
+          # nomes para agrupaveis
+          {
+
+            # num_records <- NROW(occ[index_occ==TRUE,])
+
+
+            # if(!any(is.na(occ[index_occ==TRUE, ]$wcvp_taxon_name) == FALSE)) # any ???
+            if(!any(is.na(occ_key$wcvp_taxon_name) == FALSE)) # any ???
+            {
+
+              # nomes
+              sp_name <- rep('',num_records)
+
+              sp_id <- rep('', num_records)
+
+              occ[index_occ==TRUE, ] <- occ_key %>% dplyr::select(-wcvp_taxon_name_and_wcvp_plant_name_id) %>%
+                dplyr::mutate(
+
+                  # não é preciso entre #
+                  #
+                  parseGBIF_number_taxon_names = 0,
+
+                  # new
+                  parseGBIF_wcvp_plant_name_id = sp_id,
+
+                  parseGBIF_sample_taxon_name = sp_name,
+                  #
+                  parseGBIF_sample_taxon_name_status = 'unidentified')
+
+
+            }else
+            {
+
+              taxon_name_sample <- table(occ_key$wcvp_taxon_name_and_wcvp_plant_name_id, #occ_key$wcvp_taxon_name,
+                                         occ_key$wcvp_taxon_status,
+                                         exclude = NA) %>%
+                data.frame() %>%
+                dplyr::filter(Freq > 0) %>%
+                dplyr::arrange(desc(Freq),Var1)
+
+
+              num_taxon_name <- NROW(taxon_name_sample)
+
+              if(num_taxon_name==0)
+              {
+
+                print(occ[index_occ==TRUE, ]$wcvp_taxon_name)
+
+                print('0 - Error')
+
+                break
+              }
+
+
+              if(num_taxon_name==1 & taxon_name_sample$Var2[1] %in% c('Accepted'))#,'Updated'))
+              {
+                # sp_name <- taxon_name_sample$Var1[1] %>% as.character()
+
+                sp_name_id <- str_split(taxon_name_sample$Var1[1],
+                          ';', simplify = TRUE)
+
+                occ[index_occ==TRUE, ] <- occ_key %>% dplyr::select(-wcvp_taxon_name_and_wcvp_plant_name_id) %>%
+                  dplyr::mutate(
+                    parseGBIF_number_taxon_names = num_taxon_name,
+
+                    # new
+                    parseGBIF_wcvp_plant_name_id = sp_name_id[,2],
+
+
+                    parseGBIF_sample_taxon_name = sp_name_id[,1] , #sp_name,
+                    parseGBIF_sample_taxon_name_status = 'identified',
+                    parseGBIF_unidentified_sample = FALSE
+                  )
+
+
+                # print('3 - Identified sample 100 %')
+
+              }
+
+
+              if(num_taxon_name>1)
+              {
+                ii=1
+                for(ii in 1:NROW(taxon_name_sample))
+                {
+
+                  if(taxon_name_sample$Var2[ii] %in% c('Accepted'))#,'Updated'))
+                  {
+                    sp_name <- taxon_name_sample$Var1[ii] %>% as.character()
+
+                    sp_name_id <- str_split(taxon_name_sample$Var1[ii],
+                                            ';', simplify = TRUE)
+
+                    occ[index_occ==TRUE, ] <- occ_key %>% dplyr::select(-wcvp_taxon_name_and_wcvp_plant_name_id) %>%
+                      dplyr::mutate(
+                        parseGBIF_number_taxon_names = num_taxon_name,
+
+                        # new
+                        parseGBIF_wcvp_plant_name_id = sp_name_id[,2],
+
+
+                        parseGBIF_sample_taxon_name = sp_name_id[,1],#sp_name,
+                        parseGBIF_sample_taxon_name_status = 'divergent identifications',
+                        parseGBIF_unidentified_sample = FALSE)
+
+                    # print(paste0('4 - Identified sample ', 100/num_taxon_name,' %'))
+
+                    break
+                  }
+                }
+              }
+
+            }
+          }
+
+          # coorrdenadas para agrupaveis
+          {
+
+            index_voucher <- occ[index_occ==TRUE,]$parseGBIF_digital_voucher == TRUE
+            # index_voucher <- occ_key$parseGBIF_digital_voucher == TRUE
+
+            # se voucher tem coordennadas válidas
+            if(occ$Ctrl_coordinates_validated_by_gbif_issue[index_occ==TRUE][index_voucher == TRUE] == TRUE)
+            # if(any(occ_key$Ctrl_coordinates_validated_by_gbif_issue[index_voucher == TRUE] == TRUE))
+            {
+
+              occ[index_occ==TRUE, ] <- occ[index_occ==TRUE, ] %>%
+                dplyr::mutate(parseGBIF_decimalLatitude = occ$Ctrl_decimalLatitude[index_occ==TRUE][index_voucher == TRUE],
+                              parseGBIF_decimalLongitude = occ$Ctrl_decimalLongitude[index_occ==TRUE][index_voucher == TRUE],
+                              parseGBIF_useful_for_spatial_analysis = TRUE)
+
+              # occ[index_occ==TRUE, ] <- occ_key %>%
+              #   dplyr::mutate(parseGBIF_decimalLatitude = occ_key$Ctrl_decimalLatitude[index_voucher == TRUE],
+              #                 parseGBIF_decimalLongitude = occ_key$Ctrl_decimalLongitude[index_voucher == TRUE],
+              #                 parseGBIF_useful_for_spatial_analysis = TRUE)
+
+
+            }else # se voucher não tem coordennadas válidas, tentar pegar das coordenadas
+            {
+
+
+              index_no_voucher_useful_for_spatial_analysis <- occ[index_occ==TRUE,]$Ctrl_coordinates_validated_by_gbif_issue == TRUE
+              # index_no_voucher_useful_for_spatial_analysis <- occ_key$Ctrl_coordinates_validated_by_gbif_issue == TRUE
+
+              if(sum(index_no_voucher_useful_for_spatial_analysis)==1)
+              {
+
+                occ[index_occ==TRUE, ] <- occ[index_occ==TRUE, ] %>%
+                  dplyr::mutate(parseGBIF_decimalLatitude = occ$Ctrl_decimalLatitude[index_occ==TRUE][index_no_voucher_useful_for_spatial_analysis == TRUE],
+                                parseGBIF_decimalLongitude = occ$Ctrl_decimalLongitude[index_occ==TRUE][index_no_voucher_useful_for_spatial_analysis == TRUE],
+                                parseGBIF_useful_for_spatial_analysis = TRUE)
+                # occ[index_occ==TRUE, ] <- occ_key %>%
+                #   dplyr::mutate(parseGBIF_decimalLatitude = occ_key$Ctrl_decimalLatitude[index_no_voucher_useful_for_spatial_analysis == TRUE],
+                #                 parseGBIF_decimalLongitude = occ_key$Ctrl_decimalLongitude[index_no_voucher_useful_for_spatial_analysis == TRUE],
+                #                 parseGBIF_useful_for_spatial_analysis = TRUE)
+
+
+              }
+
+              # pegar a com maior score
+              if(sum(index_no_voucher_useful_for_spatial_analysis)>1)
+              {
+
+                geospatial_quality_tmp <- max(occ$Ctrl_geospatial_quality[index_occ==TRUE][index_no_voucher_useful_for_spatial_analysis == TRUE])
+                # geospatial_quality_tmp <- max(occ_key$Ctrl_geospatial_quality[index_no_voucher_useful_for_spatial_analysis == TRUE])
+
+                index_geospatial_quality <- occ$Ctrl_geospatial_quality[index_occ==TRUE][index_no_voucher_useful_for_spatial_analysis == TRUE] == geospatial_quality_tmp
+                # index_geospatial_quality <- occ_key$Ctrl_geospatial_quality[index_no_voucher_useful_for_spatial_analysis == TRUE] == geospatial_quality_tmp
+
+                occ[index_occ==TRUE, ] <- occ[index_occ==TRUE, ] %>%
+                  dplyr::mutate(parseGBIF_decimalLatitude = occ$Ctrl_decimalLatitude[index_occ==TRUE][index_no_voucher_useful_for_spatial_analysis == TRUE][index_geospatial_quality == TRUE][1],
+                                parseGBIF_decimalLongitude = occ$Ctrl_decimalLongitude[index_occ==TRUE][index_no_voucher_useful_for_spatial_analysis == TRUE][index_geospatial_quality == TRUE][1],
+                                parseGBIF_useful_for_spatial_analysis = TRUE)
+                # occ[index_occ==TRUE, ] <- occ_key %>%
+                #   dplyr::mutate(parseGBIF_decimalLatitude = occ_key$Ctrl_decimalLatitude[index_no_voucher_useful_for_spatial_analysis == TRUE][index_geospatial_quality == TRUE][1],
+                #                 parseGBIF_decimalLongitude = occ_key$Ctrl_decimalLongitude[index_no_voucher_useful_for_spatial_analysis == TRUE][index_geospatial_quality == TRUE][1],
+                #                 parseGBIF_useful_for_spatial_analysis = TRUE)
+
+
+              }
+
+            }
+
+          }
+
+        }
       }
-
-      }
-
-      {
-
-
-      }
-
     }
-
   }
+}
 
   # salvar
 
@@ -496,10 +716,159 @@ select_digital_voucher <-  function(occ = NA,
                   parseGBIF_num_duplicates,
                   parseGBIF_non_groupable_duplicates,
                   parseGBIF_duplicates_grouping_status,
-                  Ctrl_coordinates_validated_by_gbif_issue)
+                  Ctrl_coordinates_validated_by_gbif_issue,
+
+                  parseGBIF_unidentified_sample,
+
+                  # new
+                  parseGBIF_wcvp_plant_name_id,
+
+                  parseGBIF_sample_taxon_name,
+                  parseGBIF_sample_taxon_name_status,
+                  parseGBIF_number_taxon_names,
+                  parseGBIF_useful_for_spatial_analysis,
+                  parseGBIF_decimalLatitude,
+                  parseGBIF_decimalLongitude)
+                  # parseGBIF_freq_duplicate_or_missing_data)
+
+
+  # in dup out_to_recover
+  {
+
+    occ_in_2 <- cbind(occ_in, occ_wcvp_check_name, occ_collectorsDictionary, occ) %>%
+      dplyr::filter(parseGBIF_digital_voucher == TRUE,
+                    parseGBIF_unidentified_sample == FALSE, # parseGBIF_sample_taxon_name_status %in% c('identified','divergent identifications'),
+                    parseGBIF_useful_for_spatial_analysis == TRUE)
+
+    occ_dup <- cbind(occ_in, occ_wcvp_check_name, occ_collectorsDictionary, occ) %>%
+      dplyr::filter(parseGBIF_digital_voucher == FALSE)
+
+    occ_out_to_recover <- cbind(occ_in, occ_wcvp_check_name, occ_collectorsDictionary, occ) %>%
+      dplyr::filter(parseGBIF_digital_voucher == TRUE,
+                    (parseGBIF_unidentified_sample == TRUE |
+                       parseGBIF_useful_for_spatial_analysis == FALSE))
+
+    occ_all <- rbind(occ_in_2 %>%
+                       dplyr::mutate(parseGBIF_dataset_result='useable'),
+                     occ_out_to_recover %>%
+                       dplyr::mutate(parseGBIF_dataset_result='unusable'),
+                     occ_dup %>%
+                       dplyr::mutate(parseGBIF_dataset_result='duplicate'))
+
+
+    # wcvp sample
+    {
+      # x <- occ_digital_voucher$all_data
+
+      xn <- occ_wcvp_check_name %>%
+        dplyr::mutate(wcvp_plant_name_id = as.character(wcvp_plant_name_id)) %>%
+        dplyr::select(wcvp_plant_name_id,
+                      wcvp_taxon_rank,
+                      wcvp_taxon_status,
+                      wcvp_family,
+                      wcvp_taxon_name,
+                      wcvp_taxon_authors,
+                      wcvp_reviewed) %>%
+        dplyr::distinct_all()
+
+      colnames(xn) <- paste0('parseGBIF_',colnames(xn))
+
+      occ_all <- left_join(occ_all,
+                     xn,
+                     by = 'parseGBIF_wcvp_plant_name_id') %>%
+        dplyr::select(Ctrl_gbifID,
+                      Ctrl_bibliographicCitation,
+                      Ctrl_language,
+                      Ctrl_institutionCode,
+                      Ctrl_collectionCode,
+                      Ctrl_datasetName,
+                      Ctrl_basisOfRecord,
+                      Ctrl_catalogNumber,
+                      Ctrl_recordNumber,
+                      Ctrl_recordedBy,
+                      Ctrl_occurrenceStatus,
+                      Ctrl_eventDate,
+                      Ctrl_year,
+                      Ctrl_month,
+                      Ctrl_day,
+                      Ctrl_habitat,
+                      Ctrl_fieldNotes,
+                      Ctrl_eventRemarks,
+                      Ctrl_countryCode,
+                      Ctrl_stateProvince,
+                      Ctrl_municipality,
+                      Ctrl_county,
+                      Ctrl_locality,
+                      Ctrl_level0Name,
+                      Ctrl_level1Name,
+                      Ctrl_level2Name,
+                      Ctrl_level3Name,
+                      Ctrl_identifiedBy,
+                      Ctrl_dateIdentified,
+                      Ctrl_scientificName,
+                      Ctrl_decimalLatitude,
+                      Ctrl_decimalLongitude,
+
+                      Ctrl_taxonRank,
+
+                      Ctrl_nameRecordedBy_Standard,
+                      Ctrl_recordNumber_Standard,
+                      Ctrl_key_family_recordedBy_recordNumber,
+                      Ctrl_geospatial_quality,
+                      Ctrl_verbatim_quality,
+                      Ctrl_moreInformativeRecord,
+                      Ctrl_coordinates_validated_by_gbif_issue,
+
+                      wcvp_plant_name_id,
+                      wcvp_taxon_rank,
+                      wcvp_taxon_status,
+                      wcvp_family,
+                      wcvp_taxon_name,
+                      wcvp_taxon_authors,
+                      wcvp_reviewed,
+                      wcvp_searchedName,
+                      wcvp_searchNotes,
+
+                      parseGBIF_digital_voucher,
+                      parseGBIF_duplicates,
+                      parseGBIF_num_duplicates,
+                      parseGBIF_non_groupable_duplicates,
+                      parseGBIF_duplicates_grouping_status,
+                      parseGBIF_unidentified_sample,
+                      parseGBIF_sample_taxon_name,
+                      parseGBIF_sample_taxon_name_status,
+                      parseGBIF_number_taxon_names,
+                      parseGBIF_useful_for_spatial_analysis,
+                      parseGBIF_decimalLatitude,
+                      parseGBIF_decimalLongitude,
+                      parseGBIF_dataset_result,
+
+                      # parseGBIF_freq_duplicate_or_missing_data,
+                      # parseGBIF_duplicates_map,
+                      # parseGBIF_merged_fields,
+                      # parseGBIF_merged,
+
+                      parseGBIF_wcvp_plant_name_id,
+                      parseGBIF_wcvp_taxon_rank,
+                      parseGBIF_wcvp_taxon_status,
+                      parseGBIF_wcvp_family,
+                      parseGBIF_wcvp_taxon_name,
+                      parseGBIF_wcvp_taxon_authors,
+                      # parseGBIF_wcvp_accepted_plant_name_id,
+                      parseGBIF_wcvp_reviewed)
+                      # parseGBIF_wcvp_searchedName,
+                      # parseGBIF_wcvp_searchNotes)
+
+    }
+
+
+    }
+
+  # occ <- occ %>%
+  #   dplyr::arrange(Ctrl_key_family_recordedBy_recordNumber)
 
   return(list(
-    occ_digital_voucher = cbind(occ_gbif_issue, occ_in, occ_wcvp_check_name, occ_collectorsDictionary, occ),
+    occ_digital_voucher = occ_all,
     occ_results = occ  ))
 }
 

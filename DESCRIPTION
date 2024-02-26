@@ -32,7 +32,14 @@ Imports:
     DT,
     downloader,
     tidyselect,
-    utils
+    utils,
+    raster,
+    geosphere,
+    geodata,
+    maptools,
+    terra,
+    CoordinateCleaner,
+    sf
 Remotes: 
     github::pablopains/parseGBIF
 Depends: 

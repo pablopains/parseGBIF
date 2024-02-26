@@ -3,42 +3,6 @@
 \name{export_data}
 \alias{export_data}
 \title{Export of results}
-\usage{
-export_data(
-  occ_digital_voucher_file = "",
-  occ_digital_voucher = NA,
-  merge_unusable_data = FALSE,
-  fields_to_merge = c("Ctrl_fieldNotes", "Ctrl_year", "Ctrl_stateProvince",
-    "Ctrl_municipality", "Ctrl_locality", "Ctrl_countryCode", "Ctrl_eventDate",
-    "Ctrl_habitat", "Ctrl_level0Name", "Ctrl_level1Name", "Ctrl_level2Name",
-    "Ctrl_level3Name"),
-  fields_to_compare = c("Ctrl_gbifID", "Ctrl_scientificName", "Ctrl_recordedBy",
-    "Ctrl_recordNumber", "Ctrl_identifiedBy", "Ctrl_dateIdentified",
-    "Ctrl_institutionCode", "Ctrl_collectionCode", "Ctrl_datasetName",
-    "Ctrl_datasetName", "Ctrl_language", "wcvp_plant_name_id", "wcvp_taxon_rank",
-    "wcvp_taxon_status", "wcvp_family", "wcvp_taxon_name", "wcvp_taxon_authors",
-    "wcvp_reviewed", "wcvp_searchNotes"),
-  fields_to_parse = c("Ctrl_gbifID", "Ctrl_bibliographicCitation", "Ctrl_language",
-    "Ctrl_institutionCode", "Ctrl_collectionCode", "Ctrl_datasetName",
-    "Ctrl_basisOfRecord", "Ctrl_catalogNumber", "Ctrl_recordNumber", "Ctrl_recordedBy",
-    "Ctrl_occurrenceStatus", "Ctrl_eventDate", "Ctrl_year", "Ctrl_month", "Ctrl_day",
-    "Ctrl_habitat", "Ctrl_fieldNotes", "Ctrl_eventRemarks", "Ctrl_countryCode",
-    "Ctrl_stateProvince", "Ctrl_municipality", "Ctrl_county", "Ctrl_locality",
-    "Ctrl_level0Name", "Ctrl_level1Name", "Ctrl_level2Name", 
-     "Ctrl_level3Name",
-    "Ctrl_identifiedBy", "Ctrl_dateIdentified", "Ctrl_scientificName",
-    "Ctrl_decimalLatitude", "Ctrl_decimalLongitude", "Ctrl_nameRecordedBy_Standard",
-    "Ctrl_recordNumber_Standard", "Ctrl_key_family_recordedBy_recordNumber",
-    "Ctrl_geospatial_quality", "Ctrl_verbatim_quality", "Ctrl_moreInformativeRecord",
-    "Ctrl_coordinates_validated_by_gbif_issue", "wcvp_plant_name_id", "wcvp_taxon_rank",
-    "wcvp_taxon_status", "wcvp_family", "wcvp_taxon_name", "wcvp_taxon_authors",
-    "wcvp_reviewed", 
-     "wcvp_searchNotes", "parseGBIF_digital_voucher",
-    "parseGBIF_duplicates", "parseGBIF_num_duplicates",
-    "parseGBIF_non_groupable_duplicates", "parseGBIF_duplicates_grouping_status"),
-  silence = TRUE
-)
-}
 \arguments{
 \item{occ_digital_voucher_file}{CSV fila result of function select_digital_voucher()$occ_digital_voucher}
 

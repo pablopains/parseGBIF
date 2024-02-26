@@ -3,9 +3,6 @@
 \name{extract_gbif_issue}
 \alias{extract_gbif_issue}
 \title{Extracting GBIF issues}
-\usage{
-extract_gbif_issue(occ = NA, enumOccurrenceIssue = NA)
-}
 \arguments{
 \item{occ}{GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')}
 

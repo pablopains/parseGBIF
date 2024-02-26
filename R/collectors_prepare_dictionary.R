@@ -3,27 +3,27 @@
 #'
 #' @description Returns the list with the last name of the main collector associated with the unique key recordedBy.
 #' A necessary step for parsing duplicate records is generating a robust key for each unique collecting event
-#' (aka ‘gathering’) that will support the recognition of duplicate records. For this purpose we generate a string  
-#' combining the plant family name +  first collector’s surname +  the collection number. 
+#' (aka ‘gathering’) that will support the recognition of duplicate records. For this purpose we generate a string
+#' combining the plant family name +  first collector’s surname +  the collection number.
 #' It is therefore essential to consistently record the collector surname and for this purpose we provide a collector
-#' dictionary. To extract the surname of the main collector based on the recordedBy field and assemble a list relating 
+#' dictionary. To extract the surname of the main collector based on the recordedBy field and assemble a list relating
 #' the last name of the main collector and the raw data from the recordedBy, use the collectors_prepare_dictionary function.
 #'
-#' It is recommended to check the main collector’s last name in the nameRecordedBy_Standard field. 
+#' It is recommended to check the main collector’s last name in the nameRecordedBy_Standard field.
 #' Our goal is to standardize the main collector’s last name, which is automatically extracted from the recordedBy field.
-#' We do so by standardizing the text string so that it begins with an uppercase character and to replace non-ascii 
+#' We do so by standardizing the text string so that it begins with an uppercase character and to replace non-ascii
 #' characters, so that collector reponsible for a collection event is always recorded using  the same string of characters.
 #' If the searched recordedBy entry is present in the collector’s dictionary, the function retrieves the last name
 #' of the main collector with reference to the recordedBy field (in which case the CollectorDictionary field will be
-#' flagged as ‘checked’), otherwise, the function will return the last name of the main collector, extracted 
+#' flagged as ‘checked’), otherwise, the function will return the last name of the main collector, extracted
 #' automatically from the recordedBy field .
-#' 
+#'
 #' Once verified, the collector’s dictionary can be reused in the future.
 
 #' @param occ GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')
-#' @param collectorDictionary_file Collector dictionary file - point to a file on your local disk or upload via git at https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv.
+#' @param collectorDictionary_file Collector dictionary file - point to a file on your local disk or download via git at https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv.
 #' @param silence if TRUE does not display progress messages
-#' 
+#'
 #' @details If recordedBy is present in the collector's dictionary, it returns the checked name, if not, it returns the last name of the main collector, extracted from the recordedBy field.
 #' If recordedBy is present in the collector's dictionary, returns the main collector's last name associated with the single recordedBy key,
 #' otherwise, returns the main collector's last name, extracted from the recordedBy field.
@@ -73,14 +73,19 @@
 #'}
 #' @export
 collectors_prepare_dictionary <- function(occ=NA,
-                                       collectorDictionary_file = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv',
-                                       silence = TRUE)
+                                          collectorDictionary_file = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv',
+                                          silence = TRUE)
 {
 
   require(stringr)
   # require(googlesheets4)
+
   require(dplyr)
-  
+
+  #require(textclean)
+
+  require(rscopus)
+
   if(! silence == TRUE)
   {
     print('Loading collectorDictionary...')
@@ -98,14 +103,14 @@ collectors_prepare_dictionary <- function(occ=NA,
 
 
   if(NROW(collectorDictionary)==0 | any(colnames(collectorDictionary) %in% c('Ctrl_nameRecordedBy_Standard',
-                                                         'Ctrl_recordedBy',
-                                                         'Ctrl_notes',
-                                                         'collectorDictionary',
-                                                         'Ctrl_update',
-                                                         'collectorName',
-                                                         'Ctrl_fullName',
-                                                         'Ctrl_fullNameII',
-                                                         'CVStarrVirtualHerbarium_PersonDetails'))==FALSE)
+                                                                             'Ctrl_recordedBy',
+                                                                             'Ctrl_notes',
+                                                                             'collectorDictionary',
+                                                                             'Ctrl_update',
+                                                                             'collectorName',
+                                                                             'Ctrl_fullName',
+                                                                             'Ctrl_fullNameII',
+                                                                             'CVStarrVirtualHerbarium_PersonDetails'))==FALSE)
   {
     stop("CollectorDictionary is empty!")
   }
@@ -119,62 +124,67 @@ collectors_prepare_dictionary <- function(occ=NA,
     stop("Occurrence is empty!")
   }
 
-   collectorDictionary <- collectorDictionary %>%
-      dplyr::rename(Ctrl_nameRecordedBy_Standard_x = Ctrl_nameRecordedBy_Standard)
+  collectorDictionary <- collectorDictionary %>%
+    dplyr::rename(Ctrl_nameRecordedBy_Standard_x = Ctrl_nameRecordedBy_Standard)
 
-   if(! silence == TRUE)
-   {
-     print("Extracting the main collector's surname....")
-   }
+  if(! silence == TRUE)
+  {
+    print("Extracting the main collector's surname....")
+  }
 
-   Ctrl_lastNameRecordedBy <- lapply(occ$Ctrl_recordedBy %>%
-                                        toupper() %>%
-                                        unique(),
-                                     collectors_get_name) %>%
-      do.call(rbind.data.frame, .)
+  Ctrl_lastNameRecordedBy <- lapply(occ$Ctrl_recordedBy %>%
+                                      toupper() %>%
+                                      unique(),
+                                    collectors_get_name) %>%
+    do.call(rbind.data.frame, .)
 
-   recordedBy_Standart <- data.frame(
-      Ctrl_nameRecordedBy_Standard =  textclean::replace_non_ascii(toupper(Ctrl_lastNameRecordedBy[,1])),
-      Ctrl_recordedBy = occ$Ctrl_recordedBy %>% toupper() %>% unique(),
-      stringsAsFactors = FALSE)
+  #   recordedBy_Standart <- data.frame(
+  #      Ctrl_nameRecordedBy_Standard =  textclean::replace_non_ascii(toupper(Ctrl_lastNameRecordedBy[,1])),
+  #      Ctrl_recordedBy = occ$Ctrl_recordedBy %>% toupper() %>% unique(),
+  #      stringsAsFactors = FALSE)
 
-   recordedBy_Standart <- dplyr::left_join(recordedBy_Standart,
-                   collectorDictionary,
-                   by = c('Ctrl_recordedBy')) %>%
-      dplyr::mutate(collectorDictionary=ifelse(!is.na(Ctrl_nameRecordedBy_Standard_x),
-                                       'checked',
-                                       '')) %>%
-      dplyr::mutate(Ctrl_nameRecordedBy_Standard = ifelse(collectorDictionary=='checked',
-                                                          Ctrl_nameRecordedBy_Standard_x,
-                                                          Ctrl_nameRecordedBy_Standard)) %>%
-      dplyr::arrange(collectorDictionary, Ctrl_nameRecordedBy_Standard, Ctrl_recordedBy) %>%
-   dplyr::mutate(Ctrl_notes = Ctrl_notes %>% as.character(),
-                 Ctrl_update = Ctrl_update %>% as.character(),
-                 Ctrl_nameRecordedBy_Standard = Ctrl_nameRecordedBy_Standard %>% as.character(),
-                 Ctrl_recordedBy = Ctrl_recordedBy %>% as.character(),
-                 collectorName = collectorName %>% as.character(),
-                 Ctrl_fullName = Ctrl_fullName %>% as.character(),
-                 Ctrl_fullNameII = Ctrl_fullNameII %>% as.character(),
-                 CVStarrVirtualHerbarium_PersonDetails = CVStarrVirtualHerbarium_PersonDetails %>% as.character()) %>%
-     # dplyr::select(Ctrl_notes,
-     #               Ctrl_update,
-     #               Ctrl_nameRecordedBy_Standard,
-     #               Ctrl_recordedBy,
-     #               collectorDictionary,
-     #
-     #               collectorName,
-     #               Ctrl_fullName,
-     #               Ctrl_fullNameII,
-     #               CVStarrVirtualHerbarium_PersonDetails)
-     dplyr::select(Ctrl_nameRecordedBy_Standard,
-                   Ctrl_recordedBy,
-                   Ctrl_notes,
-                   collectorDictionary,
-                   Ctrl_update,
-                   collectorName,
-                   Ctrl_fullName,
-                   Ctrl_fullNameII,
-                   CVStarrVirtualHerbarium_PersonDetails)
+  recordedBy_Standart <- data.frame(
+    Ctrl_nameRecordedBy_Standard =  rscopus::replace_non_ascii(toupper(Ctrl_lastNameRecordedBy[,1])),
+    Ctrl_recordedBy = occ$Ctrl_recordedBy %>% toupper() %>% unique(),
+    stringsAsFactors = FALSE)
 
-   return(recordedBy_Standart)
+  recordedBy_Standart <- dplyr::left_join(recordedBy_Standart,
+                                          collectorDictionary,
+                                          by = c('Ctrl_recordedBy')) %>%
+    dplyr::mutate(collectorDictionary=ifelse(!is.na(Ctrl_nameRecordedBy_Standard_x),
+                                             'checked',
+                                             '')) %>%
+    dplyr::mutate(Ctrl_nameRecordedBy_Standard = ifelse(collectorDictionary=='checked',
+                                                        Ctrl_nameRecordedBy_Standard_x,
+                                                        Ctrl_nameRecordedBy_Standard)) %>%
+    dplyr::arrange(collectorDictionary, Ctrl_nameRecordedBy_Standard, Ctrl_recordedBy) %>%
+    dplyr::mutate(Ctrl_notes = Ctrl_notes %>% as.character(),
+                  Ctrl_update = Ctrl_update %>% as.character(),
+                  Ctrl_nameRecordedBy_Standard = Ctrl_nameRecordedBy_Standard %>% as.character(),
+                  Ctrl_recordedBy = Ctrl_recordedBy %>% as.character(),
+                  collectorName = collectorName %>% as.character(),
+                  Ctrl_fullName = Ctrl_fullName %>% as.character(),
+                  Ctrl_fullNameII = Ctrl_fullNameII %>% as.character(),
+                  CVStarrVirtualHerbarium_PersonDetails = CVStarrVirtualHerbarium_PersonDetails %>% as.character()) %>%
+    # dplyr::select(Ctrl_notes,
+    #               Ctrl_update,
+    #               Ctrl_nameRecordedBy_Standard,
+    #               Ctrl_recordedBy,
+    #               collectorDictionary,
+    #
+    #               collectorName,
+    #               Ctrl_fullName,
+    #               Ctrl_fullNameII,
+    #               CVStarrVirtualHerbarium_PersonDetails)
+    dplyr::select(Ctrl_nameRecordedBy_Standard,
+                  Ctrl_recordedBy,
+                  Ctrl_notes,
+                  collectorDictionary,
+                  Ctrl_update,
+                  collectorName,
+                  Ctrl_fullName,
+                  Ctrl_fullNameII,
+                  CVStarrVirtualHerbarium_PersonDetails)
+
+  return(recordedBy_Standart)
 }

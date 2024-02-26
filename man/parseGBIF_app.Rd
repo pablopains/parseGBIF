@@ -3,9 +3,6 @@
 \name{parseGBIF_app}
 \alias{parseGBIF_app}
 \title{parseGBIF App}
-\usage{
-parseGBIF_app()
-}
 \value{
 CSV files
 }

@@ -258,7 +258,7 @@ collectors_prepare_dictionary function. It uses the occurrence data
 
 ```{r example_collectors_prepare_dictionary, eval=TRUE, message=FALSE, warning=FALSE}
 
-collectorsDictionary.dataset <- collectors_prepare_dictionary_v2(occ = occ)
+collectorsDictionary.dataset <- collectors_prepare_dictionary(occ = occ)
 
 NROW(collectorsDictionary.dataset)
 
@@ -434,7 +434,7 @@ If the master voucher does not have geographic coordinates, or if the quality of
 
 ```{r example_select_digital_voucher, eval=TRUE, message=FALSE, warning=FALSE}
 
-digital_voucher <- select_digital_voucher_v2.2(occ = occ,
+digital_voucher <- select_digital_voucher(occ = occ,
                                                         occ_gbif_issue = gbif_issue$occ_gbif_issue,
                                                         occ_wcvp_check_name = names.checked$occ_wcvp_check_name,
                                                         occ_collectorsDictionary = collectorsDictionary$occ_collectorsDictionary,
@@ -504,7 +504,7 @@ For each complete unique collection event key, data fields that are empty in the
 
 ```{r example_export, eval=TRUE, message=FALSE, warning=FALSE}
 
-results <- export_data_v2.3(occ_digital_voucher_file = '',
+results <- export_data(occ_digital_voucher_file = '',
                                 occ_digital_voucher = digital_voucher$occ_digital_voucher,
                                 merge_unusable_data = TRUE,
                                 silence = TRUE)

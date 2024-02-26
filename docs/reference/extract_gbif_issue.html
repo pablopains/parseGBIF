@@ -26,7 +26,7 @@ not for each record."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">parseGBIF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -88,7 +88,7 @@ and occ_gbif_issue, with issues in columns with TRUE or FALSE for each record.</
     </div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p><code><a href="https://rdrr.io/pkg/ParsGBIF/man/prepare_gbif_occurrence_data.html" class="external-link">prepare_gbif_occurrence_data</a></code>, <code><a href="https://rdrr.io/pkg/ParsGBIF/man/select_gbif_fields.html" class="external-link">select_gbif_fields</a></code></p></div>
+    <div class="dont-index"><p><code>prepare_gbif_occurrence_data</code>, <code>select_gbif_fields</code></p></div>
     </div>
     <div id="author">
     <h2>Author</h2>
@@ -102,33 +102,15 @@ Alexandre Monro</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ParsGBIF</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: 'ParsGBIF'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from 'package:parseGBIF':</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     export_data, extract_gbif_issue, prepare_gbif_occurrence_data,</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     select_gbif_fields, standardize_scientificName</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in library(ParsGBIF):</span> there is no package called 'ParsGBIF'</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/help.html" class="external-link">help</a></span><span class="op">(</span><span class="va">extract_gbif_issue</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Help on topic 'extract_gbif_issue' was found in the following packages:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Package               Library</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ParsGBIF              C:/Users/Pablo</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       Hendrigo/AppData/Local/R/win-library/4.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   parseGBIF             C:/Users/Pablo</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       Hendrigo/AppData/Local/Temp/RtmpuizHvs/temp_libpath12b051277a0e</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Using the first match ...</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">occ_file</span> <span class="op">&lt;-</span> <span class="st">'https://raw.githubusercontent.com/pablopains/ParsGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt'</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">occ</span> <span class="op">&lt;-</span> <span class="fu"><a href="prepare_gbif_occurrence_data.html">prepare_gbif_occurrence_data</a></span><span class="op">(</span>gbif_occurrece_file <span class="op">=</span> <span class="va">occ_file</span>,</span></span>
 <span class="r-in"><span>                                    columns <span class="op">=</span> <span class="st">'standard'</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>One or more parsing issues, call `problems()` on your data frame for details,</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> e.g.:</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   dat &lt;- vroom(...)</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   problems(dat)</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in open.connection(structure(4L, class = c("curl", "connection"), conn_id = &lt;pointer: 0x0000000000000a2d&gt;),     "rb"):</span> HTTP error 404.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">EnumOccurrenceIssue</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -150,280 +132,19 @@ Alexandre Monro</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 1 more variable: notes &lt;chr&gt;</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">occ_gbif_issue</span> <span class="op">&lt;-</span> <span class="fu">extract_gbif_issue</span><span class="op">(</span>occ <span class="op">=</span> <span class="va">occ</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'occ' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">occ_gbif_issue</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "occ_gbif_issue" "summary"       </span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'occ_gbif_issue' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">occ_gbif_issue</span><span class="op">$</span><span class="va">summary</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                              issue n_occ</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                          INSTITUTION_MATCH_FUZZY  1919</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                     GEODETIC_DATUM_ASSUMED_WGS84  1883</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 OCCURRENCE_STATUS_INFERRED_FROM_INDIVIDUAL_COUNT  1336</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4               CONTINENT_DERIVED_FROM_COORDINATES  1038</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                               COORDINATE_ROUNDED   978</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                              TYPE_STATUS_INVALID   858</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'occ_gbif_issue' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">occ_gbif_issue</span><span class="op">$</span><span class="va">occ_gbif_issue</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "COORDINATE_UNCERTAINTY_METERS_INVALID"            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2] "CONTINENT_COORDINATE_MISMATCH"                    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "CONTINENT_COUNTRY_MISMATCH"                       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4] "CONTINENT_DERIVED_FROM_COORDINATES"               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "CONTINENT_DERIVED_FROM_COUNTRY"                   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] "COORDINATE_ACCURACY_INVALID"                      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "COORDINATE_PRECISION_INVALID"                     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] "COORDINATE_PRECISION_UNCERTAINTY_MISMATCH"        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "COORDINATE_REPROJECTED"                           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10] "ELEVATION_NON_NUMERIC"                            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "ELEVATION_NOT_METRIC"                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [12] "ELEVATION_UNLIKELY"                               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "CONTINENT_INVALID"                                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [14] "COUNTRY_DERIVED_FROM_COORDINATES"                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [15] "COUNTRY_INVALID"                                  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [16] "ELEVATION_MIN_MAX_SWAPPED"                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [17] "COORDINATE_ROUNDED"                               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [18] "DEPTH_MIN_MAX_SWAPPED"                            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [19] "DEPTH_NON_NUMERIC"                                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [20] "DEPTH_NOT_METRIC"                                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [21] "DEPTH_UNLIKELY"                                   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [22] "COUNTRY_MISMATCH"                                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [23] "COORDINATE_REPROJECTION_FAILED"                   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [24] "COORDINATE_REPROJECTION_SUSPICIOUS"               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [25] "GEODETIC_DATUM_INVALID"                           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [26] "PRESUMED_NEGATED_LATITUDE"                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [27] "PRESUMED_NEGATED_LONGITUDE"                       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [28] "PRESUMED_SWAPPED_COORDINATE"                      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [29] "GEODETIC_DATUM_ASSUMED_WGS84"                     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [30] "COORDINATE_INVALID"                               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [31] "COORDINATE_OUT_OF_RANGE"                          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [32] "COUNTRY_COORDINATE_MISMATCH"                      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [33] "ZERO_COORDINATE"                                  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [34] "AMBIGUOUS_COLLECTION"                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [35] "AMBIGUOUS_INSTITUTION"                            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [36] "BASIS_OF_RECORD_INVALID"                          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [37] "COLLECTION_MATCH_FUZZY"                           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [38] "COLLECTION_MATCH_NONE"                            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [39] "DIFFERENT_OWNER_INSTITUTION"                      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [40] "FOOTPRINT_SRS_INVALID"                            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [41] "FOOTPRINT_WKT_INVALID"                            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [42] "FOOTPRINT_WKT_MISMATCH"                           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [43] "GEOREFERENCED_DATE_INVALID"                       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [44] "GEOREFERENCED_DATE_UNLIKELY"                      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [45] "IDENTIFIED_DATE_INVALID"                          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [46] "IDENTIFIED_DATE_UNLIKELY"                         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [47] "INDIVIDUAL_COUNT_CONFLICTS_WITH_OCCURRENCE_STATUS"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [48] "INDIVIDUAL_COUNT_INVALID"                         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [49] "INSTITUTION_COLLECTION_MISMATCH"                  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [50] "INSTITUTION_MATCH_FUZZY"                          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [51] "INSTITUTION_MATCH_NONE"                           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [52] "INTERPRETATION_ERROR"                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [53] "MODIFIED_DATE_INVALID"                            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [54] "MODIFIED_DATE_UNLIKELY"                           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [55] "MULTIMEDIA_DATE_INVALID"                          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [56] "MULTIMEDIA_URI_INVALID"                           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [57] "OCCURRENCE_STATUS_INFERRED_FROM_BASIS_OF_RECORD"  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [58] "OCCURRENCE_STATUS_INFERRED_FROM_INDIVIDUAL_COUNT" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [59] "OCCURRENCE_STATUS_UNPARSABLE"                     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [60] "POSSIBLY_ON_LOAN"                                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [61] "RECORDED_DATE_INVALID"                            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [62] "RECORDED_DATE_MISMATCH"                           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [63] "RECORDED_DATE_UNLIKELY"                           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [64] "REFERENCES_URI_INVALID"                           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [65] "TAXON_MATCH_AGGREGATE"                            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [66] "TAXON_MATCH_FUZZY"                                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [67] "TAXON_MATCH_HIGHERRANK"                           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [68] "TAXON_MATCH_NONE"                                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [69] "TYPE_STATUS_INVALID"                              </span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'occ_gbif_issue' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">occ_gbif_issue</span><span class="op">$</span><span class="va">occ_gbif_issue</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   COORDINATE_UNCERTAINTY_METERS_INVALID CONTINENT_COORDINATE_MISMATCH</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                                 FALSE                         FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                                 FALSE                         FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                                 FALSE                         FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                                 FALSE                         FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                                 FALSE                         FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                                 FALSE                         FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   CONTINENT_COUNTRY_MISMATCH CONTINENT_DERIVED_FROM_COORDINATES</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                      FALSE                              FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                      FALSE                              FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                      FALSE                              FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                      FALSE                              FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                      FALSE                              FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                      FALSE                              FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   CONTINENT_DERIVED_FROM_COUNTRY COORDINATE_ACCURACY_INVALID</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                          FALSE                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                          FALSE                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                          FALSE                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                          FALSE                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                          FALSE                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                          FALSE                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   COORDINATE_PRECISION_INVALID COORDINATE_PRECISION_UNCERTAINTY_MISMATCH</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                        FALSE                                     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                        FALSE                                     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                        FALSE                                     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                        FALSE                                     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                        FALSE                                     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                        FALSE                                     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   COORDINATE_REPROJECTED ELEVATION_NON_NUMERIC ELEVATION_NOT_METRIC</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                  FALSE                 FALSE                FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                  FALSE                 FALSE                FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                  FALSE                 FALSE                FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                  FALSE                 FALSE                FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                  FALSE                 FALSE                FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                  FALSE                 FALSE                FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ELEVATION_UNLIKELY CONTINENT_INVALID COUNTRY_DERIVED_FROM_COORDINATES</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1              FALSE             FALSE                            FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2              FALSE             FALSE                            FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3              FALSE             FALSE                            FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4              FALSE             FALSE                            FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5              FALSE             FALSE                            FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6              FALSE             FALSE                            FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   COUNTRY_INVALID ELEVATION_MIN_MAX_SWAPPED COORDINATE_ROUNDED</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1           FALSE                     FALSE              FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2           FALSE                     FALSE               TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3           FALSE                     FALSE               TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4           FALSE                     FALSE               TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5           FALSE                     FALSE               TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6           FALSE                     FALSE              FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   DEPTH_MIN_MAX_SWAPPED DEPTH_NON_NUMERIC DEPTH_NOT_METRIC DEPTH_UNLIKELY</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 FALSE             FALSE            FALSE          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                 FALSE             FALSE            FALSE          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                 FALSE             FALSE            FALSE          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                 FALSE             FALSE            FALSE          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                 FALSE             FALSE            FALSE          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                 FALSE             FALSE            FALSE          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   COUNTRY_MISMATCH COORDINATE_REPROJECTION_FAILED</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1            FALSE                          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2            FALSE                          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3            FALSE                          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4            FALSE                          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5            FALSE                          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6            FALSE                          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   COORDINATE_REPROJECTION_SUSPICIOUS GEODETIC_DATUM_INVALID</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                              FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                              FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                              FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                              FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                              FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                              FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   PRESUMED_NEGATED_LATITUDE PRESUMED_NEGATED_LONGITUDE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                     FALSE                      FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                     FALSE                      FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                     FALSE                      FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                     FALSE                      FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                     FALSE                      FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                     FALSE                      FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   PRESUMED_SWAPPED_COORDINATE GEODETIC_DATUM_ASSUMED_WGS84 COORDINATE_INVALID</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                       FALSE                        FALSE              FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                       FALSE                        FALSE              FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                       FALSE                        FALSE              FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                       FALSE                        FALSE              FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                       FALSE                        FALSE              FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                       FALSE                        FALSE              FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   COORDINATE_OUT_OF_RANGE COUNTRY_COORDINATE_MISMATCH ZERO_COORDINATE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                   FALSE                       FALSE           FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                   FALSE                       FALSE           FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                   FALSE                       FALSE           FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                   FALSE                       FALSE           FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                   FALSE                       FALSE           FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                   FALSE                       FALSE           FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   AMBIGUOUS_COLLECTION AMBIGUOUS_INSTITUTION BASIS_OF_RECORD_INVALID</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                FALSE                 FALSE                   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                FALSE                 FALSE                   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                FALSE                 FALSE                   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                FALSE                 FALSE                   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                FALSE                 FALSE                   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                FALSE                 FALSE                   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   COLLECTION_MATCH_FUZZY COLLECTION_MATCH_NONE DIFFERENT_OWNER_INSTITUTION</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                   TRUE                 FALSE                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                   TRUE                 FALSE                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                   TRUE                 FALSE                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                   TRUE                 FALSE                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                   TRUE                 FALSE                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                   TRUE                 FALSE                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   FOOTPRINT_SRS_INVALID FOOTPRINT_WKT_INVALID FOOTPRINT_WKT_MISMATCH</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 FALSE                 FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                 FALSE                 FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                 FALSE                 FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                 FALSE                 FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                 FALSE                 FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                 FALSE                 FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   GEOREFERENCED_DATE_INVALID GEOREFERENCED_DATE_UNLIKELY</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                      FALSE                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                      FALSE                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                      FALSE                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                      FALSE                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                      FALSE                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                      FALSE                       FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   IDENTIFIED_DATE_INVALID IDENTIFIED_DATE_UNLIKELY</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                   FALSE                    FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                   FALSE                    FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                   FALSE                    FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                   FALSE                    FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                   FALSE                    FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                   FALSE                    FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   INDIVIDUAL_COUNT_CONFLICTS_WITH_OCCURRENCE_STATUS INDIVIDUAL_COUNT_INVALID</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                                             FALSE                    FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                                             FALSE                    FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                                             FALSE                    FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                                             FALSE                    FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                                             FALSE                    FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                                             FALSE                    FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   INSTITUTION_COLLECTION_MISMATCH INSTITUTION_MATCH_FUZZY</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                           FALSE                    TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                           FALSE                    TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                           FALSE                    TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                           FALSE                    TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                           FALSE                    TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                           FALSE                    TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   INSTITUTION_MATCH_NONE INTERPRETATION_ERROR MODIFIED_DATE_INVALID</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                  FALSE                FALSE                 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                  FALSE                FALSE                 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                  FALSE                FALSE                 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                  FALSE                FALSE                 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                  FALSE                FALSE                 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                  FALSE                FALSE                 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   MODIFIED_DATE_UNLIKELY MULTIMEDIA_DATE_INVALID MULTIMEDIA_URI_INVALID</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                  FALSE                   FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                  FALSE                   FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                  FALSE                   FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                  FALSE                   FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                  FALSE                   FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                  FALSE                   FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   OCCURRENCE_STATUS_INFERRED_FROM_BASIS_OF_RECORD</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                                           FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                                           FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                                           FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                                           FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                                           FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                                           FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   OCCURRENCE_STATUS_INFERRED_FROM_INDIVIDUAL_COUNT OCCURRENCE_STATUS_UNPARSABLE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                                            FALSE                        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                                            FALSE                        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                                            FALSE                        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                                            FALSE                        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                                            FALSE                        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                                            FALSE                        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   POSSIBLY_ON_LOAN RECORDED_DATE_INVALID RECORDED_DATE_MISMATCH</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1            FALSE                 FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2            FALSE                 FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3            FALSE                 FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4            FALSE                 FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5            FALSE                 FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6            FALSE                 FALSE                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   RECORDED_DATE_UNLIKELY REFERENCES_URI_INVALID TAXON_MATCH_AGGREGATE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                  FALSE                  FALSE                 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                  FALSE                  FALSE                 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                  FALSE                  FALSE                 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                  FALSE                  FALSE                 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                  FALSE                  FALSE                 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                  FALSE                  FALSE                 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   TAXON_MATCH_FUZZY TAXON_MATCH_HIGHERRANK TAXON_MATCH_NONE TYPE_STATUS_INVALID</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1             FALSE                  FALSE            FALSE               FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2             FALSE                  FALSE            FALSE               FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3             FALSE                  FALSE            FALSE               FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4             FALSE                  FALSE            FALSE               FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5             FALSE                  FALSE            FALSE               FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6             FALSE                  FALSE            FALSE               FALSE</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'occ_gbif_issue' not found</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

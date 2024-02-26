@@ -25,7 +25,7 @@ composed of the fields: family + recordedByStandardized + recordNumber_Standard.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">parseGBIF</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -63,6 +63,7 @@ composed of the fields: family + recordedByStandardized + recordNumber_Standard.
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">generate_collection_event_key</span><span class="op">(</span></span>
 <span>  occ <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  collectorDictionary_checked_file <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  collectorDictionary_checked <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  collectorDictionary_file <span class="op">=</span></span>
 <span>    <span class="st">"https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv"</span>,</span>
 <span>  silence <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -76,7 +77,11 @@ composed of the fields: family + recordedByStandardized + recordNumber_Standard.
 
 
 <dt>collectorDictionary_checked_file</dt>
-<dd><p>Verified collector dictionary file - point to a file on your local disk</p></dd>
+<dd><p>Verified collector dictionary file - point to a file on your local disk (use file or data frame)</p></dd>
+
+
+<dt>collectorDictionary_checked</dt>
+<dd><p>Verified collector dictionary data frame (use file or data frame)</p></dd>
 
 
 <dt>collectorDictionary_file</dt>
@@ -107,7 +112,7 @@ key_year_recordedBy_recordNumber</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p><code><a href="collectors_get_name.html">collectors_get_name</a></code>, <code><a href="https://rdrr.io/pkg/ParsGBIF/man/prepare_collectorsDictionary.html" class="external-link">prepare_collectorsDictionary</a></code></p></div>
+    <div class="dont-index"><p><code><a href="collectors_get_name.html">collectors_get_name</a></code>, <code>prepare_collectorsDictionary</code></p></div>
     </div>
     <div id="author">
     <h2>Author</h2>
@@ -122,6 +127,10 @@ Alexandre Monro</p>
 <span class="r-in"><span><span class="va">collectorsDictionaryFromDataset</span> <span class="op">&lt;-</span> <span class="fu">prepare_lastNameRecordedBy</span><span class="op">(</span>occ<span class="op">=</span><span class="va">occ</span>,</span></span>
 <span class="r-in"><span>                                                              collectorDictionary_checked_file<span class="op">=</span><span class="st">'collectorDictionary_checked.csv'</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in prepare_lastNameRecordedBy(occ = occ, collectorDictionary_checked_file = "collectorDictionary_checked.csv"):</span> could not find function "prepare_lastNameRecordedBy"</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">collectorsDictionaryFromDataset</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'collectorsDictionaryFromDataset' not found</span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

@@ -3,11 +3,15 @@
 \name{collectors_get_name}
 \alias{collectors_get_name}
 \title{Get the last name of the main collector}
-\usage{
-collectors_get_name(x)
-}
 \arguments{
 \item{x}{recordedBy field}
+
+\item{surname_selection_type}{Allows you to select two types of results
+for the main collector's last name: large_string - word with the
+largest number of characters or last_name - literally the last name
+of the main collector, with more than two characters.}
+
+\item{maximum_characters_in_name}{Maximum characters in name}
 }
 \value{
 last name of the main collector
