@@ -36,7 +36,6 @@ Imports:
     raster,
     geosphere,
     geodata,
-    maptools,
     terra,
     CoordinateCleaner,
     sf
