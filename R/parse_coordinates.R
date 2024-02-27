@@ -22,6 +22,7 @@
 #' n_taxon_name_11m,
 #' n_unique_collection_event_11m,
 #' parseGBIF_GADM_centroids,
+#' parseGBIF_GADM_centroids_level,
 #' parseGBIF_coordinate_status,
 #' .coordinates_outOfRange, .val,.zer,.sea,.equ,.cen,.cap,.urb,.con,.inst,.dup
 #'
@@ -407,7 +408,7 @@ parse_coordinates <- function(occ = NA,
                                           .val,.zer,.sea,.equ,.cen,.cap,.urb,.con,.inst,.dup),
                  occ)
 
-    occ$parseGBIF_useful_for_spatial_analysis <- geo_issue
+    occ$parseGBIF_useful_for_spatial_analysis <- ifelse(geo_issue==FALSE,geo_issue, occ$parseGBIF_useful_for_spatial_analysis)
 
     print(NROW(occ_cc))
     print(paste0('.coordinates_outOfRange', '-', occ_cc %>% dplyr::filter(.coordinates_outOfRange == FALSE) %>% NROW()))
