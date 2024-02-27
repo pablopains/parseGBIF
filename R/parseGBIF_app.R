@@ -16,6 +16,10 @@
 #' @export
 parseGBIF_app <- function(path_centroids='Z:\\Kew\\data\\centroids')
 {
+
+  #require(maptools)
+  # options("sp_evolution_status"=2)
+
   {
     data(wrld_simpl,
          envir = environment())
@@ -47,17 +51,21 @@ parseGBIF_app <- function(path_centroids='Z:\\Kew\\data\\centroids')
     #                   proj4def = "+proj=moll +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs",
     #                   resolutions = 1.5^(25:15))
 
-    map_on <- leaflet( width = '800px', height = '600px') %>%
-      addProviderTiles("OpenStreetMap.Mapnik", group = "Mapnik") %>%
-      addProviderTiles("Esri.WorldImagery", group = 'WorldImagery') %>%
-      addProviderTiles("Stamen.Terrain", group = 'Terrain') %>%
-      addLayersControl(
-        # overlayGroups = c("Vértice EOO", "Validados", "Invalidados"),
-        baseGroups = c("Mapnik", "WorldImagery", "Terrain")) %>%
-      addPolygons(data = wd,
-                  fillOpacity = 0,
-                  weight = 2,
-                  color = "black")
+    # map_on <- leaflet( width = '800px', height = '600px') %>%
+    #   addProviderTiles("OpenStreetMap.Mapnik", group = "Mapnik") %>%
+    #   addProviderTiles("Esri.WorldImagery", group = 'WorldImagery') %>%
+    #   addProviderTiles("Stamen.Terrain", group = 'Terrain') %>%
+    #   addLayersControl(
+    #     # overlayGroups = c("Vértice EOO", "Validados", "Invalidados"),
+    #     baseGroups = c("Mapnik", "WorldImagery", "Terrain")) %>%
+    #   addPolygons(data = wd,
+    #               fillOpacity = 0,
+    #               weight = 2,
+    #               color = "black")
+
+
+    map_on <- leaflet() %>%
+      addTiles()
 
     # https://github.com/rstudio/leaflet/blob/main/inst/examples/proj4Leaflet.R
     map_on_moll <- leaflet(options =
@@ -89,24 +97,24 @@ parseGBIF_app <- function(path_centroids='Z:\\Kew\\data\\centroids')
     # +y_0=False Northing
 
 
-    # https://spatialreference.org/ref/esri/54034/
-    map_on_cea <- leaflet(options =
-                            leafletOptions(maxZoom = 25,
-                                           crs = leafletCRS(crsClass = "L.Proj.CRS", code = "ESRI:54034",
-                                                            proj4def = "+proj=cea +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs",
-                                                            resolutions = 1.5^(25:15)
-                                           )),
-                          width = '800px', height = '600px') %>%
-      # addProviderTiles("OpenStreetMap.Mapnik", group = "Mapnik") %>%
-      # addProviderTiles("Esri.WorldImagery", group = 'WorldImagery') %>%
-      # addProviderTiles("Stamen.Terrain", group = 'Terrain') %>%
-      # addLayersControl(
-      #   # overlayGroups = c("Vértice EOO", "Validados", "Invalidados"),
-      #   baseGroups = c("Mapnik", "WorldImagery", "Terrain")) %>%
-      addPolygons(data = wd,
-                  fillOpacity = 0,
-                  weight = 2,
-                  color = "black")
+    # # https://spatialreference.org/ref/esri/54034/
+    # map_on_cea <- leaflet(options =
+    #                         leafletOptions(maxZoom = 25,
+    #                                        crs = leafletCRS(crsClass = "L.Proj.CRS", code = "ESRI:54034",
+    #                                                         proj4def = "+proj=cea +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs",
+    #                                                         resolutions = 1.5^(25:15)
+    #                                        )),
+    #                       width = '800px', height = '600px') %>%
+    #   # addProviderTiles("OpenStreetMap.Mapnik", group = "Mapnik") %>%
+    #   # addProviderTiles("Esri.WorldImagery", group = 'WorldImagery') %>%
+    #   # addProviderTiles("Stamen.Terrain", group = 'Terrain') %>%
+    #   # addLayersControl(
+    #   #   # overlayGroups = c("Vértice EOO", "Validados", "Invalidados"),
+    #   #   baseGroups = c("Mapnik", "WorldImagery", "Terrain")) %>%
+    #   addPolygons(data = wd,
+    #               fillOpacity = 0,
+    #               weight = 2,
+    #               color = "black")
 
   }
 
@@ -734,9 +742,9 @@ parseGBIF_app <- function(path_centroids='Z:\\Kew\\data\\centroids')
                                                                     width = 12,
 
                                                                     selectInput("projetcion_map", label = 'Projeção:',
-                                                                                choices = c('Mollweide','Equal Area Cylindrical', 'WGS84', 'NAD83'),
+                                                                                choices = c('Mercator','Mollweide'),
                                                                                 multiple = FALSE,
-                                                                                selected = 'Equal Area Cylindrical'),
+                                                                                selected = 'Mercator'),
                                                                     br(),
 
                                                                     leafletOutput("parseGBIFMap", width = "100%", height = "550px")
@@ -1038,7 +1046,8 @@ parseGBIF_app <- function(path_centroids='Z:\\Kew\\data\\centroids')
             m <- map_on_moll
           }else
           {
-            m <- map_on#_cea
+            m <- map_on
+
           }
 
 
@@ -2383,20 +2392,20 @@ parseGBIF_app <- function(path_centroids='Z:\\Kew\\data\\centroids')
   shinyApp(ui = ui, server = server)
 
 }
-# # parseGBIF_app()
+# parseGBIF_app()
 # {
 #   rm(list = ls())
-#   library(leaflet)
-#   library(maptools)
-#   library(dplyr)
-#   library(readr)
-#
-#   library(countrycode)
-#   library(bdc)
-#   library(plyr)
-#   library(terra)
-#   library(CoordinateCleaner)
-#   library(sf)
+  # library(leaflet)
+  # library(maptools)
+  # library(dplyr)
+  # library(readr)
+  #
+  # library(countrycode)
+  # library(bdc)
+  # library(plyr)
+  # library(terra)
+  # library(CoordinateCleaner)
+  # library(sf)
 #
 #   source('C:\\parseGBIF - github.com\\parseGBIF\\R\\get_centroids.R')
 #   source('C:\\parseGBIF - github.com\\parseGBIF\\R\\standardize_country_from_iso2.R')
