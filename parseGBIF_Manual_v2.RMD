@@ -79,7 +79,7 @@ print(citation("parseGBIF"), bibtex = FALSE)
 prepare_gbif_occurrence_data(gbif_occurrece_file = 'occurrence.txt')
 function
 
-```{r example_prepare_gbif_occurrence_data, eval=TRUE, message=FALSE, warning=FALSE}
+```{r example_download_gbif_data_from_doi, eval=TRUE, message=FALSE, warning=FALSE}
  library(parseGBIF)
 
  folder_download <- tempdir()
@@ -435,7 +435,6 @@ If the master voucher does not have geographic coordinates, or if the quality of
 &nbsp;
 
 ```{r example_select_digital_voucher, eval=TRUE, message=FALSE, warning=FALSE}
-
 digital_voucher <- select_digital_voucher(occ = occ,
                                                         occ_gbif_issue = gbif_issue$occ_gbif_issue,
                                                         occ_wcvp_check_name = names.checked$occ_wcvp_check_name,
@@ -458,7 +457,10 @@ NROW(digital_voucher$occ_digital_voucher[ind==TRUE,])
 
 ind <- digital_voucher$occ_digital_voucher$parseGBIF_dataset_result == "duplicate" 
 NROW(digital_voucher$occ_digital_voucher[ind==TRUE,])
+```
 
+
+```{r example_write_select_digital_voucher, eval=TRUE, message=FALSE, warning=FALSE}
 ind <- digital_voucher$occ_digital_voucher$parseGBIF_dataset_result == "unusable" 
 NROW(digital_voucher$occ_digital_voucher[ind==TRUE,])
 
