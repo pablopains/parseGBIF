@@ -1,15 +1,17 @@
 ---
 title: "parseGBIF Manual"
 author:
-  - Pablo Hendrigo Alves de Melo^[Instituto Federal de Educação, Ciência e Tecnologia de Minas Gerais, pablopains@yahoo.com.br]
-  - Nadia Bystriakova^[Natural History Museum, London, n_bystriakova@yahoo.com]
-  - Alexandre Monro^[Royal Botanic Gardens, Kew, a.monro@kew.org]
+- Pablo Hendrigo Alves de Melo^[Instituto Federal de Educação, Ciência e Tecnologia
+  de Minas Gerais, pablopains@yahoo.com.br]
+- Nadia Bystriakova^[Natural History Museum, London, n_bystriakova@yahoo.com]
+- Alexandre Monro^[Royal Botanic Gardens, Kew, a.monro@kew.org]
 date: "`r Sys.Date()`"
-  
-output: word_document
+output:
+  pdf_document: default
+  word_document: default
 template: template.tex
-editor_options: 
-  markdown: 
+editor_options:
+  markdown:
     wrap: 72
 ---
 

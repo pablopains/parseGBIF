@@ -1,7 +1,6 @@
-
-
 #' @title parseGBIF App
 #' @name parseGBIF_app
+#'
 #' @description parseGBIF App
 #' @return CSV files
 #' @author Pablo Hendrigo Alves de Melo,
@@ -15,27 +14,6 @@
 #' parseGBIF_app()
 #' }
 #' @export
-#'
-{
-  rm(list = ls())
-  library(leaflet)
-  library(maptools)
-  library(dplyr)
-  library(readr)
-
-  library(countrycode)
-  library(bdc)
-  library(plyr)
-  library(terra)
-  library(CoordinateCleaner)
-  library(sf)
-
-  source('C:\\parseGBIF - github.com\\parseGBIF\\R\\get_centroids.R')
-  source('C:\\parseGBIF - github.com\\parseGBIF\\R\\standardize_country_from_iso2.R')
-  # source('C:\\parseGBIF - github.com\\parseGBIF\\R\\coordinates_checker.R')
-
-  # C:\\Users\\Pablo Hendrigo\\Downloads\\parseGBIF_5_occ_all_data.csv
-}
 parseGBIF_app <- function(path_centroids='Z:\\Kew\\data\\centroids')
 {
   {
@@ -2405,7 +2383,27 @@ parseGBIF_app <- function(path_centroids='Z:\\Kew\\data\\centroids')
   shinyApp(ui = ui, server = server)
 
 }
-# parseGBIF_app()
+# # parseGBIF_app()
+# {
+#   rm(list = ls())
+#   library(leaflet)
+#   library(maptools)
+#   library(dplyr)
+#   library(readr)
+#
+#   library(countrycode)
+#   library(bdc)
+#   library(plyr)
+#   library(terra)
+#   library(CoordinateCleaner)
+#   library(sf)
+#
+#   source('C:\\parseGBIF - github.com\\parseGBIF\\R\\get_centroids.R')
+#   source('C:\\parseGBIF - github.com\\parseGBIF\\R\\standardize_country_from_iso2.R')
+#   # source('C:\\parseGBIF - github.com\\parseGBIF\\R\\coordinates_checker.R')
+#
+#   # C:\\Users\\Pablo Hendrigo\\Downloads\\parseGBIF_5_occ_all_data.csv
+# }
 
 
 
