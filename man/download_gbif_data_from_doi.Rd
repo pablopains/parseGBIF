@@ -3,16 +3,24 @@
 \name{download_gbif_data_from_doi}
 \alias{download_gbif_data_from_doi}
 \title{Download GBIF occurrence data from DOI}
+\usage{
+download_gbif_data_from_doi(
+  gbif_doi_url,
+  folder = "",
+  keep_only_occurrence_file = TRUE,
+  overwrite = FALSE
+)
+}
 \arguments{
 \item{gbif_doi_url}{The url of the GBIF DOI}
 
 \item{folder}{Save folder}
 
-\item{subfolder}{Save in subfolder}
-
 \item{keep_only_occurrence_file}{Keep only occurrence.txt file}
 
 \item{overwrite}{overwrite files}
+
+\item{subfolder}{Save in subfolder}
 }
 \value{
 list of downloaded and unzipped files

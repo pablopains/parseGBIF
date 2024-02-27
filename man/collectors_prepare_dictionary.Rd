@@ -3,6 +3,14 @@
 \name{collectors_prepare_dictionary}
 \alias{collectors_prepare_dictionary}
 \title{Prepare the list with the last name of the main collector}
+\usage{
+collectors_prepare_dictionary(
+  occ = NA,
+  collectorDictionary_file =
+    "https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv",
+  silence = TRUE
+)
+}
 \arguments{
 \item{occ}{GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')}
 

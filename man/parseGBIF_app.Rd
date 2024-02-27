@@ -3,6 +3,9 @@
 \name{parseGBIF_app}
 \alias{parseGBIF_app}
 \title{parseGBIF App}
+\usage{
+parseGBIF_app(path_centroids = "Z:\\\\Kew\\\\data\\\\centroids")
+}
 \value{
 CSV files
 }

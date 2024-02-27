@@ -4,6 +4,17 @@
 \name{generate_collection_event_key}
 \alias{generate_collection_event_key}
 \title{Generating the collection event key}
+\usage{
+generate_collection_event_key(
+  occ = NA,
+  collectorDictionary_checked_file = NA,
+  collectorDictionary_checked = NA,
+  collectorDictionary_file =
+    "https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv",
+  collectorDictionary = NA,
+  silence = TRUE
+)
+}
 \arguments{
 \item{occ}{GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')}
 
