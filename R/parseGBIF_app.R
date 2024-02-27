@@ -14,7 +14,7 @@
 #' parseGBIF_app()
 #' }
 #' @export
-parseGBIF_app <- function(path_centroids='Z:\\Kew\\data\\centroids')
+parseGBIF_app <- function()
 {
 
   #require(maptools)
@@ -867,17 +867,24 @@ parseGBIF_app <- function(path_centroids='Z:\\Kew\\data\\centroids')
                                              Ctrl_fieldNotes,
                                              Ctrl_eventRemarks,
 
-                                             .val,
-                                             .zer,
-                                             .sea,
-                                             .equ,
-                                             .cen,
-                                             .cap,
-                                             .urb,
-                                             .con,
-                                             .inst,
-                                             .dup,
-                                             .summary_coordinate_check,
+                                             parseGBIF_GADM_centroids,
+                                             parseGBIF_coordinate_status,
+                                             .coordinates_outOfRange,
+                                             .val,.zer,.sea,.equ,.cen,.cap,.urb,.con,.inst,.dup,
+
+
+                                             point_11_1_km,
+                                             n_taxon_name_11_1_km,
+                                             n_unique_collection_event_11_1_km,
+                                             point_1_1_km,
+                                             n_taxon_name_1_1_km,
+                                             n_unique_collection_event_1_1_km,
+                                             point_110m,
+                                             n_taxon_name_110m,
+                                             n_unique_collection_event_110m,
+                                             point_11m,
+                                             n_taxon_name_11m,
+                                             n_unique_collection_event_11m,
 
                                              Ctrl_gbifID,
                                              Ctrl_bibliographicCitation,
@@ -1104,8 +1111,7 @@ parseGBIF_app <- function(path_centroids='Z:\\Kew\\data\\centroids')
           # geo_issue_urb <- dt$.cen & dt$.cap & dt$.urb & dt$.inst & dt$.con & dt$.sea
 
           geo_issue <- !(dt$.val==FALSE | dt$.equ==FALSE | dt$.zer==FALSE | dt$.coordinates_outOfRange==FALSE)
-          geo_issue_urb <- !(dt$.cen==FALSE | dt$.cap==FALSE | dt$.urb==FALSE | dt$.inst==FALSE | dt$.con==FALSE | dt$.sea==FALSE)
-
+          geo_issue_urb <- !(dt$.cen==FALSE | dt$.cap==FALSE | dt$.urb==FALSE | dt$.inst==FALSE | dt$.con==FALSE | dt$.sea==FALSE | dt$parseGBIF_GADM_centroids==FALSE)
 
           # https://getbootstrap.com/docs/5.3/components/alerts/
           etiquetaTextoBtn <- paste0('Unique Collection Event: <b>', dt$Ctrl_key_family_recordedBy_recordNumber,'</b></br>',
@@ -1120,11 +1126,12 @@ parseGBIF_app <- function(path_centroids='Z:\\Kew\\data\\centroids')
                                      "<a href='", dt$gbif_url, "' target='_blank'><b>", dt$gbif_url,"</b></a></br>",
                                      '</br>',
 
-                                     '<div class=',ifelse(geo_issue==FALSE,'"alert alert-danger"',ifelse(geo_issue_urb==FALSE,'"alert alert-warning"','"alert alert-success"')),' role="alert"> Questions about geographic coordinates </div>',
+                                     '<div class=',ifelse(geo_issue==FALSE,'"alert alert-danger"',ifelse(geo_issue_urb==FALSE,'"alert alert-warning"','"alert alert-success"')),' role="alert"> Questions about geographic coordinates ',unique(dt$parseGBIF_GADM_centroids) ,' </div>',
                                      # '<div class="alert alert-danger" role="alert"> Possibly Artificial or Attributed later </div>',
                                      'val: ',dt$.val,"  /  ", 'equ: ',dt$.equ,"  /  ",'zer: ',dt$.zer,"  /  ", 'con: ',dt$.con,"</br>",
                                      'sea: ',dt$.sea,"  /  ", 'cen: ',dt$.cen,"  /  ",'cap: ',dt$.cap,"  /  ", 'urb: ',dt$.urb,"</br>",
-                                     'inst: ',dt$.inst, "  /  ", 'dup: ',dt$.dup, "  /  ", '.coordinates_outOfRange: ', dt$.coordinates_outOfRange)
+                                     'inst: ',dt$.inst, "  /  ", 'dup: ',dt$.dup, "</br>",
+                                     '.coordinates_outOfRange: ', dt$.coordinates_outOfRange, '  /  ', 'parseGBIF_GADM_centroids: ', dt$parseGBIF_GADM_centroids)
 
 
           # label <- dt$parseGBIF_dataset_result
@@ -2393,28 +2400,3 @@ parseGBIF_app <- function(path_centroids='Z:\\Kew\\data\\centroids')
 
 }
 # parseGBIF_app()
-# {
-#   rm(list = ls())
-  # library(leaflet)
-  # library(maptools)
-  # library(dplyr)
-  # library(readr)
-  #
-  # library(countrycode)
-  # library(bdc)
-  # library(plyr)
-  # library(terra)
-  # library(CoordinateCleaner)
-  # library(sf)
-#
-#   source('C:\\parseGBIF - github.com\\parseGBIF\\R\\get_centroids.R')
-#   source('C:\\parseGBIF - github.com\\parseGBIF\\R\\standardize_country_from_iso2.R')
-#   # source('C:\\parseGBIF - github.com\\parseGBIF\\R\\coordinates_checker.R')
-#
-#   # C:\\Users\\Pablo Hendrigo\\Downloads\\parseGBIF_5_occ_all_data.csv
-# }
-
-
-
-
-
