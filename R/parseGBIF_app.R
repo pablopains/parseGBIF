@@ -17,9 +17,6 @@
 parseGBIF_app <- function()
 {
 
-  #require(maptools)
-  # options("sp_evolution_status"=2)
-
   {
     data(wrld_simpl,
          envir = environment())
@@ -86,35 +83,6 @@ parseGBIF_app <- function()
                   weight = 2,
                   color = "black")
 
-
-    # %>%
-    #   leafletOptions(crs= crs)
-
-
-    # +proj=cea +lon_0=Central Meridian
-    # +lat_ts=Standard Parallel
-    # +x_0=False Easting
-    # +y_0=False Northing
-
-
-    # # https://spatialreference.org/ref/esri/54034/
-    # map_on_cea <- leaflet(options =
-    #                         leafletOptions(maxZoom = 25,
-    #                                        crs = leafletCRS(crsClass = "L.Proj.CRS", code = "ESRI:54034",
-    #                                                         proj4def = "+proj=cea +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs",
-    #                                                         resolutions = 1.5^(25:15)
-    #                                        )),
-    #                       width = '800px', height = '600px') %>%
-    #   # addProviderTiles("OpenStreetMap.Mapnik", group = "Mapnik") %>%
-    #   # addProviderTiles("Esri.WorldImagery", group = 'WorldImagery') %>%
-    #   # addProviderTiles("Stamen.Terrain", group = 'Terrain') %>%
-    #   # addLayersControl(
-    #   #   # overlayGroups = c("Vértice EOO", "Validados", "Invalidados"),
-    #   #   baseGroups = c("Mapnik", "WorldImagery", "Terrain")) %>%
-    #   addPolygons(data = wd,
-    #               fillOpacity = 0,
-    #               weight = 2,
-    #               color = "black")
 
   }
 
