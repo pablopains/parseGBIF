@@ -20,43 +20,6 @@ parseGBIF_app <- function()
   {
     wd <- rnaturalearth::ne_countries(returnclass = "sf")
 
-    # '+proj=longlat +datum=WGS84 +no_defs'
-
-    # wd_proj_moll <- sf::st_transform(wd, crs = "+proj=moll")
-    #
-    # # https://proj.org/operations/projections/cea.html
-    # # https://www.nceas.ucsb.edu/sites/default/files/2020-04/OverviewCoordinateReferenceSystems.pdf
-    # # NAD83 (EPSG:4269)
-    # # +init=epsg:4269 +proj=longlat +ellps=GRS80 +datum=NAD83
-    # # +no_defs +towgs84=0,0,0
-    # # ##Most commonly used by U.S. federal agencies. Aligned
-    # # with WGS84 at creation, but has since drifted. Although
-    # # WGS84 and NAD83 are not equivalent, for most applications
-    # # they are considered equivalent
-    # wd_proj_cea <- sf::st_transform(x = wd, crs = "+proj=cea")
-    #
-    # wd_proj_NAD83 <- sf::st_transform(x=wd, crs = " +init=epsg:4269 +proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs +towgs84=0,0,0")
-
-    # Mollweide
-    # https://epsg.i o/54009
-
-    # crs <- leafletCRS(crsClass = "L.Proj.CRS", code = "ESRI:54009",
-    #                   proj4def = "+proj=moll +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs",
-    #                   resolutions = 1.5^(25:15))
-
-    # map_on <- leaflet( width = '800px', height = '600px') %>%
-    #   addProviderTiles("OpenStreetMap.Mapnik", group = "Mapnik") %>%
-    #   addProviderTiles("Esri.WorldImagery", group = 'WorldImagery') %>%
-    #   addProviderTiles("Stamen.Terrain", group = 'Terrain') %>%
-    #   addLayersControl(
-    #     # overlayGroups = c("Vértice EOO", "Validados", "Invalidados"),
-    #     baseGroups = c("Mapnik", "WorldImagery", "Terrain")) %>%
-    #   addPolygons(data = wd,
-    #               fillOpacity = 0,
-    #               weight = 2,
-    #               color = "black")
-
-
     map_on <- leaflet() %>%
       addTiles()
 
@@ -680,17 +643,11 @@ parseGBIF_app <- function()
                                                     choices = spp_list,
                                                     selected = spp_list[1]),
 
-                                        # actionButton("selectBtn_map", "Selecionar espécie", icon = icon("play")),
-
-                                        # selectInput("sel_cc_map", label = 'CoordinateCleaner:',
-                                        #             choices = c('.cen','.cap','.urb', '.con', '.inst'),
-                                        #             multiple = TRUE,
-                                        #             selected = c('useable','duplicate','unusable')),
-
                                         selectInput("sel_dataset_map", label = 'Tipo registro:',
                                                     choices = c('useable','duplicate','unusable'),
                                                     multiple = TRUE,
                                                     selected = c('useable','duplicate','unusable')),
+                                        br(),
                                         br(),
                                         br(),
                                         br(),
@@ -755,7 +712,11 @@ parseGBIF_app <- function()
                       choices = colnames(occ),
                       options = list(`actions-box` = TRUE),
                       multiple = T,
-                      selected = c('Ctrl_key_family_recordedBy_recordNumber',
+                      selected = c('parseGBIF_dataset_result',
+                                   'parseGBIF_sample_taxon_name_status',
+                                   'parseGBIF_digital_voucher',
+                                   'parseGBIF_merged',
+                                   'Ctrl_key_family_recordedBy_recordNumber',
                                    'parseGBIF_wcvp_family',
                                    'parseGBIF_sample_taxon_name',
                                    'parseGBIF_useful_for_spatial_analysis',
@@ -771,16 +732,15 @@ parseGBIF_app <- function()
                                    'parseGBIF_countryCode_ISO3',
                                    'parseGBIF_countryName_en',
 
-                                   'Ctrl_countryCode',
                                    'Ctrl_stateProvince',
                                    'Ctrl_municipality',
                                    'Ctrl_county',
                                    'Ctrl_locality',
 
-                                   'parseGBIF_merged',
-
                                    'Ctrl_fieldNotes',
                                    'Ctrl_eventRemarks',
+
+                                   'parseGBIF_coordinate_status',
 
                                    '.val',
                                    '.zer',
@@ -791,7 +751,24 @@ parseGBIF_app <- function()
                                    '.urb',
                                    '.con',
                                    '.inst',
-                                   '.dup'))
+                                   '.dup',
+                                   '.coordinates_outOfRange',
+                                   'parseGBIF_GADM_centroids',
+                                   'parseGBIF_GADM_centroids_level',
+
+                                   'n_taxon_name_11_1_km',
+                                   'n_unique_collection_event_11_1_km',
+                                   'n_taxon_name_1_1_km',
+                                   'n_unique_collection_event_1_1_km',
+                                   'n_taxon_name_110m',
+                                   'n_unique_collection_event_110m',
+                                   'n_taxon_name_11m',
+                                   'n_unique_collection_event_11m'
+
+                                   ))
+
+
+
         })
 
         parsegbifLoad <- reactive({
@@ -804,29 +781,32 @@ parseGBIF_app <- function()
 
                              occ <<- read.csv(file = input$parseGBIFFile$datapath, #'C:\\Dados\\Kew\\Bolivia\\dataGBIF\\parseGBIF_7_cc.csv',#input$parseGBIFFile$datapath, #'C:\\Users\\Pablo Hendrigo\\Downloads\\parseGBIF_5_occ_all_data.csv'
                                               fileEncoding = "UTF-8") %>%
-                               dplyr::select(Ctrl_key_family_recordedBy_recordNumber,
+                               dplyr::select(parseGBIF_dataset_result,
+                                             Ctrl_key_family_recordedBy_recordNumber,
+
+                                             parseGBIF_useful_for_spatial_analysis,
+                                             parseGBIF_sample_taxon_name_status,
                                              parseGBIF_wcvp_family,
                                              parseGBIF_sample_taxon_name,
-                                             parseGBIF_useful_for_spatial_analysis,
-                                             parseGBIF_decimalLatitude,
-                                             parseGBIF_decimalLongitude,
+
                                              parseGBIF_digital_voucher,
                                              parseGBIF_duplicates,
                                              parseGBIF_num_duplicates,
                                              parseGBIF_duplicates_grouping_status,
+                                             parseGBIF_merged,
 
                                              Ctrl_eventDate,
 
                                              parseGBIF_countryCode_ISO3,
                                              parseGBIF_countryName_en,
-
                                              Ctrl_countryCode,
                                              Ctrl_stateProvince,
                                              Ctrl_municipality,
                                              Ctrl_county,
                                              Ctrl_locality,
 
-                                             parseGBIF_merged,
+                                             parseGBIF_decimalLatitude,
+                                             parseGBIF_decimalLongitude,
 
                                              Ctrl_fieldNotes,
                                              Ctrl_eventRemarks,
@@ -836,7 +816,6 @@ parseGBIF_app <- function()
                                              parseGBIF_coordinate_status,
                                              .coordinates_outOfRange,
                                              .val,.zer,.sea,.equ,.cen,.cap,.urb,.con,.inst,.dup,
-
 
                                              point_11_1_km,
                                              n_taxon_name_11_1_km,
@@ -895,7 +874,6 @@ parseGBIF_app <- function()
                                              wcvp_searchedName,
                                              wcvp_searchNotes,
 
-                                             parseGBIF_sample_taxon_name_status,
                                              parseGBIF_number_taxon_names,
                                              parseGBIF_non_groupable_duplicates,
                                              parseGBIF_unidentified_sample,
@@ -905,7 +883,7 @@ parseGBIF_app <- function()
                                              parseGBIF_wcvp_taxon_name,
                                              parseGBIF_wcvp_taxon_authors,
                                              parseGBIF_wcvp_reviewed,
-                                             parseGBIF_dataset_result,
+
                                              parseGBIF_freq_duplicate_or_missing_data,
                                              parseGBIF_duplicates_map,
                                              parseGBIF_merged_fields
@@ -975,7 +953,7 @@ parseGBIF_app <- function()
               dplyr::filter(parseGBIF_sample_taxon_name == input$sp_map &
                               parseGBIF_dataset_result %in% c(input$sel_dataset_map)) %>%
               dplyr::select(input$pick) %>%
-              dplyr::arrange_at('Ctrl_key_family_recordedBy_recordNumber')#desc('parseGBIF_dataset_result'))
+              dplyr::arrange_at(c('Ctrl_key_family_recordedBy_recordNumber', 'parseGBIF_dataset_result'))#desc('parseGBIF_dataset_result'))
 
 
 
@@ -1125,205 +1103,12 @@ parseGBIF_app <- function()
           #   leafletOptions(crs= crs)
 
           m
-
-
-
-
-
-
-
-
-
-          # if (NROW(dt$occ_in_sel) >0)
-          # {
-          #
-          #   icons <- awesomeIcons(icon = "whatever",
-          #                         iconColor = "black",
-          #                         library = "ion",
-          #                         markerColor = dt$occ_in_sel$cor)
-          #
-          #   etiquetaTexto <- paste0("ID na Fonte : <a href='",
-          #                           # actionLink(inputId, label, icon = NULL, ...)
-          #                           "floradobrasil.jbrj.gov.br",
-          #                           "' target='_blank'>", dt$occ_in_sel$Ctrl_occurrenceID,"</a>",br(),
-          #
-          #                           ' Coleção: ', dt$occ_in_sel$Ctrl_collectionCode, ' ', dt$occ_in_sel$Ctrl_catalogNumber,br(),
-          #
-          #                           ' Coletor : ', dt$occ_in_sel$Ctrl_recordedBy,' ',dt$occ_in_sel$Ctrl_recordNumber, br(),
-          #                           dt$occ_in_sel$Ctrl_key_family_recordedBy_recordNumber,br(),
-          #
-          #                           # aqui 05-06-2022
-          #                           ' Data : ', dt$occ_in_sel$Ctrl_day, "/" , dt$occ_in_sel$Ctrl_month, "/" , dt$occ_in_sel$Ctrl_year, br(),
-          #                           # ' Data : ', dt$occ_in_sel$Ctrl_day, "/" , dt$occ_in_sel$Ctrl_month, "/" , dt$occ_in_sel$Ctrl_year, br(),
-          #
-          #                           ' Identificação: ', dt$occ_in_sel$Ctrl_identifiedBy, ' em ', dt$occ_in_sel$Ctrl_dateIdentified,' ', dt$occ_in_sel$Ctrl_identificationQualifier,br(),
-          #                           ' País: ', dt$occ_in_sel$Ctrl_country_standardized,br(),
-          #                           ' Estado : ', dt$occ_in_sel$Ctrl_stateProvince_standardized,br(),
-          #                           ' Município: ', dt$occ_in_sel$Ctrl_municipality_standardized,br(),
-          #                           ' Localidade: ', dt$occ_in_sel$Ctrl_locality_standardized,br(),
-          #                           ' Tipo: ', dt$occ_in_sel$Ctrl_typeStatus,br(),
-          #                           ' Notas de pré-validação geográfica: ',dt$occ_in_sel$autoGeoNotes,br(),
-          #                           ' Notas de chegagem de campo : ',dt$occ_in_sel$verbatimNotes,br())
-          #
-          #
-          #   etiquetaTextoBtn <- paste("<b>", etiquetaTexto, "</b></br>",
-          #                             actionButton("selectlocation", 'Validar/Invalidar Identificação', onclick = 'Shiny.onInputChange(\"sp\",  Math.random())'),
-          #                             actionButton("selectlocation", 'Validar/Invalidar Localização Geográfica', onclick = 'Shiny.onInputChange(\"sp\",  Math.random())')
-          #   )
-          #
-          #
-          #   label <- paste0(dt$occ_in_sel$Ctrl_occurrenceID, ' - ', dt$occ_in_sel$Ctrl_key_family_recordedBy_recordNumber,
-          #                   ' / ', dt$occ_in_sel$Ctrl_year,
-          #                   ' / ', dt$occ_in_sel$Ctrl_municipality_standardized, ' - ',dt$occ_in_sel$Ctrl_stateProvince_standardized, ' - ', dt$occ_in_sel$Ctrl_country_standardized,
-          #                   ' / Ident.: ', dt$occ_in_sel$Ctrl_identifiedBy)
-          #
-          #   popup_g <- etiquetaTexto
-          #
-          #
-          #   # ifelse(dt$occ_in_sel$verticeEOO==TRUE,'Vértice EOO','Pré-valiados BR'),
-          #   # grupo_camadas <- ifelse(dt$occ_in_sel$verticeEOO==TRUE,'Vértice EOO','Pré-valiados BR')
-          #
-          #   # grupo_camadas <- ifelse(dt$occ_in_sel$verticeEOO==TRUE, 'Vértice EOO',
-          #   #                             ifelse(dt$occ_in_sel$emUC==TRUE, 'Dentro de Unidade de Conservação',
-          #   #                                    'Fora de Unidade de Conservação'))
-          #
-          #   # ifelse(occ_in_sel$emUso==TRUE,'lightgreen','lightred'))))
-          #
-          #
-          #
-          #   grupo_camadas <- ifelse(dt$occ_in_sel$verticeEOO==TRUE, 'Vértice EOO',
-          #                           ifelse(dt$occ_in_sel$emUso==TRUE, 'Validados',
-          #                                  'Invalidados'))
-          #
-          #
-          #   # cor_label <-rep('black',dt$totalRegistros_in)
-          #   # cor_label <- ifelse(dt$occ_in_sel$verticeEOO==TRUE,
-          #   #                     'red',cor_label)
-          #   # cor_label <- ifelse(dt$occ_in_sel$verticeEOO==TRUE & dt$occ_in_sel$Verificar_Vertice_EOO==TRUE,
-          #   #                     'green',cor_label)
-          #
-          #   m <- addAwesomeMarkers(m,
-          #                          lat = dt$occ_in_sel$Latitude,
-          #                          lng = dt$occ_in_sel$Longitude,
-          #
-          #                          # aqui voltar
-          #                          label = label,
-          #
-          #                          # # labelOptions = labelOptions(style = list( "color" = ifelse(dt$occ_in_sel$verticeEOO==TRUE,"red","black"))),
-          #                          # labelOptions = labelOptions(style = list( "color" = cor_label)),
-          #                          # popup = etiquetaTextoBtn,
-          #                          icon =  icons,
-          #                          # group= ifelse(dt$occ_in_sel$verticeEOO==TRUE,'Vértice EOO','Pré-valiados BR'),
-          #                          group = grupo_camadas,
-          #                          layerId=dt$occ_in_sel$ID_PRV)
-          #
-          #
-          #   # m <-  addCircleMarkers(m,
-          #   #                        lat = dt$occ_in_sel$Latitude, lng = dt$occ_in_sel$Longitude,
-          #   #                        label = dt$occ_in_sel$Ctrl_key_family_recordedBy_recordNumber,
-          #   #                        popup = etiquetaTexto,
-          #   #                        color = "red",
-          #   #                        popupOptions = popupOptions(closeButton=F, closeOnClick=F))
-          #
-          #
-          #   # m <- addMarkers(m,
-          #   #                 # icon =  icons,
-          #   #                 # group= ifelse(dt$occ_in_sel$verticeEOO==TRUE,'Vértice EOO','Pré-valiados BR'),
-          #   #                 layerId=dt$occ_in_sel$ID_PRV,
-          #   #                 lat = dt$occ_in_sel$Latitude, lng = dt$occ_in_sel$Longitude,
-          #   #                 popup = paste("<b>", etiquetaTexto, "</b></br>",
-          #   #                               # actionButton("selectlocation", "Select this Location", onclick = 'Shiny.onInputChange(\"button_click\",  Math.random())')))
-          #   #                               actionButton("selectlocation", "Select this Location", onclick = 'Shiny.onInputChange(\"sp\",  Math.random())')))
-          #
-          #   # id2 <- eventReactive(input$button_click, {
-          #   #    input$map_marker_click$id
-          #   # })
-          #
-          # }
-          #
-          # if (NROW(dt$occ_global_sel) >0)
-          # {
-          #
-          #   etiquetaTexto <- paste0('ID na Fonte :',dt$occ_global_sel$Ctrl_occurrenceID, br(),
-          #                           ' Coleção: ', dt$occ_global_sel$Ctrl_collectionCode, ' ', dt$occ_global_sel$Ctrl_catalogNumber,br(),
-          #
-          #                           ' Coletor : ', dt$occ_global_sel$Ctrl_recordedBy,' ',dt$occ_global_sel$Ctrl_recordNumber, br(),
-          #                           dt$occ_global_sel$Ctrl_key_family_recordedBy_recordNumber,br(),
-          #                           # aqui 05-06-2022
-          #                           ' Data : ', dt$occ_global_sel$Ctrl_day, "/" , dt$occ_global_sel$Ctrl_month, "/" , dt$occ_global_sel$Ctrl_year, br(),
-          #
-          #                           # ' Data : ', dt$occ_global_sel$Ctrl_day, "/" , dt$occ_global_sel$Ctrl_month, "/" , dt$occ_global_sel$Ctrl_year, br(),
-          #
-          #                           ' Identificação: ', dt$occ_global_sel$Ctrl_identifiedBy, ' em ', dt$occ_global_sel$Ctrl_dateIdentified,' ', dt$occ_global_sel$Ctrl_identificationQualifier,br(),
-          #                           ' País: ', dt$occ_global_sel$Ctrl_country_standardized,br(),
-          #                           ' Estado : ', dt$occ_global_sel$Ctrl_stateProvince_standardized,br(),
-          #                           ' Município: ', dt$occ_global_sel$Ctrl_municipality_standardized,br(),
-          #                           ' Localidade: ', dt$occ_global_sel$Ctrl_locality_standardized,br(),
-          #                           ' Tipo: ', dt$occ_global_sel$Ctrl_typeStatus,br(),
-          #                           ' Notas de pré-validação geográfica: ',dt$occ_global_sel$autoGeoNotes,br(),
-          #                           ' Notas de chegagem de campo : ',dt$occ_global_sel$verbatimNotes,br())
-          #
-          #   label <- paste0(dt$occ_global_sel$Ctrl_occurrenceID, ' - ', dt$occ_global_sel$Ctrl_key_family_recordedBy_recordNumber,
-          #                   ' / ', dt$occ_global_sel$Ctrl_year,
-          #                   ' / ', dt$occ_global_sel$Ctrl_municipality_standardized, ' - ',dt$occ_global_sel$Ctrl_stateProvince_standardized, ' - ', dt$occ_global_sel$Ctrl_country_standardized,
-          #                   ' / Ident.: ', dt$occ_global_sel$Ctrl_identifiedBy)
-          #
-          #
-          #   m <- addAwesomeMarkers(m,
-          #                          lat = dt$occ_global_sel$Latitude,
-          #                          lng = dt$occ_global_sel$Longitude,
-          #
-          #                          # aqui voltar
-          #                          label = label,
-          #                          popup = etiquetaTexto,
-          #
-          #                          icon =    icons <- awesomeIcons(icon = "whatever",
-          #                                                          iconColor = "black",
-          #                                                          library = "ion",
-          #                                                          markerColor = 'black'),
-          #                          group='Fora BR',
-          #                          layerId=dt$occ_global_sel$ID_PRV
-          #   )
-          # }
-          #
-          # if (!is.na(dt$EOO))
-          # {
-          #   shp_sf <- sf::st_as_sf(dt$EOO) %>%
-          #     sf::st_transform(4326)
-          #
-          #   m <- m %>% addPolylines(data = shp_sf,
-          #                           smoothFactor = 0.5,
-          #                           fillOpacity = 0.5,
-          #                           weight = 0.5,
-          #                           color = 'red',
-          #                           opacity = 0.8)
-          # }
-          #
-          # m %>%
-          #   addLegendAwesomeIcon(iconSet = iconSet,
-          #                        orientation = 'vertical',
-          #                        title = NULL,
-          #                        labelStyle = 'font-size: 10px;',
-          #                        position = 'bottomright',
-          #                        group = 'Legenda')
-          #
-          # # m             %>%  # add legend to the map
-          # #    addLegend(position = "bottomright", # position where the legend should appear
-          # #              pal = 'red', # pallete object where the color is defined
-          # #              values = cor_label, # column variable or values that were used to derive the color pallete object
-          # #              title = "Ocorrências", #itle of the legend
-          # #              opacity = 1 # Opacity of legend
-          # #    )
-
         })
 
 
 
 
       }
-      # observe({
-      #   toggle(id = "element", condition = input$checkbox)
-      # })
 
       {
 
