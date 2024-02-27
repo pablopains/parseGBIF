@@ -367,7 +367,7 @@ parse_coordinates <- function(occ = NA,
                           dplyr::rename(parseGBIF_GADM_centroids_level =level),
                         by = centroid_round)
 
-    occ_cc$parseGBIF_GADM_centroids <- !is.na(occ_cc$parseGBIF_GADM_centroids_level)
+    occ_cc$parseGBIF_GADM_centroids <- is.na(occ_cc$parseGBIF_GADM_centroids_level)
 
     # centroids$level %>% unique()
     # occ_cc$parseGBIF_GADM_centroids_level %>% unique()
@@ -401,6 +401,7 @@ parse_coordinates <- function(occ = NA,
                                           n_taxon_name_11m,
                                           n_unique_collection_event_11m,
                                           parseGBIF_GADM_centroids,
+                                          parseGBIF_GADM_centroids_level,
                                           parseGBIF_coordinate_status,
                                           .coordinates_outOfRange,
                                           .val,.zer,.sea,.equ,.cen,.cap,.urb,.con,.inst,.dup),

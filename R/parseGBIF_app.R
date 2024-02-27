@@ -18,10 +18,6 @@ parseGBIF_app <- function()
 {
 
   {
-    data(wrld_simpl,
-         envir = environment())
-
-
     wd <- rnaturalearth::ne_countries(returnclass = "sf")
 
     # '+proj=longlat +datum=WGS84 +no_defs'
@@ -836,6 +832,7 @@ parseGBIF_app <- function()
                                              Ctrl_eventRemarks,
 
                                              parseGBIF_GADM_centroids,
+                                             parseGBIF_GADM_centroids_level,
                                              parseGBIF_coordinate_status,
                                              .coordinates_outOfRange,
                                              .val,.zer,.sea,.equ,.cen,.cap,.urb,.con,.inst,.dup,
@@ -1094,7 +1091,7 @@ parseGBIF_app <- function()
                                      "<a href='", dt$gbif_url, "' target='_blank'><b>", dt$gbif_url,"</b></a></br>",
                                      '</br>',
 
-                                     '<div class=',ifelse(geo_issue==FALSE,'"alert alert-danger"',ifelse(geo_issue_urb==FALSE,'"alert alert-warning"','"alert alert-success"')),' role="alert"> Questions about geographic coordinates ',unique(dt$parseGBIF_GADM_centroids) ,' </div>',
+                                     '<div class=',ifelse(geo_issue==FALSE,'"alert alert-danger"',ifelse(geo_issue_urb==FALSE,'"alert alert-warning"','"alert alert-success"')),' role="alert"> Questions about geographic coordinates ',unique(dt$parseGBIF_coordinate_status) ,' </div>',
                                      # '<div class="alert alert-danger" role="alert"> Possibly Artificial or Attributed later </div>',
                                      'val: ',dt$.val,"  /  ", 'equ: ',dt$.equ,"  /  ",'zer: ',dt$.zer,"  /  ", 'con: ',dt$.con,"</br>",
                                      'sea: ',dt$.sea,"  /  ", 'cen: ',dt$.cen,"  /  ",'cap: ',dt$.cap,"  /  ", 'urb: ',dt$.urb,"</br>",
