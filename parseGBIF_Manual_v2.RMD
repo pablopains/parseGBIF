@@ -7,8 +7,8 @@ author:
 - Alexandre Monro^[Royal Botanic Gardens, Kew, a.monro@kew.org]
 date: "`r Sys.Date()`"
 output:
-  pdf_document: default
   word_document: default
+  pdf_document: default
 template: template.tex
 editor_options:
   markdown:

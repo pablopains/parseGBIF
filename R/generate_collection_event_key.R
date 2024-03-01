@@ -50,27 +50,26 @@
 #'
 #' @import stringr
 #' @import dplyr
-#' @import rscopus
 #'
 #' @export
 generate_collection_event_key <- function(occ=NA,
                                       collectorDictionary_checked_file = NA,
                                       collectorDictionary_checked = NA,
                                       collectorDictionary_file = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv',
-                                      collectorDictionary = NA,
                                       silence = TRUE)
 {
 
-  # print('Loading collectorDictionary...')
+  print('Loading collectorDictionary...')
 
+  if(collectorDictionary_file=='' | is.na(collectorDictionary_file) )
+  {
+    stop("Invalid Collector's Dictionary!")
+  }
 
-  # if (NROW(collectorDictionary)<=1 & !(collectorDictionary_file=='' | is.na(collectorDictionary_file)))
-  # {
-  #
-  # collectorDictionary <- readr::read_csv(collectorDictionary_file,
-  #                                        locale = readr::locale(encoding = "UTF-8"),
-  #                                        show_col_types = FALSE)
-  # }
+  collectorDictionary <- readr::read_csv(collectorDictionary_file,
+                                         locale = readr::locale(encoding = "UTF-8"),
+                                         show_col_types = FALSE)
+
 
   if(NROW(collectorDictionary)==0 | any(colnames(collectorDictionary) %in% c('Ctrl_nameRecordedBy_Standard',
                                                                              'Ctrl_recordedBy',
@@ -85,9 +84,10 @@ generate_collection_event_key <- function(occ=NA,
     stop("Empty Collector's Dictionary!")
   }
 
-  # collectorDictionary_tmp <- collectorDictionary <- collectorDictionary %>%
-  #   dplyr::mutate(Ctrl_recordedBy = Ctrl_recordedBy %>% toupper()) %>%
-  #   data.frame()
+  collectorDictionary <- collectorDictionary %>%
+    dplyr::mutate(Ctrl_recordedBy = Ctrl_recordedBy %>% toupper()) %>%
+    data.frame()
+
 
   if(! silence == TRUE)
   {
@@ -111,18 +111,6 @@ generate_collection_event_key <- function(occ=NA,
                                                                              'Ctrl_fullName',
                                                                              'Ctrl_fullNameII',
                                                                              'CVStarrVirtualHerbarium_PersonDetails'))==FALSE)
-
-  Ctrl_nameRecordedBy_Standard
-  Ctrl_recordedBy
-  Ctrl_notes
-  collectorDictionary
-  Ctrl_update
-  collectorName
-  Ctrl_fullName
-  Ctrl_fullNameII
-  CVStarrVirtualHerbarium_PersonDetails
-
-
   {
     stop("Empty Collector's Dictionary checked!")
   }
@@ -152,18 +140,12 @@ generate_collection_event_key <- function(occ=NA,
    collectorDictionary$Ctrl_recordedBy <- collectorDictionary$Ctrl_recordedBy %>%
       toupper() %>% as.character()
 
-   # collectorDictionary_checked_new <- anti_join(collectorDictionary_checked,
-   #                                     collectorDictionary,
-   #                                     by = c('Ctrl_recordedBy')) %>%
-   #    dplyr::select(colunas)
-   #
-   # ####
-   # collectorDictionary_checked_new <- rbind( collectorDictionary_checked_new %>%
-   #                                             dplyr::select(colunas),
-   #                                           collectorDictionary_tmp %>%
-   #                                             dplyr::select(colunas)) %>%
-   #   dplyr::arrange(Ctrl_nameRecordedBy_Standard)
-   # ####
+   collectorDictionary_checked_new <- anti_join(collectorDictionary_checked,
+                                       collectorDictionary,
+                                       by = c('Ctrl_recordedBy')) %>%
+      dplyr::select(colunas)
+
+   ####
 
    occ <- occ %>%
      dplyr::select(Ctrl_recordNumber, Ctrl_family, Ctrl_recordedBy, Ctrl_year)
@@ -250,6 +232,7 @@ generate_collection_event_key <- function(occ=NA,
 
    occ$Ctrl_recordNumber_Standard <- str_replace_all(occ$Ctrl_recordNumber, "[^0-9]", "")
 
+
    occ$Ctrl_recordNumber_Standard <- ifelse(is.na(occ$Ctrl_recordNumber_Standard) |
                                                    occ$Ctrl_recordNumber_Standard=='',"",occ$Ctrl_recordNumber_Standard  %>% strtoi())
    # tirar o NA do numero
@@ -271,6 +254,7 @@ generate_collection_event_key <- function(occ=NA,
                              Ctrl_recordNumber_Standard,
                              sep='_'))
 
+
    # # numero de registros por frase saída in
    res_in <- occ %>% dplyr::count(paste0(Ctrl_key_family_recordedBy_recordNumber))
    colnames(res_in) <- c('Key',
@@ -281,7 +265,7 @@ generate_collection_event_key <- function(occ=NA,
    return(list(occ_collectorsDictionary = occ %>%
                  dplyr::select(Ctrl_nameRecordedBy_Standard, Ctrl_recordNumber_Standard, Ctrl_key_family_recordedBy_recordNumber, Ctrl_key_year_recordedBy_recordNumber),
                summary  = res_in,
-               collectorsDictionary_add = NA))
+               collectorsDictionary_add = collectorDictionary_checked_new))
 
 }
 

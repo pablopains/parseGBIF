@@ -21,7 +21,7 @@
 #' Once verified, the collector’s dictionary can be reused in the future.
 
 #' @param occ GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')
-#' @param collectorDictionary_file Collector dictionary file - point to a file on your local disk or download via git at https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv.
+#' @param collectorDictionary_file Collector dictionary file - point to a file on your local disk or download via git at https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary_parseGBIF.csv.
 #' @param silence if TRUE does not display progress messages
 #'
 #' @details If recordedBy is present in the collector's dictionary, it returns the checked name, if not, it returns the last name of the main collector, extracted from the recordedBy field.
@@ -52,7 +52,7 @@
 #' \donttest{
 #' help(collectors_prepare_dictionary)
 #'
-#' occ <- prepare_gbif_occurrence_data(gbif_occurrece_file =  'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt',
+#' occ <- prepare_gbif_occurrence_data(gbif_occurrece_file =  'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary_parseGBIF.csv',
 #'                                     columns = 'standard')
 #'
 #' collectorsDictionaryFromDataset <- collectors_prepare_dictionary(occ = occ,
@@ -73,7 +73,7 @@
 #'}
 #' @export
 collectors_prepare_dictionary <- function(occ=NA,
-                                          collectorDictionary_file = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv',
+                                          collectorDictionary_file = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary_parseGBIF.csv',
                                           silence = TRUE)
 {
 

@@ -7,14 +7,14 @@
 collectors_prepare_dictionary(
   occ = NA,
   collectorDictionary_file =
-    "https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv",
+    "https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary_parseGBIF.csv",
   silence = TRUE
 )
 }
 \arguments{
 \item{occ}{GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')}
 
-\item{collectorDictionary_file}{Collector dictionary file - point to a file on your local disk or download via git at https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv.}
+\item{collectorDictionary_file}{Collector dictionary file - point to a file on your local disk or download via git at https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary_parseGBIF.csv.}
 
 \item{silence}{if TRUE does not display progress messages}
 }
@@ -61,7 +61,7 @@ That the primary botanical collector of a sample is always recognized by the sam
 \donttest{
 help(collectors_prepare_dictionary)
 
-occ <- prepare_gbif_occurrence_data(gbif_occurrece_file =  'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt',
+occ <- prepare_gbif_occurrence_data(gbif_occurrece_file =  'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary_parseGBIF.csv',
                                     columns = 'standard')
 
 collectorsDictionaryFromDataset <- collectors_prepare_dictionary(occ = occ,
