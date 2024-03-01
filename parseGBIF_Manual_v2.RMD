@@ -85,7 +85,6 @@ function
  folder_download <- tempdir()
  
  download_gbif_data_from_doi(gbif_doi_url = 'https://doi.org/10.15468/dl.nbcqc6', folder = folder_download, keep_only_occurrence_file = TRUE)
- 
 ```
 
 #### 1.2. Preparing occurrence data downloaded from GBIF
@@ -98,7 +97,7 @@ functions, run prepare_gbif_occurrence_data.
 # occ_file <- 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt'
 
 occ_file <- paste0(folder_download,'\\','occurrence.txt')
-  
+
 occ <- parseGBIF::prepare_gbif_occurrence_data(gbif_occurrece_file = occ_file, columns = 'standard')
   
 head(occ)
@@ -260,7 +259,8 @@ collectors_prepare_dictionary function. It uses the occurrence data
 
 ```{r example_collectors_prepare_dictionary, eval=TRUE, message=FALSE, warning=FALSE}
 
-collectorsDictionary.dataset <- collectors_prepare_dictionary(occ = occ)
+collectorsDictionary.dataset <- collectors_prepare_dictionary(occ = occ,                                                                                                        collectorDictionary_file = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary_parseGBIF.csv',
+                                                              silence = TRUE)
 
 NROW(collectorsDictionary.dataset)
 

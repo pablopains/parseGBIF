@@ -349,6 +349,12 @@ collectors_get_name <- function(x,
 
   }
 
+  if(is.na(x))
+  {return('UNKNOWN-COLLECTOR')}
+
+  if(x=='')
+  {return('UNKNOWN-COLLECTOR')}
+
   if (length(grep("&",x))>0)
   {
     x = strsplit(x,"&")[[1]][1]
