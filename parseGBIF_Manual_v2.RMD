@@ -94,9 +94,8 @@ functions, run prepare_gbif_occurrence_data.
 
 ```{r example_prepare_gbif_occurrence_data, eval=TRUE, message=FALSE, warning=FALSE}
 
-# occ_file <- 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt'
-
 occ_file <- paste0(folder_download,'\\','occurrence.txt')
+# occ_file <- 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt'
 
 occ <- parseGBIF::prepare_gbif_occurrence_data(gbif_occurrece_file = occ_file, columns = 'standard')
   
@@ -640,13 +639,13 @@ write.csv(summ$parseGBIF_merge_fields_summary_unusable_data,
 -  Merged information between fields of duplicates of a unique collection event key = ACHATOCARPACEAE_ZARDINI_5592
 
 ```{r example_json1, eval=TRUE, message=FALSE, warning=FALSE}
-index <- results$useable_data_merge$Ctrl_key_family_recordedBy_recordNumber %in% 'ACHATOCARPACEAE_ZARDINI_5592'
+index <- results$all_data$Ctrl_key_family_recordedBy_recordNumber %in% results$all_data$Ctrl_key_family_recordedBy_recordNumber[83]
 
 print('merged fields')
-print(jsonlite::fromJSON(results$useable_data_merge$parseGBIF_merged_fields[index==TRUE]))
+print(jsonlite::fromJSON(results$all_data$parseGBIF_merged_fields[index==TRUE]))
 
 print('merged fields map')
-print(jsonlite::fromJSON(results$useable_data_merge$parseGBIF_duplicates_map[index==TRUE]))
+print(jsonlite::fromJSON(results$all_data$parseGBIF_duplicates_map[index==TRUE]))
 
 ```
 
@@ -655,6 +654,6 @@ print(jsonlite::fromJSON(results$useable_data_merge$parseGBIF_duplicates_map[ind
 ```{r example_json2, eval=TRUE, message=FALSE, warning=FALSE}
 
 print('Frequency of content in fields')
-print(jsonlite::fromJSON(results$useable_data_merge$parseGBIF_freq_duplicate_or_missing_data[index==TRUE]))
+print(jsonlite::fromJSON(results$all_data$parseGBIF_freq_duplicate_or_missing_data[index==TRUE]))
 ```
 
