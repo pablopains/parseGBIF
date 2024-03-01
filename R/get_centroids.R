@@ -66,8 +66,17 @@ get_centroids <- function(path_centroids='https://raw.githubusercontent.com/pabl
 
   if (is.null(centroids))
   {
+
+    wd <- rnaturalearth::ne_countries(returnclass = "sv")
+
+    countryCode_ISO3_wd <- wd$iso_a3 %>% unique()
     countrycode_table <- countrycode::codelist
     countryCode_ISO3 <- countrycode_table$iso3c %>% na.omit() %>% unique()
+
+    ind <- countryCode_ISO3 %in% countryCode_ISO3_wd
+
+
+    countryCode_ISO3 <- countryCode_ISO3[ind==FALSE]
 
     # Get SpatialPolygonsDataFrame object example
 
@@ -85,8 +94,23 @@ get_centroids <- function(path_centroids='https://raw.githubusercontent.com/pabl
       polygons <- geodata::gadm(country = countryCode_ISO3[i], path = path_centroids ,level = 0)
       polygons <- as(polygons, "Spatial")
 
-      centroids_tmp <- as.data.frame(geosphere::centroid(polygons))
+      # centroids_tmp <- as.data.frame(geosphere::centroid(polygons))
+      # centroids_tmp <- sf::st_centroid(sf::st_as_sf(polygons), of_largest_polygon=TRUE)
+      centroids_tmp <- sf::st_centroid(sf::st_as_sf(polygons), of_largest_polygon=TRUE)
+
+      centroids_tmp  %>%  as_tibble()
+
+      # library(tidyverse)
+
+      centroids_tmp <- data.frame(lon = unlist(purrr::map(centroids_tmp$geometry,1)),
+                                    lat = unlist(purrr::map(centroids_tmp$geometry,2)))
+
       colnames(centroids_tmp) <- c("lon", "lat")
+
+      # plot(polygons)
+      # terra::points(nz_centroid, pch=1, col='red')
+      # terra::points(seine_centroid, pch=1, col='blue')
+      # terra::points(centroids_tmp, pch=1, col='red')
 
       centroids <- rbind(centroids, data.frame(countryCode_ISO3=polygons$GID_0,
                                                # # name0=polygons$NAME_0,

@@ -16,29 +16,32 @@ LazyDataCompression: xz
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
 Imports: 
-    plyr,
-    readxl,
+    shiny,
+    shinydashboard,
+    rnaturalearth,
+    rnaturalearthdata,
+    DT,
+    rhandsontable,
+    bdc,
+    countrycode,
     dplyr,
-    tidyr,
     readr,
     stringr,
     textclean,
-    googledrive,
     rvest,
     lubridate,
-    rnaturalearthdata,
     jsonlite,
     sqldf,
-    DT,
     downloader,
     tidyselect,
     utils,
     raster,
-    geosphere,
     geodata,
     terra,
     CoordinateCleaner,
-    sf
+    sf,
+    leaflet,
+    purrr
 Remotes: 
     github::pablopains/parseGBIF
 Depends: 

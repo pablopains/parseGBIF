@@ -13,7 +13,14 @@
 #' \donttest{
 #' parseGBIF_app()
 #' }
-#' @export
+#' @import leaflet
+#' @import shiny
+#' @import rnaturalearth
+#' @import dplyr
+#' @import readr
+#' @import shinydashboard
+#' @import DT
+#' @import rhandsontable
 parseGBIF_app <- function()
 {
 
@@ -54,60 +61,21 @@ parseGBIF_app <- function()
 
   # 0 - Preparar ambiente R
   {
-    # carregar funcões para mensurar tempos de processamento
-    {
-      tempo_processo <- data.frame(nome_processo=NA,
-                                   tempo_processamento=NA)[-1,]
 
-      inicia_tempo_processamento <- function(nome_processo='',
-                                             tempo_processo=NA)
-      {
-        return(list(ini.time = Sys.time(),
-                    nome_processo=nome_processo,
-                    tempo_processo=tempo_processo))
-      }
-
-      get_tempo_processamento <- function(tempo_processo_tmp)
-      {
-
-        tempo_processamento <- difftime(Sys.time(), tempo_processo_tmp$ini.time , units = 'min')
-        tempo_processo <- rbind(tempo_processo_tmp$tempo_processo,
-                                data.frame(nome_processo=tempo_processo_tmp$nome_processo,
-                                           tempo_processamento=tempo_processamento))
-        print(tempo_processo)
-        return(tempo_processo)
-      }
-    }
-
-    # inicar tempo de processamento
-    tempo_processo_tmp <- inicia_tempo_processamento('Preparação do ambiente de trabalho em R',
-                                                     tempo_processo)
     # carregar pacotes básicos
     {
 
 
-      # library('geosphere')
-
-      # install.packages('plyr', dependencies = TRUE)
-      library(plyr)
-
-      # install.packages('readxl', dependencies = TRUE)
-      library(readxl)
-
-      # install.packages('dplyr', dependencies = TRUE)
-      library(dplyr)
-
       # install.packages('tidyr', dependencies = TRUE)
-      library(tidyr)
+      # library(tidyr)
 
       # # install.packages('biogeo', dependencies = TRUE)
       # library(biogeo)
 
       # install.packages('readr', dependencies = TRUE)
-      library(readr)
 
       # install.packages('stringr', dependencies = TRUE)
-      library(stringr)
+      # library(stringr)
 
       # # install.packages('devtools', dependencies = TRUE)
       # library(devtools)
@@ -146,50 +114,47 @@ parseGBIF_app <- function()
       # library(monographaR)
 
       # install.packages('jsonlite', dependencies = TRUE)
-      library(jsonlite)
+      # library(jsonlite)
 
       # install.packages('sqldf', dependencies = TRUE)
-      library(sqldf)
+      # library(sqldf)
 
       # install.packages('shiny', dependencies = TRUE)
-      library(shiny)
 
       # install.packages('shinydashboardPlus', dependencies = TRUE)
       # library(shinydashboardPlus)
 
       # install.packages('shinydashboard', dependencies = TRUE)
-      library(shinydashboard)
 
       # # install.packages('mapview', dependencies = TRUE)
       # library(mapview)
       #
       # # install.packages('DT', dependencies = TRUE)
-      library(DT)
 
       # install.packages('rhandsontable', dependencies = TRUE)
-      library(rhandsontable) # tabela editavel
-
-      # install.packages('shinyWidgets', dependencies = TRUE)
-      library(shinyWidgets) # botoes
-
-      # install.packages('measurements', dependencies = TRUE)
-      library(measurements)
+      # library(rhandsontable) # tabela editavel
+      #
+      # # install.packages('shinyWidgets', dependencies = TRUE)
+      # library(shinyWidgets) # botoes
+      #
+      # # install.packages('measurements', dependencies = TRUE)
+      # library(measurements)
 
       # # install.packages('downloader', dependencies = TRUE)
       # library(downloader)
 
-      options(shiny.maxRequestSize=10000*1024^2)
+      # renv::install("pablopains/parseGBIF")
+      # renv::install("matildabrown/rWCVPdata")
 
+
+      # library(parseGBIF)
+      # library(rWCVPdata)
     }
 
-    # renv::install("pablopains/parseGBIF")
-    # renv::install("matildabrown/rWCVPdata")
 
 
-    library(parseGBIF)
-    library(rWCVPdata)
 
-
+    options(shiny.maxRequestSize=10000*1024^2)
 
     # # devtools::load_all(devtools::as.package('c:/app/r'))
     #

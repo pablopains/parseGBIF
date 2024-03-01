@@ -48,9 +48,6 @@
 #' colnames(x$occ)
 #' head(x$countrycodelist)
 #' }
-#' @import leaflet
-#' @import maptools
-#' @import countrycode
 #' @import bdc
 #' @import dplyr
 #' @import plyr
