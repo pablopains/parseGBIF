@@ -36,7 +36,8 @@ You can install the development version of parseGBIF from
 run
 
 ``` r
-devtools::install_github("pablopains/parseGBIF")
+devtools::install_github("pablopains/parseGBIF",
+                           dependencies = TRUE)
 ```
 
 ## **Presentation video**
