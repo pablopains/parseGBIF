@@ -21,6 +21,7 @@
 #' @import shinydashboard
 #' @import DT
 #' @import rhandsontable
+#' @import shinyWidgets
 #' @export
 parseGBIF_app <- function()
 {
