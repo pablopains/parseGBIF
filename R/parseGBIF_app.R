@@ -23,8 +23,18 @@
 #' @import rhandsontable
 #' @import shinyWidgets
 #' @export
+
 parseGBIF_app <- function()
 {
+  require(leaflet)
+  require(shiny)
+  require(rnaturalearth)
+  require(dplyr)
+  require(readr)
+  require(shinydashboard)
+  require(DT)
+  require(rhandsontable)
+  require(shinyWidgets)
 
   {
     wd <- rnaturalearth::ne_countries(returnclass = "sf")
@@ -933,7 +943,7 @@ parseGBIF_app <- function()
 
                                                           occ <<- parsegbifLoad()
 
-                                                          summ <- parseGBIF::parseGBIF_summary(parseGBIF_all_data = occ)
+                                                          summ <- parseGBIF_summary(parseGBIF_all_data = occ)
 
                                                           summ$parseGBIF_general_summary
 
