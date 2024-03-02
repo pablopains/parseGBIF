@@ -41,7 +41,8 @@ Imports:
     CoordinateCleaner,
     sf,
     leaflet,
-    purrr
+    purrr,
+    shinyWidgets
 Remotes: 
     github::pablopains/parseGBIF
 Depends: 
