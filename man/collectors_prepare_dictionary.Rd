@@ -2,9 +2,10 @@
 % Please edit documentation in R/collectors_prepare_dictionary.R
 \name{collectors_prepare_dictionary}
 \alias{collectors_prepare_dictionary}
+\alias{collectors_prepare_dictionary_v2}
 \title{Prepare the list with the last name of the main collector}
 \usage{
-collectors_prepare_dictionary(
+collectors_prepare_dictionary_v2(
   occ = NA,
   collectorDictionary_file =
     "https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary_parseGBIF.csv",

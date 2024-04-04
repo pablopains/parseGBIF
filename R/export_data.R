@@ -158,6 +158,7 @@ export_data <- function(occ_digital_voucher_file = '',
                                                  'Ctrl_municipality',
                                                  'Ctrl_county',
                                                  'Ctrl_locality',
+                                                 'Ctrl_issue',
 
                                                  'Ctrl_level0Name',
                                                  'Ctrl_level1Name',

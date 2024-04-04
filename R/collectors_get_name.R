@@ -32,7 +32,7 @@
 #'
 #' @import stringr
 #' @export
-collectors_get_name <- function(x,
+collectors_get_name_v2 <- function(x=NA,
                                 surname_selection_type = 'largest_string', #'last_name' OR largest_string
                                 max_words_name = 6,
                                 maximum_characters_in_name = 4
@@ -40,10 +40,22 @@ collectors_get_name <- function(x,
 )
 {
 
+  # Ë
+  # Ž
+  # Ý
+
+  # REFLORA PROVISIONAL ENTRY;REFLORA PROVISIONAL ENTRY
+
+  # print(x)
+
+  if(is.na(x))
+  {return('UNKNOWN-COLLECTOR')}
+
+
   # maximum_characters_in_name <- 3
 
-  no_name = c('ET AL',
-              'AL',
+  no_name = c('AL',
+              'ALLI',
               'JR',
               'ET',
               'TEAM',
@@ -92,16 +104,7 @@ collectors_get_name <- function(x,
               'BOTANY',
               'EXPEDITION',
               'TRANSECT',
-              'COLLECTOR',
-              'ILLEGIBLE',
-              'LIEJA',
-              'ALLI',
-              'ETAL',
-              'PROF',
-
-              # [DATA NOT CAPTURED]
-
-              'HUEFS' # incluir colecões
+              'COLLECTOR'
               )
 
 
@@ -147,129 +150,143 @@ collectors_get_name <- function(x,
   }
 
   {
-  # "family": "Cooley",
-  # "given": "George R. Wood",
-  # "suffix": null,
-  # "particle": null,
-  # "dropping_particle": null,
-  # "nick": null,
-  # "appellation": null,
-  # "title": null
-  # require(stringr)
-  # require(jsonlite)
+    # "family": "Cooley",
+    # "given": "George R. Wood",
+    # "suffix": null,
+    # "particle": null,
+    # "dropping_particle": null,
+    # "nick": null,
+    # "appellation": null,
+    # "title": null
+    # require(stringr)
+    # require(jsonlite)
 
-  # bionomia_result <- ''
-  #
-  # if (bionomia == TRUE)
-  # {
-  # # x <- 'Monro, A. & Melo, P.H.A'
-  #   x <- 'PEDRO ACEVEDO-RODRÍGUEZ;SCOTT A. MORI;CAROL A. GRACIE;BOBBI ANGELL;P. ANDERSON;ERIC J. GOUDA;A. R. A. GÖRTS-VAN RIJN'
-  #
-  #   x <- ''
-  #
-  # x_bionomia <- x
-  #
-  # if(length(grep("&",x))>0)
-  # {
-  #   x_bionomia <- gsub("&","+",x_bionomia)
-  # }else if(length(grep("\\|",x))>0)
-  # {
-  #   x_bionomia <- gsub("\\|","+",x_bionomia)
-  # }else if(length(grep(";",x))>0)
-  # {
-  #   x_bionomia <- gsub(";","+",x_bionomia)
-  # }
-  #
-  # # ' AND '
-  #
-  #
-  # base_url <- "https://api.bionomia.net/parse.json?names=%s"
-  # bionomia_url <- sprintf(base_url,  list(page = x_bionomia))
-  # bionomia_url <- gsub(' ', "%20", bionomia_url)
-  # bionomia_result <- jsonlite::read_json(bionomia_url)
-  #
-  # # bionomia_result[[1]][['parsed']][[1]]
-  #
-  #
-  #
-  # # https://api.bionomia.net/reconcile?queries=%7B%22q0%22%3A%7B%22query%22%3A%22ABBE+LB%22%2C%22type%22%3A%22http%3A%2F%2Fschema.org%2FPerson%22%7D%7D
-  #
-  # }
-}
-
-  {
-
-  x = gsub("[?]","",x) # teste pablo 10-02-2020
-
-  x = gsub("[.]"," ",x) # teste pablo 10-02-2020
-
-  if (length(grep("\\|",x))>0)
-  {
-    x = strsplit(x,"\\|")[[1]][1]
+    # bionomia_result <- ''
+    #
+    # if (bionomia == TRUE)
+    # {
+    # # x <- 'Monro, A. & Melo, P.H.A'
+    #   x <- 'PEDRO ACEVEDO-RODRÍGUEZ;SCOTT A. MORI;CAROL A. GRACIE;BOBBI ANGELL;P. ANDERSON;ERIC J. GOUDA;A. R. A. GÖRTS-VAN RIJN'
+    #
+    #   x <- ''
+    #
+    # x_bionomia <- x
+    #
+    # if(length(grep("&",x))>0)
+    # {
+    #   x_bionomia <- gsub("&","+",x_bionomia)
+    # }else if(length(grep("\\|",x))>0)
+    # {
+    #   x_bionomia <- gsub("\\|","+",x_bionomia)
+    # }else if(length(grep(";",x))>0)
+    # {
+    #   x_bionomia <- gsub(";","+",x_bionomia)
+    # }
+    #
+    # # ' AND '
+    #
+    #
+    # base_url <- "https://api.bionomia.net/parse.json?names=%s"
+    # bionomia_url <- sprintf(base_url,  list(page = x_bionomia))
+    # bionomia_url <- gsub(' ', "%20", bionomia_url)
+    # bionomia_result <- jsonlite::read_json(bionomia_url)
+    #
+    # # bionomia_result[[1]][['parsed']][[1]]
+    #
+    #
+    #
+    # # https://api.bionomia.net/reconcile?queries=%7B%22q0%22%3A%7B%22query%22%3A%22ABBE+LB%22%2C%22type%22%3A%22http%3A%2F%2Fschema.org%2FPerson%22%7D%7D
+    #
+    # }
   }
 
-  x = toupper(x)
-
-  x = gsub("COLLECTOR\\(S\\)\\: ","",x)
-  x = gsub("COLLECTOR\\(S\\)\\:","",x)
-
-
-  x = gsub("COLLECTORS\\: ","",x)
-  x = gsub("COLLECTORS\\:","",x)
-
-  x = gsub("COLLABORATION; ","",x)
-  x = gsub("COLLABORATION;","",x)
-
-
-  x_s <- str_locate(x,'\\(')[2]
-  x_e <- str_locate(x,'\\)')[2]
-
-  if(!is.na(x_s) & !is.na(x_e))
   {
-    if (x_s>0 & x_e>0)
+
+    x = gsub("[?]","",x) # teste pablo 10-02-2020
+    x = sub('?','',x)
+
+    x = gsub("[.]"," ",x) # teste pablo 10-02-2020
+
+    if(nchar(x)==0)
+    {return('UNKNOWN-COLLECTOR')}
+
+    if (length(grep("\\|",x))>0)
     {
-      x <- str_sub(x, 1, x_s-1)
-      if(substr(x, nchar(x),nchar(x))==' ')
-      {
-        x <- substr(x, 1,nchar(x)-1)
-      }
+      x = strsplit(x,"\\|")[[1]][1]
     }
 
-  }
+    x = toupper(x)
 
-  x = gsub("PROJETO FLORA CRISTALINO; ","",x)
-  x = gsub("PROJETO FLORA CRISTALINO;","",x)
+    x = gsub("COLLECTOR\\(S\\)\\: ","",x)
+    x = gsub("COLLECTOR\\(S\\)\\:","",x)
 
 
-  x = gsub( "ET AL.; ","",x)
-  x = gsub( "ET AL.;","",x)
+    x = gsub("COLLECTORS\\: ","",x)
+    x = gsub("COLLECTORS\\:","",x)
+    x = gsub("COLLECTORS:","",x)
 
-  # x = gsub("[á|à|â|ã|ä]","a",x)
-  x = gsub("[Á|À|Â|Ã|Ä]","A",x)
+    x = gsub("COLLABORATION; ","",x)
+    x = gsub("COLLABORATION;","",x)
 
-  # x = gsub("[ó|ò|ô|õ|ö]","o",x)
-  x = gsub("[Ó|Ò|Ô|Õ|Ö]","O",x)
+    x = gsub("\\[\\]\\, ","",x)
 
-  # x = gsub("[í|ì|î|ï]","i",x)
-  x = gsub("[Í|Ì|Î|Ï]","I",x)
+    x = gsub("\\[AND\\]","",x)
 
-  # x = gsub("[ú|ù|û|ü]","u",x)
-  x = gsub("[Ú|Ù|Û|Ü]","U",x)
 
-  # x = gsub("[é|è|ê|ë]","e",x)
-  x = gsub("[Ĕ|É|È|Ê|Ë]","E",x)
 
-  # x = gsub("ñ","n",x)
-  x = gsub("Ñ","N",x)
 
-  # x = gsub("ç","c",x)
-  x = gsub("Ç","C",x)
+    x_s <- str_locate(x,'\\(')[2]
+    x_e <- str_locate(x,'\\)]')[2]
 
-  x = gsub("\\(|\\)"," ",x) # teste pablo 10-02-2020
-  x = gsub("\\[|\\]"," ",x) # teste pablo 10-02-2020
-  x = gsub("[\"]"," ",x) # teste pablo 10-02-2020
+    if(!is.na(x_s) & !is.na(x_e) & x_s !=1)
+    {
+      if (x_s>0 & x_e>0)
+      {
+        x <- str_sub(x, 1, x_s-1)
+        if(substr(x, nchar(x),nchar(x))==' ')
+        {
+          x <- substr(x, 1,nchar(x)-1)
+        }
+      }
 
-  # 16-11-2023
+    }
+
+    x = gsub("PROJETO FLORA CRISTALINO; ","",x)
+    x = gsub("PROJETO FLORA CRISTALINO;","",x)
+
+
+    x = gsub( "ET AL.; ","",x)
+    x = gsub( "ET AL.;","",x)
+
+    # x = gsub("[á|à|â|ã|ä]","a",x)
+    x = gsub("[Á|À|Â|Ã|Ä]","A",x)
+
+    # x = gsub("[ó|ò|ô|õ|ö]","o",x)
+    x = gsub("[Ó|Ò|Ô|Õ|Ö]","O",x)
+
+    # x = gsub("[í|ì|î|ï]","i",x)
+    x = gsub("[Í|Ì|Î|Ï]","I",x)
+
+    # x = gsub("[ú|ù|û|ü]","u",x)
+    x = gsub("[Ú|Ù|Û|Ü]","U",x)
+
+    # x = gsub("[é|è|ê|ë]","e",x)
+    x = gsub("[É|È|Ê|Ë]","E",x)
+
+    # x = gsub("ñ","n",x)
+    x = gsub("Ñ","N",x)
+
+    # x = gsub("ç","c",x)
+    x = gsub("Ç","C",x)
+
+    x = gsub("\\(|\\)"," ",x) # teste pablo 10-02-2020
+    x = gsub("\\[|\\]"," ",x) # teste pablo 10-02-2020
+    x = gsub("[\"]"," ",x) # teste pablo 10-02-2020
+
+
+    x = gsub("\\{|\\}"," ",x)
+
+    # 16-11-2023
 
     x = gsub("Ē","E",x)
     x = gsub("Ņ","N",x)
@@ -309,34 +326,7 @@ collectors_get_name <- function(x,
 
     x = gsub("Å","A",x)
 
-    x = gsub("ß","SS",x)
-
-    x = gsub("Ž","Z",x)
-
-    x = gsub("Ļ","L",x)
-
-    x = gsub("Ð","D",x)
-
-    x = gsub("Æ","E",x)
-
-    x = gsub("Þ","B",x)
-
-    x = gsub("Ý","Y",x)
-
-    x = gsub("Ī","I",x)
-
-    x = gsub("Ū","U",x)
-
-    x = gsub("Ţ","T",x)
-
-
-
-
-    # LIEJA	Y. GUILLEVIC [LIEJA 17529]
-
-    # <TD><TD>
-
-
+    x = gsub("Ÿ","Y",x)
 
 
 
@@ -348,11 +338,8 @@ collectors_get_name <- function(x,
     x = gsub("  "," ",x)
 
   }
-
-  if(is.na(x))
-  {return('UNKNOWN-COLLECTOR')}
-
-  if(x=='')
+  # aqui
+  if(nchar(x)==0)
   {return('UNKNOWN-COLLECTOR')}
 
   if (length(grep("&",x))>0)
@@ -390,10 +377,6 @@ collectors_get_name <- function(x,
   {
     x = strsplit(x," , ")[[1]][1]
   }
-
-
-  # ' Y '
-  # '/ '
 
   # if (length(grep("  ",x, fixed = T))>0)
   # {

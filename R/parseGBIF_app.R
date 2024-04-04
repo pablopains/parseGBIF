@@ -223,8 +223,10 @@ parseGBIF_app <- function()
       spp <<- {}
 
       spp_list <<- {}
+      fam_list <<- {}
 
       sp_sel <<- ''
+      fam_sel <<- ''
 
       dataset_map_list <<- {}
 
@@ -616,6 +618,10 @@ parseGBIF_app <- function()
                                     box(status = "primary", width = 12,
                                         title = 'Lista de espécies',# background = 'navy', # red, yellow, aqua, blue, light-blue, green, navy, teal, olive, lime, orange, fuchsia, purple, maroon, black.
 
+                                        selectInput("fam_map", label = 'Selecione uma família:',
+                                                    choices = fam_list,
+                                                    selected = fam_list[1]),
+
                                         selectInput("sp_map", label = 'Selecione uma espécie:',
                                                     choices = spp_list,
                                                     selected = spp_list[1]),
@@ -888,6 +894,7 @@ parseGBIF_app <- function()
 
 
                              spp <<- occ %>%
+                               # dplyr::filter( ) %>%
                                dplyr::select(parseGBIF_wcvp_family, parseGBIF_sample_taxon_name) %>%
                                dplyr::distinct(parseGBIF_wcvp_family, parseGBIF_sample_taxon_name ) %>%
                                dplyr::arrange_all()
@@ -897,6 +904,15 @@ parseGBIF_app <- function()
                              updateSelectInput(session = session,
                                                inputId = "sp_map",
                                                choices = spp_list,
+                                               selected = tail(spp_list, 1))
+
+
+
+                             fam_list <<- as.character(spp$parseGBIF_wcvp_family %>% union_all())
+
+                             updateSelectInput(session = session,
+                                               inputId = "fam_map",
+                                               choices = fam_list,
                                                selected = tail(spp_list, 1))
 
                              incProgress(1, detail = 'ok')

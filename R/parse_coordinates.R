@@ -56,7 +56,7 @@
 #' @import sf
 #' @import readr
 #' @export
-parse_coordinates <- function(occ = NA,
+  parse_coordinates_2 <- function(occ = NA,
                              file_occ = NA,
                              iso2_field_name = 'Ctrl_countryCode',
                              # centroids = NA,
@@ -134,7 +134,7 @@ parse_coordinates <- function(occ = NA,
                   .cen = FALSE,
                   .cap = FALSE,
                   .urb = FALSE,
-                  .con = FALSE,
+                  # .con = TRUE,
                   .inst = FALSE,
                   .dup = FALSE,
                   parseGBIF_coordinate_status = '',
@@ -200,15 +200,15 @@ parse_coordinates <- function(occ = NA,
     occ_cc$.dup[index==TRUE] <- CoordinateCleaner::cc_dupl(x=occ_cc[index==TRUE,],
                                                            value = 'flagged')
 
-    # This country test takes a long time to run
-    index <- index == TRUE & occ_cc$parseGBIF_countryCode_ISO3!=''
-    occ_cc$.con[index==TRUE] <- CoordinateCleaner::cc_coun(x = occ_cc[index==TRUE,],
-                                                           lon = "decimalLongitude",
-                                                           lat = "decimalLatitude",
-                                                           iso3 = "parseGBIF_countryCode_ISO3",
-                                                           value = "flagged",
-                                                           ref = rnaturalearth::ne_countries(scale = "medium"),# +proj=longlat +datum=WGS84 +no_defs
-                                                           ref_col = "iso_a3")
+    # # This country test takes a long time to run
+    # index <- index == TRUE & occ_cc$parseGBIF_countryCode_ISO3!=''
+    # occ_cc$.con[index==TRUE] <- CoordinateCleaner::cc_coun(x = occ_cc[index==TRUE,],
+    #                                                        lon = "decimalLongitude",
+    #                                                        lat = "decimalLatitude",
+    #                                                        iso3 = "parseGBIF_countryCode_ISO3",
+    #                                                        value = "flagged",
+    #                                                        ref = rnaturalearth::ne_countries(scale = "medium"),# +proj=longlat +datum=WGS84 +no_defs
+    #                                                        ref_col = "iso_a3")
     }
 
   # occ e sp por ponto, se proximo de centroid
@@ -382,7 +382,7 @@ parse_coordinates <- function(occ = NA,
     ####
 
     geo_issue <- !(occ_cc$.val==FALSE | occ_cc$.equ==FALSE | occ_cc$.zer==FALSE | occ_cc$.coordinates_outOfRange==FALSE)
-    geo_issue_urb <- !(occ_cc$.cen==FALSE | occ_cc$.cap==FALSE | occ_cc$.urb==FALSE | occ_cc$.inst==FALSE | occ_cc$.con==FALSE | occ_cc$.sea==FALSE)
+    geo_issue_urb <- !(occ_cc$.cen==FALSE | occ_cc$.cap==FALSE | occ_cc$.urb==FALSE | occ_cc$.inst==FALSE | occ_cc$.sea==FALSE)
 
     occ_cc$parseGBIF_coordinate_status <- ifelse(geo_issue==FALSE,'danger',ifelse(geo_issue_urb==FALSE,'warning','success'))
 
@@ -402,7 +402,7 @@ parse_coordinates <- function(occ = NA,
                                           parseGBIF_GADM_centroids_level,
                                           parseGBIF_coordinate_status,
                                           .coordinates_outOfRange,
-                                          .val,.zer,.sea,.equ,.cen,.cap,.urb,.con,.inst,.dup),
+                                          .val,.zer,.sea,.equ,.cen,.cap,.urb,.inst,.dup),
                  occ)
 
     occ$parseGBIF_useful_for_spatial_analysis <- ifelse(geo_issue==FALSE,geo_issue, occ$parseGBIF_useful_for_spatial_analysis)
@@ -415,7 +415,6 @@ parse_coordinates <- function(occ = NA,
     print(paste0('.equ', '-', occ_cc %>% dplyr::filter(.equ == FALSE) %>% NROW()))
     print(paste0('.cap', '-', occ_cc %>% dplyr::filter(.cap == FALSE) %>% NROW()))
     print(paste0('.urb', '-', occ_cc %>% dplyr::filter(.urb == FALSE) %>% NROW()))
-    print(paste0('.con', '-', occ_cc %>% dplyr::filter(.con == FALSE) %>% NROW()))
     print(paste0('.inst', '-', occ_cc %>% dplyr::filter(.inst == FALSE) %>% NROW()))
     print(paste0('.dup', '-', occ_cc %>% dplyr::filter(.dup == FALSE) %>% NROW()))
     print(paste0('.sea', '-', occ_cc %>% dplyr::filter(.sea == FALSE) %>% NROW()))

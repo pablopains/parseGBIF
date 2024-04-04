@@ -2,10 +2,11 @@
 % Please edit documentation in R/collectors_get_name.R
 \name{collectors_get_name}
 \alias{collectors_get_name}
+\alias{collectors_get_name_v2}
 \title{Get the last name of the main collector}
 \usage{
-collectors_get_name(
-  x,
+collectors_get_name_v2(
+  x = NA,
   surname_selection_type = "largest_string",
   max_words_name = 6,
   maximum_characters_in_name = 4

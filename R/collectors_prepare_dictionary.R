@@ -72,36 +72,36 @@
 #'           na = "")
 #'}
 #' @export
-collectors_prepare_dictionary <- function(occ=NA,
+collectors_prepare_dictionary_v2 <- function(occ=NA,
                                           collectorDictionary_file = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary_parseGBIF.csv',
                                           silence = TRUE)
 {
-  
+
   require(stringr)
   # require(googlesheets4)
-  
+
   require(dplyr)
-  
+
   #require(textclean)
-  
+
   require(rscopus)
-  
+
   if(! silence == TRUE)
   {
     print('Loading collectorDictionary...')
   }
-  
+
   if(collectorDictionary_file=='' | is.na(collectorDictionary_file) )
   {
     stop("Invalid Collector's Dictionary!")
-    
+
   }
-  
+
   collectorDictionary <- readr::read_csv(collectorDictionary_file,
                                          locale = readr::locale(encoding = 'UTF-8'),
                                          show_col_types = FALSE)
-  
-  
+
+
   if(NROW(collectorDictionary)==0 | any(colnames(collectorDictionary) %in% c('Ctrl_nameRecordedBy_Standard',
                                                                              'Ctrl_recordedBy',
                                                                              'Ctrl_notes',
@@ -114,40 +114,40 @@ collectors_prepare_dictionary <- function(occ=NA,
   {
     stop("CollectorDictionary is empty!")
   }
-  
+
   collectorDictionary <- collectorDictionary %>%
     dplyr::mutate(Ctrl_recordedBy = Ctrl_recordedBy %>% toupper()) %>%
     data.frame()
-  
+
   if(NROW(occ)==0)
   {
     stop("Occurrence is empty!")
   }
-  
+
   collectorDictionary <- collectorDictionary %>%
     dplyr::rename(Ctrl_nameRecordedBy_Standard_x = Ctrl_nameRecordedBy_Standard)
-  
+
   if(! silence == TRUE)
   {
     print("Extracting the main collector's surname....")
   }
-  
+
   Ctrl_lastNameRecordedBy <- lapply(occ$Ctrl_recordedBy %>%
                                       toupper() %>%
                                       unique(),
-                                    collectors_get_name) %>%
+                                    collectors_get_name_v2) %>%
     do.call(rbind.data.frame, .)
-  
+
   #   recordedBy_Standart <- data.frame(
   #      Ctrl_nameRecordedBy_Standard =  textclean::replace_non_ascii(toupper(Ctrl_lastNameRecordedBy[,1])),
   #      Ctrl_recordedBy = occ$Ctrl_recordedBy %>% toupper() %>% unique(),
   #      stringsAsFactors = FALSE)
-  
+
   recordedBy_Standart <- data.frame(
     Ctrl_nameRecordedBy_Standard =  rscopus::replace_non_ascii(toupper(Ctrl_lastNameRecordedBy[,1])),
     Ctrl_recordedBy = occ$Ctrl_recordedBy %>% toupper() %>% unique(),
     stringsAsFactors = FALSE)
-  
+
   recordedBy_Standart <- dplyr::left_join(recordedBy_Standart,
                                           collectorDictionary,
                                           by = c('Ctrl_recordedBy')) %>%
@@ -185,6 +185,6 @@ collectors_prepare_dictionary <- function(occ=NA,
                   Ctrl_fullName,
                   Ctrl_fullNameII,
                   CVStarrVirtualHerbarium_PersonDetails)
-  
+
   return(recordedBy_Standart)
 }
