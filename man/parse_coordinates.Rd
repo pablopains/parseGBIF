@@ -2,10 +2,9 @@
 % Please edit documentation in R/parse_coordinates.R
 \name{parse_coordinates}
 \alias{parse_coordinates}
-\alias{parse_coordinates_2}
 \title{Checking coordinates, centroids, artificial points and others}
 \usage{
-parse_coordinates_2(
+parse_coordinates(
   occ = NA,
   file_occ = NA,
   iso2_field_name = "Ctrl_countryCode",

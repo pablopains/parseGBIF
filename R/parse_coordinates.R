@@ -56,7 +56,7 @@
 #' @import sf
 #' @import readr
 #' @export
-  parse_coordinates_2 <- function(occ = NA,
+  parse_coordinates <- function(occ = NA,
                              file_occ = NA,
                              iso2_field_name = 'Ctrl_countryCode',
                              # centroids = NA,
