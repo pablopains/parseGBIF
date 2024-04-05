@@ -808,6 +808,7 @@ select_digital_voucher <-  function(occ = NA,
                       Ctrl_scientificName,
                       Ctrl_decimalLatitude,
                       Ctrl_decimalLongitude,
+                      Ctrl_issue,
 
                       Ctrl_taxonRank,
 
