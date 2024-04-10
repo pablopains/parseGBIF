@@ -2465,7 +2465,7 @@ parseGBIF_app <- function()
 
 
         output$filtered_row <- renderPrint({
-          invisible(input[["occ_all_parseGBIFContents_rows_all"]])
+                    input[["occ_all_parseGBIFContents_rows_all"]]
           })
 
 
