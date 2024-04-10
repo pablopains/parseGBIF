@@ -1913,7 +1913,7 @@ parseGBIF_app <- function()
                                    '.cen',
                                    '.cap',
                                    '.urb',
-                                   '.con',
+                                   # '.con',
                                    '.inst',
                                    '.dup',
                                    '.coordinates_outOfRange',
@@ -1981,7 +1981,7 @@ parseGBIF_app <- function()
                                              parseGBIF_GADM_centroids_level,
                                              parseGBIF_coordinate_status,
                                              .coordinates_outOfRange,
-                                             .val,.zer,.sea,.equ,.cen,.cap,.urb,.con,.inst,.dup,
+                                             .val,.zer,.sea,.equ,.cen,.cap,.urb,.inst,.dup,
 
                                              point_11_1_km,
                                              n_taxon_name_11_1_km,
@@ -2231,7 +2231,7 @@ parseGBIF_app <- function()
           # geo_issue_urb <- dt$.cen & dt$.cap & dt$.urb & dt$.inst & dt$.con & dt$.sea
 
           geo_issue <- !(dt$.val==FALSE | dt$.equ==FALSE | dt$.zer==FALSE | dt$.coordinates_outOfRange==FALSE)
-          geo_issue_urb <- !(dt$.cen==FALSE | dt$.cap==FALSE | dt$.urb==FALSE | dt$.inst==FALSE | dt$.con==FALSE | dt$.sea==FALSE | dt$parseGBIF_GADM_centroids==FALSE)
+          geo_issue_urb <- !(dt$.cen==FALSE | dt$.cap==FALSE | dt$.urb==FALSE | dt$.inst==FALSE | dt$.sea==FALSE | dt$parseGBIF_GADM_centroids==FALSE)
 
           # https://getbootstrap.com/docs/5.3/components/alerts/
           etiquetaTextoBtn <- paste0('Unique Collection Event: <b>', dt$Ctrl_key_family_recordedBy_recordNumber,'</b></br>',
@@ -2248,7 +2248,7 @@ parseGBIF_app <- function()
 
                                      '<div class=',ifelse(geo_issue==FALSE,'"alert alert-danger"',ifelse(geo_issue_urb==FALSE,'"alert alert-warning"','"alert alert-success"')),' role="alert"> Questions about geographic coordinates ',unique(dt$parseGBIF_coordinate_status) ,' </div>',
                                      # '<div class="alert alert-danger" role="alert"> Possibly Artificial or Attributed later </div>',
-                                     'val: ',dt$.val,"  /  ", 'equ: ',dt$.equ,"  /  ",'zer: ',dt$.zer,"  /  ", 'con: ',dt$.con,"</br>",
+                                     'val: ',dt$.val,"  /  ", 'equ: ',dt$.equ,"  /  ",'zer: ',dt$.zer,"  /  ", "</br>",
                                      'sea: ',dt$.sea,"  /  ", 'cen: ',dt$.cen,"  /  ",'cap: ',dt$.cap,"  /  ", 'urb: ',dt$.urb,"</br>",
                                      'inst: ',dt$.inst, "  /  ", 'dup: ',dt$.dup, "</br>",
                                      '.coordinates_outOfRange: ', dt$.coordinates_outOfRange, '  /  ', 'parseGBIF_GADM_centroids: ', dt$parseGBIF_GADM_centroids)
@@ -2355,21 +2355,21 @@ parseGBIF_app <- function()
                       choices = c('gbif_url',col_all),
                       options = list(`actions-box` = TRUE),
                       multiple = T,
-                      selected = c('gbif_url',
-                        'parseGBIF_dataset_result',
-                                   'parseGBIF_sample_taxon_name_status',
-                                   'parseGBIF_digital_voucher',
-                                   'parseGBIF_merged',
-                                   'Ctrl_key_family_recordedBy_recordNumber',
+                      selected = c('Ctrl_key_family_recordedBy_recordNumber',
+                                   'gbif_url',
+                                   'parseGBIF_dataset_result',
+                                   # 'parseGBIF_sample_taxon_name_status',
+                                   # 'parseGBIF_digital_voucher',
+                                   # 'parseGBIF_merged',
                                    'parseGBIF_wcvp_family',
                                    'parseGBIF_sample_taxon_name',
-                                   'parseGBIF_useful_for_spatial_analysis',
-                                   'parseGBIF_decimalLatitude',
-                                   'parseGBIF_decimalLongitude',
-                                   'parseGBIF_digital_voucher',
-                                   'parseGBIF_duplicates',
-                                   'parseGBIF_num_duplicates',
-                                   'parseGBIF_duplicates_grouping_status',
+                                   # 'parseGBIF_useful_for_spatial_analysis',
+                                   # 'parseGBIF_decimalLatitude',
+                                   # 'parseGBIF_decimalLongitude',
+                                   # 'parseGBIF_digital_voucher',
+                                   # 'parseGBIF_duplicates',
+                                   # 'parseGBIF_num_duplicates',
+                                   # 'parseGBIF_duplicates_grouping_status',
 
                                    'Ctrl_eventDate',
 
@@ -2393,7 +2393,7 @@ parseGBIF_app <- function()
                                    '.cen',
                                    '.cap',
                                    '.urb',
-                                   '.con',
+                                   # '.con',
                                    '.inst',
                                    '.dup',
                                    '.coordinates_outOfRange',
