@@ -23,7 +23,7 @@
 #' @import rhandsontable
 #' @import shinyWidgets
 #' @export
-parseGBIF_app <- function()
+parseGBIF_app2 <- function()
 {
   require(leaflet)
   require(shiny)
@@ -814,7 +814,8 @@ parseGBIF_app <- function()
 
                                           DT::dataTableOutput('occ_all_parseGBIFContents'),
 
-                                          verbatimTextOutput("filtered_row")
+                                          verbatimTextOutput("filtered_row",
+                                                             vi)
 
                                       ),
 
@@ -2451,7 +2452,7 @@ parseGBIF_app <- function()
 
         output$save_tableDownload <- downloadHandler(
           filename = function() {
-            paste("parse_gbif_occ - ", Sys.Date(), ".csv", sep="")
+            paste("parseGBIF_", Sys.Date(), ".csv", sep="")
           },
           content = function(file) {
             # write.csv(parsegbifLoad2() %>%
@@ -2464,8 +2465,8 @@ parseGBIF_app <- function()
 
 
         output$filtered_row <- renderPrint({
-          input[["occ_all_parseGBIFContents_rows_all"]]
-        })
+          invisible(input[["occ_all_parseGBIFContents_rows_all"]])
+          })
 
 
         # observeEvent(input$x1_cell_clicked, {
