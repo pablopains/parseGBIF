@@ -2488,4 +2488,4 @@ parseGBIF_app <- function()
   shinyApp(ui = ui, server = server)
 
 }
-# parseGBIF_app2()
+
