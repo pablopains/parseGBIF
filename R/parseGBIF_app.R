@@ -23,7 +23,7 @@
 #' @import rhandsontable
 #' @import shinyWidgets
 #' @export
-parseGBIF_app2 <- function()
+parseGBIF_app <- function()
 {
   require(leaflet)
   require(shiny)
