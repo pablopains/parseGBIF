@@ -238,9 +238,9 @@ parseGBIF_app <- function()
                    'parseGBIF_sample_taxon_name',
 
                    'parseGBIF_digital_voucher',
-                   'parseGBIF_duplicates',
-                   'parseGBIF_num_duplicates',
-                   'parseGBIF_duplicates_grouping_status',
+                   'parseGBIF_cates',
+                   'parseGBIF_num_cates',
+                   'parseGBIF_cates_grouping_status',
                    'parseGBIF_merged',
 
                    'Ctrl_eventDate',
@@ -2464,7 +2464,7 @@ parseGBIF_app <- function()
 
 
         output$filtered_row <- renderPrint({
-          invisible(input[["occ_all_parseGBIFContents_rows_all"]])
+          input[["occ_all_parseGBIFContents_rows_all"]]
           })
 
 
