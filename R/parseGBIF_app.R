@@ -636,7 +636,7 @@ parseGBIF_app <- function()
                                                               br(),
                                                               downloadButton("duplicatesDownload", "Download duplicates")),
 
-                                                     tabPanel("Useable Data",
+                                                     tabPanel("Unusable Data",
                                                               DT::dataTableOutput( 'unusable_data_mergeContents'),
                                                               br(),
                                                               downloadButton("unusable_data_mergeDownload", "Download unusable data")),
@@ -814,8 +814,7 @@ parseGBIF_app <- function()
 
                                           DT::dataTableOutput('occ_all_parseGBIFContents'),
 
-                                          verbatimTextOutput("filtered_row",
-                                                             vi)
+                                          verbatimTextOutput("filtered_row")
 
                                       ),
 
@@ -2336,7 +2335,7 @@ parseGBIF_app <- function()
 
               showModal(modalDialog(
                 title = "All ready!",
-                paste0("Exlore all 'Unique Collection Events' and their duplicates on the table."),
+                paste0("Explore all the 'Exclusive Collection Events' in the table."),
                 easyClose = TRUE,
                 footer = NULL
               ))
@@ -2465,7 +2464,7 @@ parseGBIF_app <- function()
 
 
         output$filtered_row <- renderPrint({
-                    input[["occ_all_parseGBIFContents_rows_all"]]
+          invisible(input[["occ_all_parseGBIFContents_rows_all"]])
           })
 
 
