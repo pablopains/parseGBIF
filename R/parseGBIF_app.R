@@ -221,6 +221,8 @@ parseGBIF_app <- function()
       occ <<- {}
       spp <<- {}
 
+      fam_spp_list <<- {}
+
       spp_list <<- {}
       fam_list <<- {}
 
@@ -816,6 +818,9 @@ parseGBIF_app <- function()
 
                                         # verbatimTextOutput('parseGBIFText', placeholder = FALSE)
 
+                                        DT::dataTableOutput('parseGBIFContents'),
+
+
 
                                     ),
 
@@ -823,22 +828,22 @@ parseGBIF_app <- function()
                                     box(status = "primary", width = 12,
                                         title = 'List of species',# background = 'navy', # red, yellow, aqua, blue, light-blue, green, navy, teal, olive, lime, orange, fuchsia, purple, maroon, black.
 
-                                        selectInput("fam_map", label = 'Select a family:',
-                                                    choices = fam_list,
-                                                    selected = fam_list[1]),
-
-                                        selectInput("sp_map", label = 'Select a species:',
-                                                    choices = spp_list,
-                                                    selected = spp_list[1]),
+                                        selectInput("projetcion_map", label = 'Projection geographic:',
+                                                    choices = c('Mercator','Mollweide'),
+                                                    multiple = FALSE,
+                                                    selected = 'Mercator'),
 
                                         selectInput("sel_dataset_map", label = 'Record type (arseGBIF_dataset_result):',
                                                     choices = c('useable','duplicate','unusable'),
                                                     multiple = TRUE,
                                                     selected = c('useable','duplicate','unusable')),
-                                        br(),
-                                        br(),
-                                        br(),
-                                        br(),
+
+
+                                        # br(),
+                                        # br(),
+                                        # br(),
+                                        # br(),
+
 
                                         box(status = "primary", width = 12,
                                             title = 'Unique Collection Events',# background = 'navy', # red, yellow, aqua, blue, light-blue, green, navy, teal, olive, lime, orange, fuchsia, purple, maroon, black.
@@ -850,10 +855,17 @@ parseGBIF_app <- function()
                                                                     status = "primary",
                                                                     width = 12,
 
-                                                                    selectInput("projetcion_map", label = 'Projection geographic:',
-                                                                                choices = c('Mercator','Mollweide'),
-                                                                                multiple = FALSE,
-                                                                                selected = 'Mercator'),
+                                                                    selectInput("fam_map", label = 'Select a family:',
+                                                                                choices = fam_list,
+                                                                                selected = tail(fam_list, 1) ),
+
+                                                                    uiOutput("forMenu"),
+
+                                                                    # selectInput("sp_map",
+                                                                    #             label = 'Select a species:',
+                                                                    #             choices = list(label=fam_spp_list,
+                                                                    #                            choices=spp_list)),
+
                                                                     br(),
 
                                                                     leafletOutput("parseGBIFMap", width = "100%", height = "550px")
@@ -874,8 +886,7 @@ parseGBIF_app <- function()
                                         ),
 
 
-
-                                        DT::dataTableOutput('parseGBIFContents'),
+                                        textOutput("texto_ssp"),
 
                                     ),
 
@@ -1967,6 +1978,48 @@ parseGBIF_app <- function()
       # maps
       {
 
+        output$forMenu    <- renderUI({createSelectRadio(1)})
+
+        createSelectRadio <- function(id, title){
+
+          fam_map_ID <- paste0('fam_map_ID',id)
+          sp_map_ID <- paste0('sp_map_ID',id)
+
+          # spp_list <<- as.character(spp$parseGBIF_sample_taxon_name[parseGBIF_wcvp_family %>% input$fam_map])
+
+
+          res <- list(
+            # selectInput("fam_map",
+            #             label = 'Select a family:',
+            #             choices = colSearch_sel()[['fam_list']]),
+
+            selectInput("sp_map",
+                        label = 'Select a species:',
+                        choices = colSearch_sel())
+
+            # selectInput(inputId = selectID, label="", choices = sample(LETTERS, 3)),
+            # radioButtons(inputId = radioID, label="", choices = sample(letters,3)),
+            # checkboxInput(inputId = checkID, label="", value=TRUE)
+          )
+
+          return(res)
+        }
+
+        output$texto_ssp <- renderText(colSearch_sel())
+
+        colSearch_sel <- reactive({
+          # req(input$fam_map)
+
+          spp_list <<- as.character(spp$parseGBIF_sample_taxon_name[spp$parseGBIF_wcvp_family %in% input$fam_map])
+
+          # updateSelectInput(session = session,
+          #                   inputId = "sp_map",
+          #                   choices = spp_list)#,
+
+          return(spp_list)
+        })
+
+
         output$picker <- renderUI({
           req(input$parseGBIFFile)
           pickerInput(inputId = 'pick',
@@ -2272,20 +2325,11 @@ parseGBIF_app <- function()
                              #                              link <- paste0('<div class="alert alert-primary" role="alert"> ',
                              #                                             "GBIF record: <a href='", url, "'target='_blank'> ", occurrenceID," </a></div>")
 
-
                              spp <<- occ %>%
-                               # dplyr::filter( ) %>%
+                               # dplyr::filter(parseGBIF_wcvp_family %in% spp_list[1]) %>%#input$fam_map) %>%
                                dplyr::select(parseGBIF_wcvp_family, parseGBIF_sample_taxon_name) %>%
                                dplyr::distinct(parseGBIF_wcvp_family, parseGBIF_sample_taxon_name ) %>%
                                dplyr::arrange_all()
-
-                             spp_list <<- as.character(spp$parseGBIF_sample_taxon_name)
-
-                             updateSelectInput(session = session,
-                                               inputId = "sp_map",
-                                               choices = spp_list,
-                                               selected = tail(spp_list, 1))
-
 
 
                              fam_list <<- as.character(spp$parseGBIF_wcvp_family) %>% unique()
@@ -2293,8 +2337,27 @@ parseGBIF_app <- function()
                              updateSelectInput(session = session,
                                                inputId = "fam_map",
                                                choices = fam_list,
-                                               selected = tail(spp_list, 1))
+                                               selected = tail(fam_list, 1))
+                                               # selected = fam_list[1])
+                             #
 
+
+                             #
+                             # fam_spp_list <<- paste0(as.character(spp$parseGBIF_wcvp_family), ' - ', as.character(spp$parseGBIF_sample_taxon_name) )
+                             #
+                             # spp_list <<- as.character(spp$parseGBIF_sample_taxon_name)
+                             #
+                             # updateSelectInput(session = session,
+                             #                   inputId = "sp_map",
+                             #
+                             #                   choices = list(label=fam_spp_list,
+                             #                                  choices=spp_list))#,
+                             #                   # selected = spp_list[1])
+
+
+
+
+                                               # fam_map
                              incProgress(1, detail = 'ok')
                            })
 
@@ -2355,6 +2418,7 @@ parseGBIF_app <- function()
 
           # print(input$sp_map)
           # print(input$sel_dataset_map)
+
 
 
           dt <- occ %>%
@@ -2498,9 +2562,24 @@ parseGBIF_app <- function()
 
                              # occ <<- read.csv(file = 'C:\\Dados\\Kew\\Bahamas\\dataGBIF\\parseGBIF_7_parse_coordinates_Bahamas.csv',
                                occ_tab <<- read.csv(file = input$parseGBIFFile2$datapath, #'C:\\Dados\\Kew\\Bolivia\\dataGBIF\\parseGBIF_7_cc.csv',#input$parseGBIFFile$datapath, #'C:\\Users\\Pablo Hendrigo\\Downloads\\parseGBIF_5_occ_all_data.csv'
-                                              fileEncoding = "UTF-8") %>%
-                               dplyr::select(col_all) %>%
-                              dplyr::arrange_at(c('Ctrl_key_family_recordedBy_recordNumber', 'parseGBIF_dataset_result'))#desc('parseGBIF_dataset_result'))
+                                              fileEncoding = "UTF-8")
+
+
+                               col_raw <- colnames(occ_tab)
+                               index_col <- col_all %in% col_raw
+                              if(sum(index_col)>1)
+                              {
+                                occ_tab <<- occ_tab %>%
+                                  dplyr::select(col_all[index_col==TRUE])
+                              }
+
+                               index_col2 <- col_raw %in% c('Ctrl_key_family_recordedBy_recordNumber', 'parseGBIF_dataset_result')
+                               if(sum(index_col2)==2)
+                               {
+                                 occ_tab <<- occ_tab %>%
+                                   dplyr::arrange_at(c('Ctrl_key_family_recordedBy_recordNumber', 'parseGBIF_dataset_result'))
+                               }
+
 
                                base_url <- "https://www.gbif.org/occurrence/search?gbif_id=%s"
                                # url <- paste0("<a href='",sprintf(base_url,occ_tab$Ctrl_gbifID),"'>",occ_tab$Ctrl_gbifID,"</a>")
