@@ -949,23 +949,24 @@ parseGBIF_app <- function()
                                                     multiple = TRUE,
                                                     selected = c('useable','duplicate','unusable')),
 
+                                        selectInput("fam_map", label = 'Select a family:',
+                                                    choices = fam_list,
+                                                    selected = tail(fam_list, 1) ),
 
-                                        # br(),
-                                        # br(),
-                                        # br(),
-                                        # br(),
+                                        uiOutput("forMenu"),
+
+                                        br(),
+                                        br(),
+                                        br(),
+                                        br(),
+                                        br(),
+                                        br(),
 
 
                                         box(status = "primary", width = 12,
                                             title = 'Unique Collection Events',# background = 'navy', # red, yellow, aqua, blue, light-blue, green, navy, teal, olive, lime, orange, fuchsia, purple, maroon, black.
 
-                                            selectInput("fam_map", label = 'Select a family:',
-                                                        choices = fam_list,
-                                                        selected = tail(fam_list, 1) ),
-
-                                            uiOutput("forMenu"),
-
-                                            navbarPage("Unique Collection Events",
+                                            navbarPage("",
                                                        tabPanel(icon("location-dot"),
 
                                                                 box(title = "Maps",

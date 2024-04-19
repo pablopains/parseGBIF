@@ -72,7 +72,7 @@
 #'           na = "")
 #'}
 #' @export
-collectors_prepare_dictionary_v2 <- function(occ=NA,
+collectors_prepare_dictionary <- function(occ=NA,
                                           collectorDictionary_file = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary_parseGBIF.csv',
                                           silence = TRUE)
 {
