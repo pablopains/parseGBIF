@@ -135,7 +135,7 @@ collectors_prepare_dictionary <- function(occ=NA,
   Ctrl_lastNameRecordedBy <- lapply(occ$Ctrl_recordedBy %>%
                                       toupper() %>%
                                       unique(),
-                                    collectors_get_name_v2) %>%
+                                    collectors_get_name) %>%
     do.call(rbind.data.frame, .)
 
   #   recordedBy_Standart <- data.frame(
