@@ -959,20 +959,14 @@ parseGBIF_app <- function()
                                         box(status = "primary", width = 12,
                                             title = 'Unique Collection Events',# background = 'navy', # red, yellow, aqua, blue, light-blue, green, navy, teal, olive, lime, orange, fuchsia, purple, maroon, black.
 
+                                            selectInput("fam_map", label = 'Select a family:',
+                                                        choices = fam_list,
+                                                        selected = tail(fam_list, 1) ),
+
+                                            uiOutput("forMenu"),
 
                                             navbarPage("Unique Collection Events",
                                                        tabPanel(icon("location-dot"),
-
-                                                                selectInput("fam_map", label = 'Select a family:',
-                                                                            choices = fam_list,
-                                                                            selected = tail(fam_list, 1) ),
-
-                                                                uiOutput("forMenu"),
-
-                                                                # selectInput("sp_map",
-                                                                #             label = 'Select a species:',
-                                                                #             choices = list(label=fam_spp_list,
-                                                                #                            choices=spp_list)),
 
                                                                 box(title = "Maps",
                                                                     status = "primary",
@@ -983,11 +977,11 @@ parseGBIF_app <- function()
                                                                 )),
 
                                                        tabPanel(icon("table"),
-                                                                box(title = "Table",
+                                                                box(title = "Table sp",
                                                                     status = "primary",
                                                                     width = 12,
 
-                                                                    uiOutput("picker"),
+                                                                    # uiOutput("picker"),
 
 
                                                                     DT::dataTableOutput('occ_parseGBIFContents')
@@ -2130,169 +2124,169 @@ parseGBIF_app <- function()
         })
 
 
-        output$picker <- renderUI({
-          req(input$parseGBIFFile)
-          pickerInput(inputId = 'pick',
-                      label = 'Choose fields to view',
-                      choices = c('gbif_url',col_all),
-                      options = list(`actions-box` = TRUE),
-                      multiple = T,
-                      selected = c(
-                        "parseGBIF_dataset_result",
-                        "parseGBIF_coordinate_status",
-
-                        "Ctrl_key_family_recordedBy_recordNumber",
-                        "Ctrl_gbifID",
-                        "gbif_url",
-
-                        "parseGBIF_sample_taxon_name",
-                        "parseGBIF_sample_taxon_name_status",
-                        # "parseGBIF_number_taxon_names",
-                        # "parseGBIF_useful_for_spatial_analysis",
-                        "parseGBIF_decimalLatitude",
-                        "parseGBIF_decimalLongitude",
-                        # "parseGBIF_wcvp_plant_name_id",
-                        # "parseGBIF_wcvp_taxon_rank",
-                        # "parseGBIF_wcvp_taxon_status",
-                        # "parseGBIF_wcvp_family",
-                        # "parseGBIF_wcvp_taxon_name",
-                        # "parseGBIF_wcvp_taxon_authors",
-                        # "parseGBIF_wcvp_reviewed",
-
-                        # "parseGBIF_digital_voucher",
-                        # "parseGBIF_duplicates",
-                        # "parseGBIF_num_duplicates",
-                        # "parseGBIF_non_groupable_duplicates",
-                        # "parseGBIF_duplicates_grouping_status",
-                        # "parseGBIF_unidentified_sample",
-                        # "parseGBIF_merged",
-
-                        # "parseGBIF_freq_duplicate_or_missing_data",
-                        # "parseGBIF_duplicates_map",
-                        # "parseGBIF_merged_fields",
-
-                        # "parseGBIF_countryCode_ISO3",
-                        # "parseGBIF_countryName_en",
-                        # "parseGBIF_GADM_centroids",
-                        # "parseGBIF_GADM_centroids_level",
-                        #
-                        # ".coordinates_outOfRange",
-                        # ".val",
-                        # ".zer",
-                        # ".sea" ,
-                        # ".equ",
-                        # ".cen",
-                        # ".cap",
-                        # ".urb",
-                        # ".inst",
-                        # ".dup",
-                        # "Ctrl_bibliographicCitation",
-                        # "Ctrl_language",
-                        # "Ctrl_institutionCode",
-                        # "Ctrl_collectionCode",
-                        # # "Ctrl_datasetName",
-                        # "Ctrl_basisOfRecord",
-                        # "Ctrl_catalogNumber",
-                        # "Ctrl_recordNumber",
-                        # "Ctrl_recordedBy",
-                        # "Ctrl_occurrenceStatus",
-                        # "Ctrl_eventDate",
-                        # "Ctrl_year",
-                        # "Ctrl_month",
-                        # "Ctrl_day",
-                        # "Ctrl_habitat",
-                        # # "Ctrl_fieldNotes",
-                        # "Ctrl_eventRemarks",
-                        # "Ctrl_countryCode",
-                        # "Ctrl_stateProvince",
-                        # "Ctrl_municipality",
-                        # "Ctrl_county"
-                        # "Ctrl_locality",
-                        # "Ctrl_level0Name",
-                        # "Ctrl_level1Name",
-                        # "Ctrl_level2Name",
-                        # "Ctrl_level3Name",
-                        # "Ctrl_identifiedBy",
-                        # "Ctrl_dateIdentified",
-                        # "Ctrl_scientificName",
-                        # "Ctrl_taxonRank",
-                        # "Ctrl_decimalLatitude",
-                        # "Ctrl_decimalLongitude",
-                        # "Ctrl_nameRecordedBy_Standard",
-                        # "Ctrl_recordNumber_Standard",
-                        # "Ctrl_geospatial_quality",
-                        # "Ctrl_verbatim_quality",
-                        # "Ctrl_moreInformativeRecord",
-                        # "Ctrl_coordinates_validated_by_gbif_issue",
-                        # "wcvp_plant_name_id",
-                        # "wcvp_taxon_rank",
-                        # "wcvp_taxon_status",
-                        # "wcvp_family",
-                        # "wcvp_taxon_name",
-                        # "wcvp_taxon_authors",
-                        # "wcvp_reviewed",
-                        # "wcvp_searchedName",
-                        # "wcvp_searchNotes"
-                      ))
-                      # selected = c('gbif_url',
-                      #   'parseGBIF_dataset_result',
-                      #              'parseGBIF_sample_taxon_name_status',
-                      #              'parseGBIF_digital_voucher',
-                      #              'parseGBIF_merged',
-                      #              'Ctrl_key_family_recordedBy_recordNumber',
-                      #              'parseGBIF_wcvp_family',
-                      #              'parseGBIF_sample_taxon_name',
-                      #              'parseGBIF_useful_for_spatial_analysis',
-                      #              'parseGBIF_decimalLatitude',
-                      #              'parseGBIF_decimalLongitude',
-                      #              'parseGBIF_digital_voucher',
-                      #              'parseGBIF_duplicates',
-                      #              'parseGBIF_num_duplicates',
-                      #              'parseGBIF_duplicates_grouping_status',
-                      #
-                      #              'Ctrl_eventDate',
-                      #
-                      #              'parseGBIF_countryCode_ISO3',
-                      #              'parseGBIF_countryName_en',
-                      #
-                      #              'Ctrl_stateProvince',
-                      #              'Ctrl_municipality',
-                      #              'Ctrl_county',
-                      #              'Ctrl_locality',
-                      #
-                      #              'Ctrl_fieldNotes',
-                      #              'Ctrl_eventRemarks',
-                      #
-                      #              'parseGBIF_coordinate_status',
-                      #
-                      #              '.val',
-                      #              '.zer',
-                      #              '.sea',
-                      #              '.equ',
-                      #              '.cen',
-                      #              '.cap',
-                      #              '.urb',
-                      #              # '.con',
-                      #              '.inst',
-                      #              '.dup',
-                      #              '.coordinates_outOfRange',
-                      #              'parseGBIF_GADM_centroids',
-                      #              'parseGBIF_GADM_centroids_level',
-                      #
-                      #              'n_taxon_name_11_1_km',
-                      #              'n_unique_collection_event_11_1_km',
-                      #              'n_taxon_name_1_1_km',
-                      #              'n_unique_collection_event_1_1_km',
-                      #              'n_taxon_name_110m',
-                      #              'n_unique_collection_event_110m',
-                      #              'n_taxon_name_11m',
-                      #              'n_unique_collection_event_11m'
-                      #
-                      #              ))
-
-
-
-        })
+        # output$picker <- renderUI({
+        #   req(input$parseGBIFFile)
+        #   pickerInput(inputId = 'pick',
+        #               label = 'Choose fields to view',
+        #               choices = c('gbif_url',col_all),
+        #               options = list(`actions-box` = TRUE),
+        #               multiple = T,
+        #               selected = c(
+        #                 "parseGBIF_dataset_result",
+        #                 "parseGBIF_coordinate_status",
+        #
+        #                 "Ctrl_key_family_recordedBy_recordNumber",
+        #                 "Ctrl_gbifID",
+        #                 "gbif_url",
+        #
+        #                 "parseGBIF_sample_taxon_name",
+        #                 "parseGBIF_sample_taxon_name_status",
+        #                 # "parseGBIF_number_taxon_names",
+        #                 # "parseGBIF_useful_for_spatial_analysis",
+        #                 "parseGBIF_decimalLatitude",
+        #                 "parseGBIF_decimalLongitude",
+        #                 # "parseGBIF_wcvp_plant_name_id",
+        #                 # "parseGBIF_wcvp_taxon_rank",
+        #                 # "parseGBIF_wcvp_taxon_status",
+        #                 # "parseGBIF_wcvp_family",
+        #                 # "parseGBIF_wcvp_taxon_name",
+        #                 # "parseGBIF_wcvp_taxon_authors",
+        #                 # "parseGBIF_wcvp_reviewed",
+        #
+        #                 # "parseGBIF_digital_voucher",
+        #                 # "parseGBIF_duplicates",
+        #                 # "parseGBIF_num_duplicates",
+        #                 # "parseGBIF_non_groupable_duplicates",
+        #                 # "parseGBIF_duplicates_grouping_status",
+        #                 # "parseGBIF_unidentified_sample",
+        #                 # "parseGBIF_merged",
+        #
+        #                 # "parseGBIF_freq_duplicate_or_missing_data",
+        #                 # "parseGBIF_duplicates_map",
+        #                 # "parseGBIF_merged_fields",
+        #
+        #                 # "parseGBIF_countryCode_ISO3",
+        #                 # "parseGBIF_countryName_en",
+        #                 # "parseGBIF_GADM_centroids",
+        #                 # "parseGBIF_GADM_centroids_level",
+        #                 #
+        #                 # ".coordinates_outOfRange",
+        #                 # ".val",
+        #                 # ".zer",
+        #                 # ".sea" ,
+        #                 # ".equ",
+        #                 # ".cen",
+        #                 # ".cap",
+        #                 # ".urb",
+        #                 # ".inst",
+        #                 # ".dup",
+        #                 # "Ctrl_bibliographicCitation",
+        #                 # "Ctrl_language",
+        #                 # "Ctrl_institutionCode",
+        #                 # "Ctrl_collectionCode",
+        #                 # # "Ctrl_datasetName",
+        #                 # "Ctrl_basisOfRecord",
+        #                 # "Ctrl_catalogNumber",
+        #                 # "Ctrl_recordNumber",
+        #                 # "Ctrl_recordedBy",
+        #                 # "Ctrl_occurrenceStatus",
+        #                 # "Ctrl_eventDate",
+        #                 # "Ctrl_year",
+        #                 # "Ctrl_month",
+        #                 # "Ctrl_day",
+        #                 # "Ctrl_habitat",
+        #                 # # "Ctrl_fieldNotes",
+        #                 # "Ctrl_eventRemarks",
+        #                 # "Ctrl_countryCode",
+        #                 # "Ctrl_stateProvince",
+        #                 # "Ctrl_municipality",
+        #                 # "Ctrl_county"
+        #                 # "Ctrl_locality",
+        #                 # "Ctrl_level0Name",
+        #                 # "Ctrl_level1Name",
+        #                 # "Ctrl_level2Name",
+        #                 # "Ctrl_level3Name",
+        #                 # "Ctrl_identifiedBy",
+        #                 # "Ctrl_dateIdentified",
+        #                 # "Ctrl_scientificName",
+        #                 # "Ctrl_taxonRank",
+        #                 # "Ctrl_decimalLatitude",
+        #                 # "Ctrl_decimalLongitude",
+        #                 # "Ctrl_nameRecordedBy_Standard",
+        #                 # "Ctrl_recordNumber_Standard",
+        #                 # "Ctrl_geospatial_quality",
+        #                 # "Ctrl_verbatim_quality",
+        #                 # "Ctrl_moreInformativeRecord",
+        #                 # "Ctrl_coordinates_validated_by_gbif_issue",
+        #                 # "wcvp_plant_name_id",
+        #                 # "wcvp_taxon_rank",
+        #                 # "wcvp_taxon_status",
+        #                 # "wcvp_family",
+        #                 # "wcvp_taxon_name",
+        #                 # "wcvp_taxon_authors",
+        #                 # "wcvp_reviewed",
+        #                 # "wcvp_searchedName",
+        #                 # "wcvp_searchNotes"
+        #               ))
+        #               # selected = c('gbif_url',
+        #               #   'parseGBIF_dataset_result',
+        #               #              'parseGBIF_sample_taxon_name_status',
+        #               #              'parseGBIF_digital_voucher',
+        #               #              'parseGBIF_merged',
+        #               #              'Ctrl_key_family_recordedBy_recordNumber',
+        #               #              'parseGBIF_wcvp_family',
+        #               #              'parseGBIF_sample_taxon_name',
+        #               #              'parseGBIF_useful_for_spatial_analysis',
+        #               #              'parseGBIF_decimalLatitude',
+        #               #              'parseGBIF_decimalLongitude',
+        #               #              'parseGBIF_digital_voucher',
+        #               #              'parseGBIF_duplicates',
+        #               #              'parseGBIF_num_duplicates',
+        #               #              'parseGBIF_duplicates_grouping_status',
+        #               #
+        #               #              'Ctrl_eventDate',
+        #               #
+        #               #              'parseGBIF_countryCode_ISO3',
+        #               #              'parseGBIF_countryName_en',
+        #               #
+        #               #              'Ctrl_stateProvince',
+        #               #              'Ctrl_municipality',
+        #               #              'Ctrl_county',
+        #               #              'Ctrl_locality',
+        #               #
+        #               #              'Ctrl_fieldNotes',
+        #               #              'Ctrl_eventRemarks',
+        #               #
+        #               #              'parseGBIF_coordinate_status',
+        #               #
+        #               #              '.val',
+        #               #              '.zer',
+        #               #              '.sea',
+        #               #              '.equ',
+        #               #              '.cen',
+        #               #              '.cap',
+        #               #              '.urb',
+        #               #              # '.con',
+        #               #              '.inst',
+        #               #              '.dup',
+        #               #              '.coordinates_outOfRange',
+        #               #              'parseGBIF_GADM_centroids',
+        #               #              'parseGBIF_GADM_centroids_level',
+        #               #
+        #               #              'n_taxon_name_11_1_km',
+        #               #              'n_unique_collection_event_11_1_km',
+        #               #              'n_taxon_name_1_1_km',
+        #               #              'n_unique_collection_event_1_1_km',
+        #               #              'n_taxon_name_110m',
+        #               #              'n_unique_collection_event_110m',
+        #               #              'n_taxon_name_11m',
+        #               #              'n_unique_collection_event_11m'
+        #               #
+        #               #              ))
+        #
+        #
+        #
+        # })
 
         parsegbifLoad <- reactive({
           req(input$parseGBIFFile)
@@ -2516,10 +2510,34 @@ parseGBIF_app <- function()
             req(input$sp_map)
 
             occ %>%
-              dplyr::filter(parseGBIF_sample_taxon_name == input$sp_map &
-                              parseGBIF_dataset_result %in% c(input$sel_dataset_map)) %>%
-              dplyr::select(input$pick) %>%
-              dplyr::arrange_at(c('Ctrl_key_family_recordedBy_recordNumber', 'parseGBIF_dataset_result'))#desc('parseGBIF_dataset_result'))
+              dplyr::filter(
+                # parseGBIF_useful_for_spatial_analysis == TRUE &
+                  parseGBIF_sample_taxon_name == input$sp_map &
+                  parseGBIF_dataset_result %in% c(input$sel_dataset_map)) %>%
+              dplyr::arrange_at('parseGBIF_dataset_result')
+
+
+            # %>%
+            #   dplyr::select(input$pick)
+            # %>%
+            #   dplyr::arrange_at(c('Ctrl_key_family_recordedBy_recordNumber', 'parseGBIF_dataset_result'))#desc('parseGBIF_dataset_result'))
+
+
+            # col_raw <- colnames(occ)
+            # index_col <- col_all %in% col_raw
+            # if(sum(index_col)>1)
+            # {
+            #   occ <<- occ %>%
+            #     dplyr::select(col_all[index_col==TRUE])
+            # }
+
+            # index_col2 <- col_raw %in% c('Ctrl_key_family_recordedBy_recordNumber', 'parseGBIF_dataset_result')
+            # if(sum(index_col2)==2)
+            # {
+            #   occ <<- occ %>%
+            #     dplyr::arrange_at(c('Ctrl_key_family_recordedBy_recordNumber', 'parseGBIF_dataset_result'))
+            # }
+
 
 
 
@@ -2557,7 +2575,6 @@ parseGBIF_app <- function()
                             parseGBIF_sample_taxon_name == input$sp_map &
                             parseGBIF_dataset_result %in% c(input$sel_dataset_map)) %>%
             dplyr::arrange_at('parseGBIF_dataset_result')
-
 
           if (input$projetcion_map == 'Mollweide')
           {
@@ -2937,4 +2954,4 @@ parseGBIF_app <- function()
 
 }
 
-parseGBIF_app()
+# parseGBIF_app()
