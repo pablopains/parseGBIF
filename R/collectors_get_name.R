@@ -32,7 +32,7 @@
 #'
 #' @import stringr
 #' @export
-collectors_get_name_v2 <- function(x=NA,
+collectors_get_name <- function(x=NA,
                                 surname_selection_type = 'largest_string', #'last_name' OR largest_string
                                 max_words_name = 6,
                                 maximum_characters_in_name = 4
