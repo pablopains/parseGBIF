@@ -66,9 +66,11 @@ Please site parseGBIF as:
 print(citation("parseGBIF"), bibtex = FALSE)
 #> To cite package 'parseGBIF' in publications use:
 #> 
-#>   Melo P, Bystriakova N, Monro A (2023). "ParsGBIF: An R package for
-#>   parsing species occurrence records." _Methods in Ecology and
-#>   Evolution_, *1*(11), 1-11. doi:doi..... <https://doi.org/doi.....>.
+#>   de Melo P, Bystriakova N, Lucas E, Monro A (2024). "A new R package
+#>   to parse plant species occurrence records into unique collection
+#>   events efficiently reduces data redundancy." _Sci Rep_, *14*(5450),
+#>   1-9. doi:10.1038/s41598-024-56158-3
+#>   <https://doi.org/10.1038/s41598-024-56158-3>.
 ```
 
 ## **Workflow in detail**
