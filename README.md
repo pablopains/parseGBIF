@@ -46,6 +46,19 @@ A new R package to parse plant species occurrence records into unique
 collection events efficiently reduces data redundancy
 [DOI:10.1038/s41598-024-56158-3](https://doi.org/10.1038/s41598-024-56158-3)
 
+Please site parseGBIF as:
+
+``` r
+print(citation("parseGBIF"), bibtex = FALSE)
+#> Para citar o pacote 'parseGBIF' em publicações use:
+#> 
+#>   de Melo P, Bystriakova N, Lucas E, Monro A (2024). "A new R package
+#>   to parse plant species occurrence records into unique collection
+#>   events efficiently reduces data redundancy." _Sci Rep_, *14*(5450),
+#>   1-9. doi:10.1038/s41598-024-56158-3
+#>   <https://doi.org/10.1038/s41598-024-56158-3>.
+```
+
 ## **Presentation video**
 
 [click here to watch](https://www.youtube.com/watch?v=3U7Fs7DuKyU)
@@ -65,19 +78,6 @@ parseGBIF::parseGBIF_app()
 ## **For cloud computing we recommend opening the Jupyter notebook r providing the URL [parseGBIF_workflow.ipynb](https://raw.githubusercontent.com/pablopains/parseGBIF/main/Jupyter%20notebook/parseGBIF_workflow.ipynb) and running the workflow**
 
 ## **Consult the [parseGBIF Manual](https://github.com/pablopains/parseGBIF/blob/main/parseGBIF_Manual_v2.pdf), **updated**, for a case study with a complete and replicable workflow**
-
-Please site parseGBIF as:
-
-``` r
-print(citation("parseGBIF"), bibtex = FALSE)
-#> Para citar o pacote 'parseGBIF' em publicações use:
-#> 
-#>   de Melo P, Bystriakova N, Lucas E, Monro A (2024). "A new R package
-#>   to parse plant species occurrence records into unique collection
-#>   events efficiently reduces data redundancy." _Sci Rep_, *14*(5450),
-#>   1-9. doi:10.1038/s41598-024-56158-3
-#>   <https://doi.org/10.1038/s41598-024-56158-3>.
-```
 
 ## **Workflow in detail**
 

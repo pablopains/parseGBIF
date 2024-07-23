@@ -40,6 +40,11 @@ devtools::install_github("pablopains/parseGBIF",
 ## **Article with case study**
 A new R package to parse plant species occurrence records into unique collection events efficiently reduces data redundancy [DOI:10.1038/s41598-024-56158-3](https://doi.org/10.1038/s41598-024-56158-3)
 
+Please site parseGBIF as:
+```{r example_citation, eval=TRUE}
+print(citation("parseGBIF"), bibtex = FALSE)
+```
+
 ## **Presentation video**
 [click here to watch](https://www.youtube.com/watch?v=3U7Fs7DuKyU)
 
@@ -56,11 +61,6 @@ parseGBIF::parseGBIF_app()
 
 
 ## **Consult the [parseGBIF Manual](https://github.com/pablopains/parseGBIF/blob/main/parseGBIF_Manual_v2.pdf), __updated__, for a case study with a complete and replicable workflow**
-
-Please site parseGBIF as:
-```{r example_citation, eval=TRUE}
-print(citation("parseGBIF"), bibtex = FALSE)
-```
 
 
 ## **Workflow in detail**
