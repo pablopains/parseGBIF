@@ -51,6 +51,11 @@ collectors_get_name <- function(x=NA,
   if(is.na(x))
   {return('UNKNOWN-COLLECTOR')}
 
+  if(x=="?., ?.")
+  {return('UNKNOWN-COLLECTOR')}
+
+  if(x=="?")
+  {return('UNKNOWN-COLLECTOR')}
 
   # maximum_characters_in_name <- 3
 
@@ -201,6 +206,15 @@ collectors_get_name <- function(x=NA,
   }
 
   {
+
+    ##
+
+    x = gsub("\\], \\[","",x) # teste everton 13-08-2024
+
+    if (substr(x,1,1)=="&"){
+      x = sub("\\&",'',x)}
+
+    ##
 
     x = gsub("[?]","",x) # teste pablo 10-02-2020
     x = sub('?','',x)
@@ -361,6 +375,12 @@ collectors_get_name <- function(x=NA,
   {
     x = strsplit(x," ET ")[[1]][1]
   }
+
+  if (x==';')
+  {
+    return('UNKNOWN-COLLECTOR')
+  }
+
 
   if (length(grep(" TO ",x, fixed = T))>0)
   {

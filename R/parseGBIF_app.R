@@ -22,6 +22,8 @@
 #' @import DT
 #' @import rhandsontable
 #' @import shinyWidgets
+#' @import shinyFiles
+#'
 #' @export
 parseGBIF_app <- function()
 {
@@ -34,6 +36,7 @@ parseGBIF_app <- function()
   require(DT)
   require(rhandsontable)
   require(shinyWidgets)
+  require(shinyFiles)
 
   {
     wd <- rnaturalearth::ne_countries(returnclass = "sf")
@@ -592,9 +595,25 @@ parseGBIF_app <- function()
                                                    h6('   Occurrence status: present'),
                                                    h6('   Scientific name: Botanical family name (e.g. Achatocarpaceae) or filter by other fields'),
                                                    h5('1.1.3. Request to download information in DARWIN CORE ARCHIVE FORMAT'),
-                                                   h5('1.1.4. Download compressed file')
+                                                   h5('1.1.4. Download compressed file'),
+
+                                                   textInput("url_gbif_Input", "1. GBIF DOI url:", ''),
+                                                   shinyDirButton('Btn_Folder', 'Folder select', 'Please select a folder', FALSE),
+                                                   actionButton("url_gbif_Btn", "Download GBIF compressed file from DOI url", icon = icon("play"))
+
                                             ))
                                      )},
+
+
+                                     # observe({
+                                     #   if(!is.null(input$Btn_Folder)){
+                                     #     # browser()
+                                     #     shinyDirChoose(input, 'Btn_Folder')
+                                     #     dir <- reactive(input$folder)
+                                     #
+                                     #     output$dir <- renderText(as.character(dir()))
+                                     #   }
+                                     # })
 
                                      # 1.2. Preparing occurrence data downloaded from GBIF
                                      {box(title = "1.2. Preparing occurrence data downloaded from GBIF",
@@ -1013,7 +1032,7 @@ parseGBIF_app <- function()
 
                                           fileInput(inputId = "parseGBIFFile2",
                                                     label = "Upload CSV parseGBIF result file",
-                                                    multiple = FALSE)
+                                                    multiple = TRUE)
 
                                       ),
 
@@ -2708,10 +2727,19 @@ parseGBIF_app <- function()
               withProgress(message = 'Processing...', style = 'notification', value = 0.1,
                            {
 
+                               files_tmp <- input$parseGBIFFile2$datapath
+                               nf <- length(files_tmp)
+                               if(nf>0)
+                               {
 
-                             # occ <<- read.csv(file = 'C:\\Dados\\Kew\\Bahamas\\dataGBIF\\parseGBIF_7_parse_coordinates_Bahamas.csv',
-                               occ_tab <<- read.csv(file = input$parseGBIFFile2$datapath, #'C:\\Dados\\Kew\\Bolivia\\dataGBIF\\parseGBIF_7_cc.csv',#input$parseGBIFFile$datapath, #'C:\\Users\\Pablo Hendrigo\\Downloads\\parseGBIF_5_occ_all_data.csv'
-                                              fileEncoding = "UTF-8")
+                                 i <- 1
+                                 for(i in 1:nf)
+                                 {
+                                   occ_tmp <<- read.csv(file = files_tmp[i], #'C:\\Dados\\Kew\\Bolivia\\dataGBIF\\parseGBIF_7_cc.csv',#input$parseGBIFFile$datapath, #'C:\\Users\\Pablo Hendrigo\\Downloads\\parseGBIF_5_occ_all_data.csv'
+                                                        fileEncoding = "UTF-8")
+                                   occ_tab <<- rbind.data.frame(occ_tab, occ_tmp)
+                                 }
+                               }
 
 
                                col_raw <- colnames(occ_tab)
@@ -2735,22 +2763,7 @@ parseGBIF_app <- function()
                                url <- sprintf(base_url,occ_tab$Ctrl_gbifID)
 
 
-                             # print(url)
-
-                             # _blank
-                             # occ$gbif_url <- paste0("<a href='", url, "' target='_blank'>", url,"</a>")
-
                              occ_tab$gbif_url <- url
-
-                             # occ$gbif_url <-  a(occ$Ctrl_key_family_recordedBy_recordNumbe, url, target="_blank")
-
-                             # occ$gbif_url <- shiny::tags$a('GBIF | Global Biodiversity Information Facility', href = "'", url,"'")
-
-                             # occ$gbif_url <- paste0("<a href='", url, "' target='_blank'>", occ$Ctrl_key_family_recordedBy_recordNumber,"</a>")
-                             #
-                             #                              link <- paste0('<div class="alert alert-primary" role="alert"> ',
-                             #                                             "GBIF record: <a href='", url, "'target='_blank'> ", occurrenceID," </a></div>")
-
 
 
                              return(occ_tab)
