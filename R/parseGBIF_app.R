@@ -11,7 +11,7 @@
 #'
 #' @examples
 #' \donttest{
-#' parseGBIF_app()
+#' parseGBIF::parseGBIF_app()
 #' }
 #' @import leaflet
 #' @import shiny
@@ -23,6 +23,7 @@
 #' @import rhandsontable
 #' @import shinyWidgets
 #' @import shinyFiles
+#' @import stringr
 #'
 #' @export
 parseGBIF_app <- function()
@@ -37,6 +38,10 @@ parseGBIF_app <- function()
   require(rhandsontable)
   require(shinyWidgets)
   require(shinyFiles)
+  require(stringr)
+  require(parseGBIF)
+  require(rscopus)
+
 
   {
     wd <- rnaturalearth::ne_countries(returnclass = "sf")
@@ -220,6 +225,10 @@ parseGBIF_app <- function()
     }
 
     {
+      occ_parse_coordinates <<- {}
+
+      downloaded_occurrence_file <<- {}
+      wcvp_names <<- {}
 
       occ <<- {}
       spp <<- {}
@@ -576,359 +585,396 @@ parseGBIF_app <- function()
                        # navbarPage("Global strategy for plant exploration - Framework for filling in the gaps in our knowledge of plant diversity", #"Global strategy for plant exploration",
                        ###
                        # WF
-                       {tabPanel(icon("house"),
-                                 box(title = "1. GBIF data preparation",
-                                     status = "primary",
-                                     width = 12,
-
-                                     # 1.1. Getting occurrence data of the species records from GBIF
-                                     {box(title = "1.1. Getting occurrence data of the species records from GBIF",
-                                          status = "primary",
-                                          width = 12,
-
-                                          fluidRow(
-                                            column(width = 12,
-                                                   shiny::tags$a('GBIF | Global Biodiversity Information Facility', href = 'https://www.gbif.org/occurrence/search?occurrence_status=present&q='),
-                                                   h5('1.1.1. Access a registered account in GBIF'),
-                                                   h5('1.1.2. Filter occurrences using available fields, for instance:'),
-                                                   h6('   Basis of record: Preserved specimen'),
-                                                   h6('   Occurrence status: present'),
-                                                   h6('   Scientific name: Botanical family name (e.g. Achatocarpaceae) or filter by other fields'),
-                                                   h5('1.1.3. Request to download information in DARWIN CORE ARCHIVE FORMAT'),
-                                                   h5('1.1.4. Download compressed file'),
-
-                                                   textInput("url_gbif_Input", "1. GBIF DOI url:", ''),
-                                                   shinyDirButton('Btn_Folder', 'Folder select', 'Please select a folder', FALSE),
-                                                   actionButton("url_gbif_Btn", "Download GBIF compressed file from DOI url", icon = icon("play"))
-
-                                            ))
-                                     )},
-
-
-                                     # observe({
-                                     #   if(!is.null(input$Btn_Folder)){
-                                     #     # browser()
-                                     #     shinyDirChoose(input, 'Btn_Folder')
-                                     #     dir <- reactive(input$folder)
-                                     #
-                                     #     output$dir <- renderText(as.character(dir()))
-                                     #   }
-                                     # })
-
-                                     # 1.2. Preparing occurrence data downloaded from GBIF
-                                     {box(title = "1.2. Preparing occurrence data downloaded from GBIF",
-                                          status = "primary",
-                                          width = 12,
-                                          fluidRow(
-                                            column(width = 12,
-                                                   fileInput(inputId = "gbifFile",
-                                                             label = "Upload compressed file / TXT occurrence file(s) downloaded from GBIF ou CSV parseGBIF occurrence data file",
-                                                             multiple = TRUE))),
-                                          br(),
-                                          fluidRow(
-                                            column(width = 12,
-                                                   DT::dataTableOutput('gbifContents'))),
-
-                                          box(title = "Data summary",
-                                              status = "primary",
-                                              width = 12,
-                                              fluidRow(
-                                                column(width = 12,
-                                                       # textOutput("DataSummary_text"))
-                                                       verbatimTextOutput("DataSummary_text"))),
-
-                                              br(),
-
-                                              fluidRow(
-                                                column(width = 12,
-                                                       downloadButton("occGBIFDownload", "Download parseGBIF occurrence data"))),
-
-                                          )
-                                     )},
-
-                                     # 1.3. Extracting GBIF issues
-                                     {box(title = "1.3. Extracting GBIF issues",
-                                          status = "primary",
-                                          width = 12,
-
-                                          fluidRow(
-                                            column(width = 12,
-                                                   actionButton("extractIssueBtn", "Extract issues", icon = icon("play"))
-                                            )),
-
-
-                                          br(),
-                                          fluidRow(
-                                            column(width = 12,
-                                                   tabsetPanel(
-                                                     tabPanel("Summary GBIF issues", DT::dataTableOutput( 'issueSummaryContents'),
-                                                              br(),
-                                                              downloadButton("issueSummaryDownload", "Download summary GBIF issues")),
-                                                     tabPanel("Results GBIF issues", DT::dataTableOutput("issueOccurrenceContents"),
-                                                              br(),
-                                                              downloadButton("issueOccurrenceDownload", "Download results GBIF issues"))
-                                                   )))
-
-                                          # fluidRow(
-                                          #   column(width = 6,
-                                          #          downloadButton("issueSummaryDownload", "Download summary GBIF issues")),
-                                          #   column(width = 6,
-                                          #          downloadButton("issueOccurrenceDownload", "Download results GBIF issues"))
-                                          #   )
-                                     )},
-
-                                     # 2. Check species names against WCVP database
-                                     {box(title = "2. Check species names against WCVP database",
-                                          status = "primary",
-                                          width = 12,
-
-                                          # fluidRow(
-                                          #   column(width = 12,
-                                          #          h4('If you are running the app from shinyapps.io, first upload the World Checklist of Vascular Plants (WCVP) CSV file wcvp_names'),
-                                          #          fileInput(inputId = "loadWCVPFile",
-                                          #                    label = "CSV file wcvp_names",
-                                          #                    multiple = FALSE))
-                                          # ),
-
-                                          fluidRow(
-                                            column(width = 12,
-                                                   # h4('If you are running the app locally in rStudio, the the World Checklist of Vascular Plants (WCVP) databese will be automatically downloaded from source'),
-                                                   actionButton("applyWCVPBtn", "Check species names", icon = icon("play")))
-                                          ),
-
-                                          # fluidRow(
-                                          #   column(width = 12,
-                                          #         verbatimTextOutput("WCPVSummary_text"))),
-
-                                          fluidRow(
-                                            column(width = 12,
-                                                   verbatimTextOutput("DataSummary_wcvp_text"))),
-
-
-
-                                          br(),
-
-                                          fluidRow(
-                                            column(width = 12,
-                                                   tabsetPanel(
-                                                     tabPanel("Summary check species names",
-                                                              DT::dataTableOutput( 'wcvpSummaryContents'),
-                                                              br(),
-                                                              downloadButton("wcvpSummaryDownload", "Download summary check species names")),
-                                                     tabPanel("Results check species names",
-                                                              DT::dataTableOutput("wcvpOccurrenceContents"),
-                                                              br(),
-                                                              downloadButton("wcvpOccurrenceDownload", "Download results check species names"))
-                                                   )))
-
-                                     )},
-
-                                     # 3. Collectors Dictionary
-                                     {box(title = "3. Collectors Dictionary",
-                                          status = "primary",
-                                          width = 12,
-
-                                          # 3.1 Prepare dictionary collectors
-                                          h4('3.1 Prepare dictionary collectors'),
-
-                                          fluidRow(
-                                            column(width = 6,
-                                                   br(),
-                                                   # br(),
-                                                   actionButton("getCollectorsDictionaryFromDatasetBtn", "Prepare dictionary collectors", icon = icon("play"))
-                                            ),
-
-                                            column(width = 6,
-                                                   fileInput(inputId = "collectorsDictionaryFromDatasetFile",
-                                                             label = "Collector's Dictionary File. If empty, the package's default file will be used.",
-                                                             multiple = FALSE))
-                                          ),
-
-                                          # br(),
-                                          # fluidRow(
-                                          #   column(width = 12,
-                                          #          fileInput(inputId = "collectorsDictionaryFromDatasetFile",
-                                          #                    label = "Collector's Dictionary File. Point to a file on your local disk, if empty, the package's default file will be used.",
-                                          #                    multiple = FALSE)
-                                          #   )),
-
-
-                                          # 3.2 Check the main collector’s last name
-                                          h4('3.2 Check the main collector’s last name'),
-
-                                          fluidRow(
-                                            column(width = 12,
-                                                   # DT editável,
-                                                   dt_output('collectorsDictionaryFromDatasetContents')
-                                            )),
-
-                                          fluidRow(
-                                            column(width = 12,
-                                                   downloadButton("collectorsDictionaryFromDatasetDownload", "Download dictionary collectors")
-                                            )),
-
-                                          br(),
-                                          # 3.3 Generating the collection event key
-                                          h4('3.3 Generating the collection event key'),
-
-
-                                          fluidRow(
-                                            column(width = 12,
-                                                   actionButton("applyCollectorsDictionaryBtn", "Generating the collection event key", icon = icon("play"))
-
-                                            )),
-
-                                          br(),
-                                          fluidRow(
-                                            column(width = 12,
-                                                   tabsetPanel(
-                                                     tabPanel("Summary collection event key",
-                                                              DT::dataTableOutput( 'collectorsDictionarySummaryContents'),
-                                                              br(),
-                                                              downloadButton("summary_collectorsDictionaryDownload", "Download summary collectors dictionary")), #'applyCollectorsDictionaryContents')),
-                                                     tabPanel("Results collection event key",
-                                                              DT::dataTableOutput("collectorsDictionaryOccurrenceContents"),
-                                                              br(),
-                                                              downloadButton("results_collectorsDictionaryDownload", "Download results collectors dictionary")),
-                                                     tabPanel("Collectors Dictionary add",
-                                                              DT::dataTableOutput("collectorsDictionaryNewContents"),
-                                                              br(),
-                                                              downloadButton("add_collectorsDictionaryDownload", "Download collectors dictionary add"))
-                                                   )
-                                            ))
-
-                                     )},
-
-                                     # 4. Selecting the master digital voucher
-                                     {box(title = "4. Selecting the master digital voucher",
-                                          status = "primary",
-                                          width = 12,
-
-                                          fluidRow(
-                                            column(width = 12,
-                                                   actionButton("selectDigitalVoucherBtn", "Select digital voucher", icon = icon("play"))
-
-                                            )),
-
-
-                                          br(),
-                                          fluidRow(
-                                            column(width = 12,
-                                                   tabsetPanel(
-                                                     tabPanel("Summary",
-                                                              DT::dataTableOutput( 'SummaryDigitalVoucherContents'),
-                                                              br(),
-                                                              downloadButton("digitalVoucherDownload", "Download summary")),
-                                                     tabPanel("Results",
-                                                              DT::dataTableOutput("digitalVoucherContents"),
-                                                              br(),
-                                                              downloadButton("occdigitalVoucherDownload", "Download results"))
-                                                   )))
-
-
-                                          # fluidRow(
-                                          #   column(width = 6,
-                                          #          downloadButton("digitalVoucherDownload", "Download summary")),
-                                          #   column(width = 6,
-                                          #          downloadButton("occdigitalVoucherDownload", "Download results"))
-                                          # )
-
-
-                                          # column(width = 12,
-                                          #        # downloadButton("issueSummaryDownload", "Download summary"),
-                                          #        downloadButton("digitalVoucherDownload", "Download results")
-                                          # ))
-                                     )},
-
-                                     # 5. Export of results
-                                     {box(title = "5. Merge and export of results",
-                                          status = "primary",
-                                          width = 12,
-
-                                          fluidRow(
-                                            column(width = 12,
-                                                   actionButton("exportBtn", " Merge and export", icon = icon("play"))
-
-                                            )),
-
-
-                                          br(),
-                                          fluidRow(
-                                            column(width = 12,
-
-                                                   tabsetPanel(
-                                                     tabPanel("Useable Data",
-                                                              DT::dataTableOutput( 'useable_data_mergeContents'),
-                                                              br(),
-                                                              downloadButton("useable_data_mergeDownload", "Download useable data")),
-
-                                                     tabPanel("Duplicates",
-                                                              DT::dataTableOutput("duplicatesContents"),
-                                                              br(),
-                                                              downloadButton("duplicatesDownload", "Download duplicates")),
-
-                                                     tabPanel("Unusable Data",
-                                                              DT::dataTableOutput( 'unusable_data_mergeContents'),
-                                                              br(),
-                                                              downloadButton("unusable_data_mergeDownload", "Download unusable data")),
-
-                                                     tabPanel("All Data",
-                                                              DT::dataTableOutput( 'all_dataContents'),
-                                                              br(),
-                                                              downloadButton("all_dataDownload", "Download all data"))
-
-
-
-                                                   )))
-
-                                     )},
-
-                                     # 5. Summary of results
-                                     {box(title = "6. Summary of results",
-                                          status = "primary",
-                                          width = 12,
-
-                                          fluidRow(
-                                            column(width = 12,
-                                                   actionButton("summaryBtn", " Summary parseGBIF results", icon = icon("play"))
-
-                                            )),
-
-                                          br(),
-                                          fluidRow(
-                                            column(width = 12,
-                                                   tabsetPanel(
-                                                     tabPanel("General summary",
-                                                              DT::dataTableOutput( 'parseGBIF_general_summaryContents'),
-                                                              br(),
-                                                              downloadButton("parseGBIF_general_summaryDownload", "Download general summary")),
-
-                                                     tabPanel("Merge fields summary",
-                                                              DT::dataTableOutput("parseGBIF_merge_fields_summaryContents"),
-                                                              br(),
-                                                              downloadButton("parseGBIF_merge_fields_summaryDownload", "Download merge fields summary")),
-
-                                                     tabPanel("Merge fields summary - useable data",
-                                                              DT::dataTableOutput( 'parseGBIF_merge_fields_summary_useable_dataContents'),
-                                                              br(),
-                                                              downloadButton("parseGBIF_merge_fields_summary_useable_dataDownload", "Download merge fields summary - useable data")),
-
-                                                     tabPanel("Merge fields summary - unusable data",
-                                                              DT::dataTableOutput( 'parseGBIF_merge_fields_summary_unusable_dataContents'),
-                                                              br(),
-                                                              downloadButton("parseGBIF_merge_fields_summary_unusable_dataDownload", "Download merge fields summary - useable data"))
-
-                                                   )))
-
-                                     )},
-
-
-                                 ),
-
-                                 # mais abas - analises, mapas, graficos...
-
-                                 ##
-                       )},
+                       {
+                           tabPanel(icon("cloud-arrow-down"),
+                                    box(title = "1. GBIF occurrence data",
+                                        status = "primary",
+                                        width = 12,
+
+                                        # 1.1
+                                        box(title = "1.1. Download the GBIF occurrence file from the DOI url",
+                                             status = "primary",
+                                             width = 12,
+                                             fluidRow(
+                                               column(width = 12,
+                                                      h5('1.1.1. - Access a registered account in GBIF'),
+                                                      shiny::tags$a('GBIF | Global Biodiversity Information Facility', href = 'https://www.gbif.org/occurrence/search?occurrence_status=present&q='),
+                                                      h5('     - Filter occurrences using available fields, for instance:'),
+                                                      h6('         * Basis of record: Preserved specimen'),
+                                                      h6('         * Occurrence status: present'),
+                                                      h6('         * Scientific name: Botanical family name (e.g. Achatocarpaceae) or filter by other fields'),
+                                                      h5('1.1.2 Request to download information in DARWIN CORE ARCHIVE FORMAT'),
+
+                                                      textInput("url_gbif_Input", "1.1.3 Enter the GBIF DOI url:", ''),
+                                                      textInput("folder_Input", "1.1.4 Enter the download destination folder:", tempdir()),
+                                                      actionButton("url_gbif_Btn", "1.1.5 Download and open the GBIF occurrence file from the DOI url", icon = icon("play")),
+                                                      br(),
+                                                      br(),
+                                                      textOutput("downloaded_occurrence_file_text"),
+                                                      br(),
+                                                      br()
+                                               )
+
+                                             )),
+
+                                        # 1.2. Preparing occurrence data downloaded from GBIF
+                                        box(title = "1.2. Occurrence data downloaded from GBIF",
+                                             status = "primary",
+                                             width = 12,
+                                             br(),
+                                             fluidRow(
+                                               column(width = 12,
+                                                      DT::dataTableOutput('gbifContents'))),
+
+                                             br(),
+                                             fluidRow(
+                                               column(width = 12,
+                                                      # textOutput("DataSummary_text"))
+                                                      verbatimTextOutput("DataSummary_text"))),
+
+                                             br(),
+
+                                             fluidRow(
+                                               column(width = 12,
+                                                      downloadButton("occGBIFDownload", "Download parseGBIF occurrence data"))),
+                                        ),
+
+                                        # 1.3. Extracting GBIF issues
+                                        box(title = "1.3. Extracting GBIF issues",
+                                             status = "primary",
+                                             width = 12,
+
+                                             fluidRow(
+                                               column(width = 12,
+                                                      actionButton("extractIssueBtn", "Extract issues", icon = icon("play"))
+                                               )),
+
+
+                                             br(),
+                                             fluidRow(
+                                               column(width = 12,
+                                                      tabsetPanel(
+                                                        tabPanel("Summary GBIF issues", DT::dataTableOutput( 'issueSummaryContents'),
+                                                                 br(),
+                                                                 downloadButton("issueSummaryDownload", "Download summary GBIF issues")),
+                                                        tabPanel("Results GBIF issues", DT::dataTableOutput("issueOccurrenceContents"),
+                                                                 br(),
+                                                                 downloadButton("issueOccurrenceDownload", "Download results GBIF issues"))
+                                                      )))
+
+                                        )),
+
+                         # 2. Check species names against WCVP database
+                         {box(title = "2. Check species names against WCVP database",
+                              status = "primary",
+                              width = 12,
+
+                              # fluidRow(
+                              #   column(width = 12,
+                              #          h4('If you are running the app from shinyapps.io, first upload the World Checklist of Vascular Plants (WCVP) CSV file wcvp_names'),
+                              #          fileInput(inputId = "loadWCVPFile",
+                              #                    label = "CSV file wcvp_names",
+                              #                    multiple = FALSE))
+                              # ),
+
+                              fluidRow(
+                                column(width = 12,
+                                       # h4('If you are running the app locally in rStudio, the the World Checklist of Vascular Plants (WCVP) databese will be automatically downloaded from source'),
+                                       actionButton("applyWCVPBtn", "Check species names", icon = icon("play")))
+                              ),
+
+                              # fluidRow(
+                              #   column(width = 12,
+                              #         verbatimTextOutput("WCPVSummary_text"))),
+
+                              fluidRow(
+                                column(width = 12,
+                                       verbatimTextOutput("DataSummary_wcvp_text"))),
+
+
+
+                              br(),
+
+                              fluidRow(
+                                column(width = 12,
+                                       tabsetPanel(
+                                         tabPanel("Summary check species names",
+                                                  DT::dataTableOutput( 'wcvpSummaryContents'),
+                                                  br(),
+                                                  downloadButton("wcvpSummaryDownload", "Download summary check species names")),
+                                         tabPanel("Results check species names",
+                                                  DT::dataTableOutput("wcvpOccurrenceContents"),
+                                                  br(),
+                                                  downloadButton("wcvpOccurrenceDownload", "Download results check species names"))
+                                       )))
+
+                         )},
+
+                         # 3. Collectors Dictionary
+                         {box(title = "3. Collectors Dictionary",
+                              status = "primary",
+                              width = 12,
+
+                              # 3.1 Prepare dictionary collectors
+                              h4('3.1 Prepare dictionary collectors'),
+
+                              fluidRow(
+                                column(width = 6,
+                                       br(),
+                                       # br(),
+                                       actionButton("getCollectorsDictionaryFromDatasetBtn", "Prepare dictionary collectors", icon = icon("play"))
+                                ),
+
+                                column(width = 6,
+                                       fileInput(inputId = "collectorsDictionaryFromDatasetFile",
+                                                 label = "Collector's Dictionary File. If empty, the package's default file will be used.",
+                                                 multiple = FALSE))
+                              ),
+
+                              # br(),
+                              # fluidRow(
+                              #   column(width = 12,
+                              #          fileInput(inputId = "collectorsDictionaryFromDatasetFile",
+                              #                    label = "Collector's Dictionary File. Point to a file on your local disk, if empty, the package's default file will be used.",
+                              #                    multiple = FALSE)
+                              #   )),
+
+
+                              # 3.2 Check the main collector’s last name
+                              h4('3.2 Check the main collector’s last name'),
+
+                              fluidRow(
+                                column(width = 12,
+                                       # DT editável,
+                                       dt_output('collectorsDictionaryFromDatasetContents')
+                                )),
+
+                              fluidRow(
+                                column(width = 12,
+                                       downloadButton("collectorsDictionaryFromDatasetDownload", "Download dictionary collectors")
+                                )),
+
+                              br(),
+                              # 3.3 Generating the collection event key
+                              h4('3.3 Generating the collection event key'),
+
+
+                              fluidRow(
+                                column(width = 12,
+                                       actionButton("applyCollectorsDictionaryBtn", "Generating the collection event key", icon = icon("play"))
+
+                                )),
+
+                              br(),
+                              fluidRow(
+                                column(width = 12,
+                                       tabsetPanel(
+                                         tabPanel("Summary collection event key",
+                                                  DT::dataTableOutput( 'collectorsDictionarySummaryContents'),
+                                                  br(),
+                                                  downloadButton("summary_collectorsDictionaryDownload", "Download summary collectors dictionary")), #'applyCollectorsDictionaryContents')),
+                                         tabPanel("Results collection event key",
+                                                  DT::dataTableOutput("collectorsDictionaryOccurrenceContents"),
+                                                  br(),
+                                                  downloadButton("results_collectorsDictionaryDownload", "Download results collectors dictionary")),
+                                         tabPanel("Collectors Dictionary add",
+                                                  DT::dataTableOutput("collectorsDictionaryNewContents"),
+                                                  br(),
+                                                  downloadButton("add_collectorsDictionaryDownload", "Download collectors dictionary add"))
+                                       )
+                                ))
+
+                         )},
+
+                         # 4. Selecting the master digital voucher
+                         {box(title = "4. Selecting the master digital voucher",
+                              status = "primary",
+                              width = 12,
+
+                              fluidRow(
+                                column(width = 12,
+                                       actionButton("selectDigitalVoucherBtn", "Select digital voucher", icon = icon("play"))
+
+                                )),
+
+
+                              br(),
+                              fluidRow(
+                                column(width = 12,
+                                       tabsetPanel(
+                                         tabPanel("Summary",
+                                                  DT::dataTableOutput( 'SummaryDigitalVoucherContents'),
+                                                  br(),
+                                                  downloadButton("digitalVoucherDownload", "Download summary")),
+                                         tabPanel("Results",
+                                                  DT::dataTableOutput("digitalVoucherContents"),
+                                                  br(),
+                                                  downloadButton("occdigitalVoucherDownload", "Download results"))
+                                       )))
+
+
+                              # fluidRow(
+                              #   column(width = 6,
+                              #          downloadButton("digitalVoucherDownload", "Download summary")),
+                              #   column(width = 6,
+                              #          downloadButton("occdigitalVoucherDownload", "Download results"))
+                              # )
+
+
+                              # column(width = 12,
+                              #        # downloadButton("issueSummaryDownload", "Download summary"),
+                              #        downloadButton("digitalVoucherDownload", "Download results")
+                              # ))
+                         )},
+
+                         # 5. Export of results
+                         {box(title = "5. Merge and export of results",
+                              status = "primary",
+                              width = 12,
+
+                              fluidRow(
+                                column(width = 12,
+                                       actionButton("exportBtn", " Merge and export", icon = icon("play"))
+
+                                )),
+
+
+                              br(),
+                              fluidRow(
+                                column(width = 12,
+
+                                       tabsetPanel(
+                                         tabPanel("Useable Data",
+                                                  DT::dataTableOutput( 'useable_data_mergeContents'),
+                                                  br(),
+                                                  downloadButton("useable_data_mergeDownload", "Download useable data")),
+
+                                         tabPanel("Duplicates",
+                                                  DT::dataTableOutput("duplicatesContents"),
+                                                  br(),
+                                                  downloadButton("duplicatesDownload", "Download duplicates")),
+
+                                         tabPanel("Unusable Data",
+                                                  DT::dataTableOutput( 'unusable_data_mergeContents'),
+                                                  br(),
+                                                  downloadButton("unusable_data_mergeDownload", "Download unusable data")),
+
+                                         tabPanel("All Data",
+                                                  DT::dataTableOutput( 'all_dataContents'),
+                                                  br(),
+                                                  downloadButton("all_dataDownload", "Download all data"))
+
+
+
+                                       )))
+
+                         )},
+
+
+                         # 6 - parse_coordinates
+                         {box(title = "6. Parse coordinates",
+                              status = "primary",
+                              width = 12,
+
+                              fluidRow(
+                                column(width = 12,
+                                       actionButton("parse_coordinatesBtn", "Parse coordinates", icon = icon("play"))
+
+                                )),
+
+                              br(),
+                              fluidRow(
+                                column(
+                                  width = 12,
+                                  tabsetPanel(
+                                  tabPanel("Parse coordinates results",
+                                                  DT::dataTableOutput( 'parse_coordinatesBtnContents'),
+                                                  br(),
+                                                  downloadButton("parse_coordinatesBtnDownload", "Download parse coordinates results"))
+
+                                       ))),
+                              br(),
+
+                              fluidRow(
+                                column(width = 12,
+
+                                       selectInput("show_map_geral", label = 'Show map:',
+                                                   choices = c('No','Yes'),
+                                                   multiple = FALSE,
+                                                   selected = 'No'),
+
+                                       selectInput("projetcion_map_geral", label = 'Projection geographic:',
+                                                   choices = c('Mercator','Mollweide'),
+                                                   multiple = FALSE,
+                                                   selected = 'Mercator'),
+
+                                       selectInput("sel_dataset_map_geral", label = 'Record type (arseGBIF_dataset_result):',
+                                                   choices = c('useable','duplicate','unusable'),
+                                                   multiple = TRUE,
+                                                   selected = c('useable','duplicate','unusable')),
+
+                                       leafletOutput("parseGBIFMap_geral", width = "100%", height = "550px")
+
+                                )),
+                              br(),
+
+                         )},
+
+
+
+                         # 7. Summary of results
+                         {box(title = "7. Summary of results",
+                              status = "primary",
+                              width = 12,
+
+                              fluidRow(column(
+                                width = 12,
+                                actionButton("summaryBtn", " Summary parseGBIF results", icon = icon("play")),
+                                br(),
+                                br(),
+
+                                DT::dataTableOutput( 'parseGBIF_general_summaryContents'),
+                                br(),
+                                downloadButton("parseGBIF_general_summaryDownload", "Download general summary"),
+                                br(),
+                                ))
+
+
+                              # br(),
+                              # fluidRow(
+                              #   column(width = 12,
+                              #          tabsetPanel(
+                              #            tabPanel("General summary",
+                              #                     DT::dataTableOutput( 'parseGBIF_general_summaryContents'),
+                              #                     br(),
+                              #                     downloadButton("parseGBIF_general_summaryDownload", "Download general summary")),
+                              #
+                              #            tabPanel("Merge fields summary",
+                              #                     DT::dataTableOutput("parseGBIF_merge_fields_summaryContents"),
+                              #                     br(),
+                              #                     downloadButton("parseGBIF_merge_fields_summaryDownload", "Download merge fields summary")),
+                              #
+                              #            tabPanel("Merge fields summary - useable data",
+                              #                     DT::dataTableOutput( 'parseGBIF_merge_fields_summary_useable_dataContents'),
+                              #                     br(),
+                              #                     downloadButton("parseGBIF_merge_fields_summary_useable_dataDownload", "Download merge fields summary - useable data")),
+                              #
+                              #            tabPanel("Merge fields summary - unusable data",
+                              #                     DT::dataTableOutput( 'parseGBIF_merge_fields_summary_unusable_dataContents'),
+                              #                     br(),
+                              #                     downloadButton("parseGBIF_merge_fields_summary_unusable_dataDownload", "Download merge fields summary - useable data"))
+                              #
+                              #          )))
+
+
+
+
+                           # mais abas - analises, mapas, graficos...
+
+                           ##
+            )},
+
+            )},
 
                        # map sp
                        {
@@ -1064,24 +1110,140 @@ parseGBIF_app <- function()
     server <- function(input, output, session)
     {
 
+      # parse_coordinatesBtn
+      # parse_coordinatesBtnContents
+      {
+
+
+        processa_parse_coordinate <- eventReactive(input$parse_coordinatesBtn,
+                                                   {
+                                                     withProgress(message = 'Processing...', style = 'notification', value = 0.5, {
+                                                       incProgress(5, detail = 'parse_coordinates')
+
+                                                       occ_parse_coordinates <<- parse_coordinates(occ = all_data,
+                                                                                                   centroid_round = 'point_11m')
+
+                                                       incProgress(5, detail = 'ok')
+                                                     })
+
+
+                                                     return(occ_parse_coordinates)
+
+
+                                                   })
+
+        output$parse_coordinatesBtnContents <- DT::renderDataTable(options = list(scrollX = TRUE),
+                                                                   {
+                                                                     processa_parse_coordinate()
+                                                                   })
+
+        output$parse_coordinatesBtnDownload <- downloadHandler(
+          filename = function() {
+            paste("parseGBIF_6_occ_parse_coordinates - ", Sys.Date(), ".csv", sep="")
+          },
+          content = function(file) {
+            write.csv(occ_parse_coordinates, file, row.names = FALSE, fileEncoding = "UTF-8", na = "")
+          })
+
+
+        output$parseGBIFMap_geral <- leaflet::renderLeaflet({
+          req( NROW(processa_parse_coordinate())>0 & input$show_map_geral != 'No')
+
+          dt <- processa_parse_coordinate() %>%
+            dplyr::filter(
+              parseGBIF_useful_for_spatial_analysis == TRUE &
+                parseGBIF_dataset_result %in% c(input$sel_dataset_map_geral)) %>%
+            dplyr::arrange_at('parseGBIF_dataset_result')
+
+          if (input$projetcion_map_geral == 'Mollweide')
+          {
+            m <- map_on_moll
+          }else
+          {
+            m <- map_on
+
+          }
+
+
+          dt$cor <- rep('blue', NROW(dt))
+
+          dt$cor <- ifelse(dt$parseGBIF_dataset_result=='duplicate', 'pink',dt$cor)
+          dt$cor <- ifelse(dt$parseGBIF_dataset_result=='unusable', 'red',dt$cor)
+          dt$cor <- ifelse(dt$parseGBIF_dataset_result=='useable', 'darkblue',dt$cor)
+
+          icons <-  awesomeIcons(icon = "whatever", #ifelse(dt$parseGBIF_coordinate_status=='success', 'map-location-dot', ifelse(dt$parseGBIF_coordinate_status=='danger',  'map', 'map-location')),# ,
+                                 iconRotate = ifelse(dt$parseGBIF_coordinate_status=='success', 0, ifelse(dt$parseGBIF_coordinate_status=='danger',  180, 90)),
+                                iconColor = "black",
+                                library = "ion",
+                                markerColor = dt$cor,
+                                text = ifelse(dt$parseGBIF_coordinate_status=='success', 'S', ifelse(dt$parseGBIF_coordinate_status=='danger',  'D', 'W')) )#dt$Ctrl_key_family_recordedBy_recordNumber)#dt$parseGBIF_coordinate_status)
+
+          label <- paste0(dt$parseGBIF_dataset_result, ' - ', dt$Ctrl_key_family_recordedBy_recordNumber,
+                          ' - ', dt$parseGBIF_wcvp_family, ' - ', dt$parseGBIF_sample_taxon_name,
+                          ' - ', dt$Ctrl_year,
+                          ' - ', dt$Ctrl_county)
+
+          geo_issue <- !(dt$.val==FALSE | dt$.equ==FALSE | dt$.zer==FALSE | dt$.coordinates_outOfRange==FALSE)
+          geo_issue_urb <- !(dt$.cen==FALSE | dt$.cap==FALSE | dt$.urb==FALSE | dt$.inst==FALSE | dt$.sea==FALSE | dt$parseGBIF_GADM_centroids==FALSE)
+
+          # https://getbootstrap.com/docs/5.3/components/alerts/
+          etiquetaTextoBtn <- paste0('Unique Collection Event: <b>', dt$Ctrl_key_family_recordedBy_recordNumber,'</b></br>',
+                                     dt$parseGBIF_dataset_result,' - Duplicates ',' (',dt$parseGBIF_num_duplicates-1,') - ',dt$parseGBIF_duplicates_grouping_status,'</br>',
+                                     dt$parseGBIF_wcvp_family, ' - <b>', dt$parseGBIF_sample_taxon_name,'</b></br>',
+                                     'Year: ',dt$Ctrl_year,'</br>',
+                                     'Locality: ',ifelse(is.na(dt$Ctrl_locality),'',dt$Ctrl_locality),' - ',
+                                     ifelse(is.na(dt$Ctrl_municipality),'',dt$Ctrl_municipality), ' - ',ifelse(is.na(dt$Ctrl_stateProvince),'',dt$Ctrl_stateProvince), ' - ', ifelse(is.na(dt$Ctrl_county),'',dt$Ctrl_county),'</br>',
+                                     ifelse(is.na(dt$Ctrl_level3Name),'',dt$Ctrl_level3Name), ' - ',ifelse(is.na(dt$Ctrl_level2Name),'',dt$Ctrl_level2Name), ' - ',ifelse(is.na(dt$Ctrl_level1Name),'',dt$Ctrl_level1Name), ' - ', ifelse(is.na(dt$Ctrl_level0Name),'',dt$Ctrl_level0Name),' (',
+                                     ifelse(is.na(dt$parseGBIF_countryCode_ISO3),'',dt$parseGBIF_countryCode_ISO3), ' - ',ifelse(is.na(dt$parseGBIF_countryName_en),'',dt$parseGBIF_countryName_en),')</br>',
+
+                                     "<a href='", dt$gbif_url, "' target='_blank'><b>", dt$gbif_url,"</b></a></br>",
+                                     '</br>',
+
+                                     '<div class=',ifelse(geo_issue==FALSE,'"alert alert-danger"',ifelse(geo_issue_urb==FALSE,'"alert alert-warning"','"alert alert-success"')),' role="alert"> Questions about geographic coordinates ',unique(dt$parseGBIF_coordinate_status) ,' </div>',
+                                     # '<div class="alert alert-danger" role="alert"> Possibly Artificial or Attributed later </div>',
+                                     'val: ',dt$.val,"  /  ", 'equ: ',dt$.equ,"  /  ",'zer: ',dt$.zer,"  /  ", "</br>",
+                                     'sea: ',dt$.sea,"  /  ", 'cen: ',dt$.cen,"  /  ",'cap: ',dt$.cap,"  /  ", 'urb: ',dt$.urb,"</br>",
+                                     'inst: ',dt$.inst, "  /  ", 'dup: ',dt$.dup, "</br>",
+                                     '.coordinates_outOfRange: ', dt$.coordinates_outOfRange, '  /  ', 'parseGBIF_GADM_centroids: ', dt$parseGBIF_GADM_centroids)
+
+
+          # label <- dt$parseGBIF_dataset_result
+
+          m <- addAwesomeMarkers(m,
+
+                                 lat = dt$parseGBIF_decimalLatitude,
+                                 lng = dt$parseGBIF_decimalLongitude,
+
+
+                                 # aqui voltar
+                                 label = label,
+
+                                 popup = etiquetaTextoBtn,
+
+                                 # # labelOptions = labelOptions(style = list( "color" = ifelse(dt$occ_in_sel$verticeEOO==TRUE,"red","black"))),
+                                 # labelOptions = labelOptions(style = list( "color" = cor_label)),
+                                 # popup = etiquetaTextoBtn,
+                                 # icon =   ifelse(index_geo_issue==TRUE, icon_geo_issue, icons),
+                                 icon = icons,
+                                 # group= ifelse(dt$occ_in_sel$verticeEOO==TRUE,'Vértice EOO','Pré-valiados BR'),
+                                 # group = grupo_camadas,
+                                 layerId=dt$Ctrl_gbifID)
+
+          # %>%
+          #   leafletOptions(crs= crs)
+
+          m
+        })
+
+
+      }
+
       # wcvp
       {
 
-        withProgress(message = 'Processing...rWCVPdata::wcvp_names...', style = 'notification', value = 0.5, {
-          # wcvp_names_t <<-  wcvp_get_data_v2.1(read_only_to_memory = TRUE,
-          #                                      load_rda_data = TRUE)$wcvp_names
-
-
-          # wcvp_names_t <<- rWCVPdata::wcvp_names  %>%
-          #   data.frame(stringsAsFactors = FALSE)
-
-
-          # wcvp_names_t <<- rWCVPdata::wcvp_names  %>%
-          #     dplyr::mutate(TAXON_NAME_U = taxon_name %>% toupper(),
-          #                   TAXON_AUTHORS_U = taxon_authors %>% toupper() %>% gsub ("\\s+", "", .)) %>%
-          #     data.frame(stringsAsFactors = FALSE)
-
-
+        withProgress(message = 'Processing...wcvp_names...', style = 'notification', value = 0.5, {
+          # wcvp_names <<- wcvp_get_data(read_only_to_memory = TRUE,
+          #                               load_rda_data = TRUE)$wcvp_names
           incProgress(100, detail = '100')
         })
 
@@ -1089,6 +1251,8 @@ parseGBIF_app <- function()
 
       # wf
       {
+        # variaveis
+        {
         occ <<- {}
         collectorsDictionary <<- {}
         collectorsDictionaryFromDataset <<- {}
@@ -1114,6 +1278,43 @@ parseGBIF_app <- function()
 
         all_data <<- {}
         parseGBIF_general_summary <<- {}
+        }
+
+        # 1 download
+        {
+          # # url_gbif_Input
+          # # url_gbif_Btn
+          # # folder_Input
+          # input$gbifFile$datapath
+          output$downloaded_occurrence_file_text <- renderText({
+            # req(input$downloaded_occurrence_file_Input!="" )
+            paste0('Downloaded file: ',get_url()) })
+
+          get_url <- eventReactive(input$url_gbif_Btn,
+                                                    {
+                                                      withProgress(message = 'Processing...', style = 'notification', value = 0.5, {
+                                                        incProgress(1, detail = 'download_gbif_data_from_doi...')
+                                                        incProgress(5, detail = input$folder_Input)
+
+                                                        parseGBIF::download_gbif_data_from_doi(gbif_doi_url = input$url_gbif_Input, folder = input$folder_Input)
+
+                                                        downloaded_occurrence_file <<- paste0(input$folder_Input,'\\occurrence.txt')
+
+                                                        updateVarSelectInput(session, "downloaded_occurrence_file_Input",
+                                                                          data  = downloaded_occurrence_file)
+                                                        # input$gbifFile$datapath
+
+                                                        incProgress(3, detail = '...')
+                                                        gbifLoad()
+
+
+                                                        incProgress(1, detail = 'ok')
+                                                      })
+
+                                                      return(  downloaded_occurrence_file)
+                                                    })
+
+        }
 
         # 6. summaryBtn
         {
@@ -1210,7 +1411,7 @@ parseGBIF_app <- function()
 
                                       incProgress(0.5, detail = 'Selecting the master digital voucher...')
 
-                                      results <- export_data_v2.3(occ_digital_voucher_file = '',
+                                      results <- export_data(occ_digital_voucher_file = '',
                                                                   occ_digital_voucher = occ_selectDigitalVoucher,
                                                                   merge_unusable_data = TRUE,
                                                                   silence = FALSE)
@@ -1275,7 +1476,6 @@ parseGBIF_app <- function()
                                                          {
                                                            all_data <<- export()$all_data
                                                          })
-
           output$all_dataDownload <- downloadHandler(
             filename = function() {
               paste("parseGBIF_5_all_data - ", Sys.Date(), ".csv", sep="")
@@ -1298,7 +1498,7 @@ parseGBIF_app <- function()
 
                                                     incProgress(0.5, detail = 'Selecting the master digital voucher...')
 
-                                                    tmp <- select_digital_voucher_v2.2(occ = data(),
+                                                    tmp <- select_digital_voucher(occ = data(),
                                                                                        occ_gbif_issue = issueGBIFOccurrence,
                                                                                        occ_wcvp_check_name = wcvpOccurrence,
                                                                                        occ_collectorsDictionary = occ_collectorsDictionary,
@@ -1799,33 +1999,9 @@ parseGBIF_app <- function()
 
                                          if(NROW(wcvp_names)==0)
                                          {
-                                           wcvp_names <<-  wcvp_get_data_v2.1(read_only_to_memory = TRUE,
+                                           wcvp_names <<-  wcvp_get_data(read_only_to_memory = TRUE,
                                                                               load_rda_data = TRUE)$wcvp_names
-
                                          }
-
-                                         # wcvp_names_t <<- rWCVPdata::wcvp_names  %>%
-                                         #   data.frame(stringsAsFactors = FALSE)
-                                         #
-                                         # wcvp_names_t <<- wcvp_names_t  %>%
-                                         #   dplyr::mutate(TAXON_NAME_U = taxon_name %>% toupper(),
-                                         #                 TAXON_AUTHORS_U = taxon_authors %>% toupper() %>% gsub ("\\s+", "", .)) %>%
-                                         #   data.frame(stringsAsFactors = FALSE)
-
-                                         # # if(NROW(wcvp_names)==0)
-                                         # # {
-                                         #   wcvp_names <<- loadWCVP()
-                                         # # }
-
-                                         # wcvp_names_tmp <- rWCVPdata::wcvp_names  %>%
-                                         #     dplyr::mutate(TAXON_NAME_U = taxon_name %>% toupper(),
-                                         #                   TAXON_AUTHORS_U = taxon_authors %>% toupper() %>% gsub ("\\s+", "", .)) %>%
-                                         #     data.frame(stringsAsFactors = FALSE)
-
-                                         # wcvp_names_tmp <- wcvp_names  %>%
-                                         #   dplyr::mutate(TAXON_NAME_U = taxon_name %>% toupper(),
-                                         #                 TAXON_AUTHORS_U = taxon_authors %>% toupper() %>% gsub ("\\s+", "", .)) %>%
-                                         #   data.frame(stringsAsFactors = FALSE)
 
 
                                          incProgress(0.5, detail = 'wcvp_check_name_batch...')
@@ -1880,7 +2056,6 @@ parseGBIF_app <- function()
             })
         }
 
-        # OK 1
         # 1.3 GBIF's Issue
         {
 
@@ -1988,7 +2163,8 @@ parseGBIF_app <- function()
           })
 
           gbifLoad <- reactive({
-            req(input$gbifFile)
+            # req(input$gbifFile | input$url_gbif_Btn )
+            req(input$url_gbif_Btn )
 
             tryCatch(
               {
@@ -1999,7 +2175,31 @@ parseGBIF_app <- function()
                                # files_tmp <- 'C:\\Users\\Pablo Hendrigo\\Downloads\\ALTO SAO FRANCISCO\\occurrence.txt'
                                # files_tmp_zip <- 'C:\\Dados\\Kew\\data\\raw_gbif_data_www\\Urticaceae\\occurrence.zip'
 
-                               files_tmp_zip <- input$gbifFile$datapath
+
+                               if (downloaded_occurrence_file!=""){
+
+                                 files_tmp_zip <- downloaded_occurrence_file
+
+                               }else
+                               {
+
+                                 files_tmp_zip <- input$gbifFile$datapath
+
+                               }
+
+
+
+                               if(length(files_tmp_zip)==0)
+                               {
+                                 # url_gbif_Input
+                                 # url_gbif_Btn
+                                 # folder_Input
+                                 # input$gbifFile$datapath
+
+                                 files_tmp_zip <- paste0(input$folder_Input,'\\occurrence.txt',)
+
+                               }
+
 
                                if(str_sub(files_tmp_zip[1],nchar(files_tmp_zip[1])-2,nchar(files_tmp_zip[1]))=='zip')
                                {
@@ -2967,5 +3167,3 @@ parseGBIF_app <- function()
   shinyApp(ui = ui, server = server)
 
 }
-
-# parseGBIF_app()

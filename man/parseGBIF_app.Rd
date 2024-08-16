@@ -14,7 +14,7 @@ parseGBIF App
 }
 \examples{
 \donttest{
-parseGBIF_app()
+parseGBIF::parseGBIF_app()
 }
 }
 \seealso{
