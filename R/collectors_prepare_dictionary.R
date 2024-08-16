@@ -31,6 +31,7 @@
 #' The objective is to standardize the last name of the main collector.
 #' That the primary botanical collector of a sample is always recognized by the same last name, standardized in capital letters and non-ascii characters replaced
 #'
+#'
 #' @return
 #' Ctrl_nameRecordedBy_Standard,
 #' Ctrl_recordedBy,
@@ -47,6 +48,10 @@
 #'         Alexandre Monro
 #'
 #' @seealso \code{\link[parseGBIF]{collectors_get_name}}, \code{\link[parseGBIF]{generate_collection_event_key}}
+#'
+#' @import stringr
+#' @import dplyr
+#' @import rscopus
 #'
 #' @examples
 #' \donttest{
