@@ -1018,7 +1018,7 @@ parseGBIF_app <- function()
                                                     choices = fam_list,
                                                     selected = tail(fam_list, 1) ),
 
-                                        uiOutput("forMenu"),
+                                        # uiOutput("forMenu"),
 
                                         br(),
                                         br(),
@@ -1080,6 +1080,32 @@ parseGBIF_app <- function()
                                                     label = "Upload CSV parseGBIF result file",
                                                     multiple = TRUE)
 
+                                      ),
+
+                                      box(status = "primary", width = 12,
+                                          title = 'Map of Unique Collection Events',# background = 'navy', # red, yellow, aqua, blue, light-blue, green, navy, teal, olive, lime, orange, fuchsia, purple, maroon, black.
+
+                                      fluidRow(
+                                        column(width = 12,
+
+                                               selectInput("show_map_geral_2", label = 'Show map:',
+                                                           choices = c('No','Yes'),
+                                                           multiple = FALSE,
+                                                           selected = 'No'),
+
+                                               selectInput("projetcion_map_geral_2", label = 'Projection geographic:',
+                                                           choices = c('Mercator','Mollweide'),
+                                                           multiple = FALSE,
+                                                           selected = 'Mercator'),
+
+                                               selectInput("sel_dataset_map_geral_2", label = 'Record type (arseGBIF_dataset_result):',
+                                                           choices = c('useable','duplicate','unusable'),
+                                                           multiple = TRUE,
+                                                           selected = c('useable','duplicate','unusable')),
+
+                                               leafletOutput("parseGBIFMap_geral_2", width = "100%", height = "550px")
+
+                                        ))
                                       ),
 
 
@@ -2781,7 +2807,7 @@ parseGBIF_app <- function()
 
 
         output$parseGBIFMap <- leaflet::renderLeaflet({
-          req(input$sp_map)
+          req(input$fam_map)
           # req(input$parseGBIFFile)
 
           # print(input$sp_map)
@@ -2789,11 +2815,19 @@ parseGBIF_app <- function()
 
 
 
+          # dt <- occ %>%
+          #   dplyr::filter(
+          #     parseGBIF_useful_for_spatial_analysis == TRUE &
+          #                   parseGBIF_sample_taxon_name == input$sp_map &
+          #                   parseGBIF_dataset_result %in% c(input$sel_dataset_map)) %>%
+          #   dplyr::arrange_at('parseGBIF_dataset_result')
+
+
           dt <- occ %>%
             dplyr::filter(
               parseGBIF_useful_for_spatial_analysis == TRUE &
-                            parseGBIF_sample_taxon_name == input$sp_map &
-                            parseGBIF_dataset_result %in% c(input$sel_dataset_map)) %>%
+              parseGBIF_wcvp_family %in% input$fam_map &
+              parseGBIF_dataset_result %in% c(input$sel_dataset_map)) %>%
             dplyr::arrange_at('parseGBIF_dataset_result')
 
           if (input$projetcion_map == 'Mollweide')
@@ -2918,6 +2952,98 @@ parseGBIF_app <- function()
       # table
       {
         occ_tab <<- {}
+
+        output$parseGBIFMap_geral_2 <- leaflet::renderLeaflet({
+          req( NROW(parsegbifLoad2())>0 & input$show_map_geral_2 != 'No')
+
+          dt <- parsegbifLoad2()
+
+          dt <- dt %>%
+            dplyr::filter(
+              parseGBIF_useful_for_spatial_analysis == TRUE &
+                parseGBIF_dataset_result %in% c(input$sel_dataset_map_geral_2)) %>%
+            dplyr::arrange_at('parseGBIF_dataset_result')
+
+          if (input$projetcion_map_geral_2 == 'Mollweide')
+          {
+            m <- map_on_moll
+          }else
+          {
+            m <- map_on
+
+          }
+
+
+          dt$cor <- rep('blue', NROW(dt))
+
+          dt$cor <- ifelse(dt$parseGBIF_dataset_result=='duplicate', 'pink',dt$cor)
+          dt$cor <- ifelse(dt$parseGBIF_dataset_result=='unusable', 'red',dt$cor)
+          dt$cor <- ifelse(dt$parseGBIF_dataset_result=='useable', 'darkblue',dt$cor)
+
+          icons <-  awesomeIcons(icon = "whatever", #ifelse(dt$parseGBIF_coordinate_status=='success', 'map-location-dot', ifelse(dt$parseGBIF_coordinate_status=='danger',  'map', 'map-location')),# ,
+                                 iconRotate = ifelse(dt$parseGBIF_coordinate_status=='success', 0, ifelse(dt$parseGBIF_coordinate_status=='danger',  180, 90)),
+                                 iconColor = "black",
+                                 library = "ion",
+                                 markerColor = dt$cor,
+                                 text = ifelse(dt$parseGBIF_coordinate_status=='success', '', ifelse(dt$parseGBIF_coordinate_status=='danger',  'D', 'W')) )#dt$Ctrl_key_family_recordedBy_recordNumber)#dt$parseGBIF_coordinate_status)
+
+          label <- paste0(dt$parseGBIF_dataset_result, ' - ', dt$Ctrl_key_family_recordedBy_recordNumber,
+                          ' - ', dt$parseGBIF_wcvp_family, ' - ', dt$parseGBIF_sample_taxon_name,
+                          ' - ', dt$Ctrl_year,
+                          ' - ', dt$Ctrl_county)
+
+          geo_issue <- !(dt$.val==FALSE | dt$.equ==FALSE | dt$.zer==FALSE | dt$.coordinates_outOfRange==FALSE)
+          geo_issue_urb <- !(dt$.cen==FALSE | dt$.cap==FALSE | dt$.urb==FALSE | dt$.inst==FALSE | dt$.sea==FALSE | dt$parseGBIF_GADM_centroids==FALSE)
+
+          # https://getbootstrap.com/docs/5.3/components/alerts/
+          etiquetaTextoBtn <- paste0('Unique Collection Event: <b>', dt$Ctrl_key_family_recordedBy_recordNumber,'</b></br>',
+                                     dt$parseGBIF_dataset_result,' - Duplicates ',' (',dt$parseGBIF_num_duplicates-1,') - ',dt$parseGBIF_duplicates_grouping_status,'</br>',
+                                     dt$parseGBIF_wcvp_family, ' - <b>', dt$parseGBIF_sample_taxon_name,'</b></br>',
+                                     'Year: ',dt$Ctrl_year,'</br>',
+                                     'Locality: ',ifelse(is.na(dt$Ctrl_locality),'',dt$Ctrl_locality),' - ',
+                                     ifelse(is.na(dt$Ctrl_municipality),'',dt$Ctrl_municipality), ' - ',ifelse(is.na(dt$Ctrl_stateProvince),'',dt$Ctrl_stateProvince), ' - ', ifelse(is.na(dt$Ctrl_county),'',dt$Ctrl_county),'</br>',
+                                     ifelse(is.na(dt$Ctrl_level3Name),'',dt$Ctrl_level3Name), ' - ',ifelse(is.na(dt$Ctrl_level2Name),'',dt$Ctrl_level2Name), ' - ',ifelse(is.na(dt$Ctrl_level1Name),'',dt$Ctrl_level1Name), ' - ', ifelse(is.na(dt$Ctrl_level0Name),'',dt$Ctrl_level0Name),' (',
+                                     ifelse(is.na(dt$parseGBIF_countryCode_ISO3),'',dt$parseGBIF_countryCode_ISO3), ' - ',ifelse(is.na(dt$parseGBIF_countryName_en),'',dt$parseGBIF_countryName_en),')</br>',
+
+                                     "<a href='", dt$gbif_url, "' target='_blank'><b>", dt$gbif_url,"</b></a></br>",
+                                     '</br>',
+
+                                     '<div class=',ifelse(geo_issue==FALSE,'"alert alert-danger"',ifelse(geo_issue_urb==FALSE,'"alert alert-warning"','"alert alert-success"')),' role="alert"> Questions about geographic coordinates ',unique(dt$parseGBIF_coordinate_status) ,' </div>',
+                                     # '<div class="alert alert-danger" role="alert"> Possibly Artificial or Attributed later </div>',
+                                     'val: ',dt$.val,"  /  ", 'equ: ',dt$.equ,"  /  ",'zer: ',dt$.zer,"  /  ", "</br>",
+                                     'sea: ',dt$.sea,"  /  ", 'cen: ',dt$.cen,"  /  ",'cap: ',dt$.cap,"  /  ", 'urb: ',dt$.urb,"</br>",
+                                     'inst: ',dt$.inst, "  /  ", 'dup: ',dt$.dup, "</br>",
+                                     '.coordinates_outOfRange: ', dt$.coordinates_outOfRange, '  /  ', 'parseGBIF_GADM_centroids: ', dt$parseGBIF_GADM_centroids)
+
+
+          # label <- dt$parseGBIF_dataset_result
+
+          m <- addAwesomeMarkers(m,
+
+                                 lat = dt$parseGBIF_decimalLatitude,
+                                 lng = dt$parseGBIF_decimalLongitude,
+
+
+                                 # aqui voltar
+                                 label = label,
+
+                                 popup = etiquetaTextoBtn,
+
+                                 # # labelOptions = labelOptions(style = list( "color" = ifelse(dt$occ_in_sel$verticeEOO==TRUE,"red","black"))),
+                                 # labelOptions = labelOptions(style = list( "color" = cor_label)),
+                                 # popup = etiquetaTextoBtn,
+                                 # icon =   ifelse(index_geo_issue==TRUE, icon_geo_issue, icons),
+                                 icon = icons,
+                                 # group= ifelse(dt$occ_in_sel$verticeEOO==TRUE,'Vértice EOO','Pré-valiados BR'),
+                                 # group = grupo_camadas,
+                                 layerId=dt$Ctrl_gbifID)
+
+          # %>%
+          #   leafletOptions(crs= crs)
+
+          m
+        })
+
 
         parsegbifLoad2 <- reactive({
           req(input$parseGBIFFile2)
@@ -3167,3 +3293,5 @@ parseGBIF_app <- function()
   shinyApp(ui = ui, server = server)
 
 }
+# parseGBIF_app()
+
