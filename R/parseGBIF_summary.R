@@ -94,6 +94,8 @@ parseGBIF_summary <- function(parseGBIF_all_data = NA,
         return(data)
       }
 
+      # freq_merged_fields(fields=fields_to_merge, occ_tmp %>% dplyr::filter(parseGBIF_dataset_result=='unusable'))
+
       freq_merged_fields <- function(fields=NA,
                                      occ_tmp=NA)
       {
@@ -292,32 +294,38 @@ parseGBIF_summary <- function(parseGBIF_all_data = NA,
     }
     parseGBIF_general_summary
 
-    if (any(occ_tmp$parseGBIF_merged_fields != ''))
+    # aqui
+    if (!sum(is.na(occ_tmp$parseGBIF_merged_fields)) == NROW(occ_tmp)  )
     {
-
-      x_freq_merged_fields <- freq_merged_fields(fields_to_merge, occ_tmp)
-      x_freq_merged_fields$id <- paste0(x_freq_merged_fields$id,' : total merge actions')
-      parseGBIF_merge_fields_summary <- add_summary(x_freq_merged_fields$id, x_freq_merged_fields$val, condition, parseGBIF_merge_fields_summary)
-      parseGBIF_merge_fields_summary
-
-      if(NROW(occ_tmp %>% dplyr::filter(parseGBIF_dataset_result=='useable'))>0)
+      if (any(occ_tmp$parseGBIF_merged_fields != ''))
       {
-        x_freq_merged_fields <- freq_merged_fields(fields_to_merge, occ_tmp %>% dplyr::filter(parseGBIF_dataset_result=='useable'))
-        x_freq_merged_fields$id <- paste0(x_freq_merged_fields$id,' : merge actions ')
-        parseGBIF_merge_fields_summary_complete <- add_summary(x_freq_merged_fields$id, x_freq_merged_fields$val, condition, parseGBIF_merge_fields_summary_complete)
-        parseGBIF_merge_fields_summary_complete
+
+        x_freq_merged_fields <- freq_merged_fields(fields_to_merge, occ_tmp)
+        x_freq_merged_fields$id <- paste0(x_freq_merged_fields$id,' : total merge actions')
+        parseGBIF_merge_fields_summary <- add_summary(x_freq_merged_fields$id, x_freq_merged_fields$val, condition, parseGBIF_merge_fields_summary)
+        parseGBIF_merge_fields_summary
+
+        if(NROW(occ_tmp %>% dplyr::filter(parseGBIF_dataset_result=='useable'))>0)
+        {
+          x_freq_merged_fields <- freq_merged_fields(fields_to_merge, occ_tmp %>% dplyr::filter(parseGBIF_dataset_result=='useable'))
+          x_freq_merged_fields$id <- paste0(x_freq_merged_fields$id,' : merge actions ')
+          parseGBIF_merge_fields_summary_complete <- add_summary(x_freq_merged_fields$id, x_freq_merged_fields$val, condition, parseGBIF_merge_fields_summary_complete)
+          parseGBIF_merge_fields_summary_complete
+        }
+
       }
 
-    }
 
-    if(NROW(occ_tmp %>% dplyr::filter(parseGBIF_dataset_result=='unusable'))>0 )
-    {
+      if(NROW(occ_tmp %>% dplyr::filter(parseGBIF_dataset_result=='unusable'))>0 )
+      {
 
-      x_freq_merged_fields <- freq_merged_fields(fields_to_merge, occ_tmp %>% dplyr::filter(parseGBIF_dataset_result=='unusable'))
-      x_freq_merged_fields$id <- paste0(x_freq_merged_fields$id,' : merge actions ')
-      parseGBIF_merge_fields_summary_incomplete <- add_summary(x_freq_merged_fields$id, x_freq_merged_fields$val, condition, parseGBIF_merge_fields_summary_incomplete)
-      parseGBIF_merge_fields_summary_incomplete
-    }
+        x_freq_merged_fields <- freq_merged_fields(fields_to_merge, occ_tmp %>% dplyr::filter(parseGBIF_dataset_result=='unusable'))
+        x_freq_merged_fields$id <- paste0(x_freq_merged_fields$id,' : merge actions ')
+        parseGBIF_merge_fields_summary_incomplete <- add_summary(x_freq_merged_fields$id, x_freq_merged_fields$val, condition, parseGBIF_merge_fields_summary_incomplete)
+        parseGBIF_merge_fields_summary_incomplete
+      }
+
+  }
 
   }
 

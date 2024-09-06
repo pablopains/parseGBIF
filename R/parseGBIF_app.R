@@ -1176,7 +1176,7 @@ parseGBIF_app <- function()
                                 iconColor = "black",
                                 library = "ion",
                                 markerColor = dt$cor,
-                                text = ifelse(dt$parseGBIF_coordinate_status=='success', 'S', ifelse(dt$parseGBIF_coordinate_status=='danger',  'D', 'W')) )#dt$Ctrl_key_family_recordedBy_recordNumber)#dt$parseGBIF_coordinate_status)
+                                text = ifelse(dt$parseGBIF_coordinate_status=='success', '', ifelse(dt$parseGBIF_coordinate_status=='danger',  'D', 'W')) )#dt$Ctrl_key_family_recordedBy_recordNumber)#dt$parseGBIF_coordinate_status)
 
           label <- paste0(dt$parseGBIF_dataset_result, ' - ', dt$Ctrl_key_family_recordedBy_recordNumber,
                           ' - ', dt$parseGBIF_wcvp_family, ' - ', dt$parseGBIF_sample_taxon_name,
@@ -2517,7 +2517,7 @@ parseGBIF_app <- function()
                            {
 
 
-                             # occ <<- read.csv(file = 'C:\\Dados\\Kew\\Bahamas\\dataGBIF\\parseGBIF_7_parse_coordinates_Bahamas.csv',
+                             # occ <<- read.csv(file = 'C:\\Dados\\Kew\\parseGBIF_7_parse_coordinates_success_Bhutan\\parseGBIF_7_parse_coordinates_success_Bhutan.csv')
                              occ <<- read.csv(file = input$parseGBIFFile$datapath, #'C:\\Dados\\Kew\\Bolivia\\dataGBIF\\parseGBIF_7_cc.csv',#input$parseGBIFFile$datapath, #'C:\\Users\\Pablo Hendrigo\\Downloads\\parseGBIF_5_occ_all_data.csv'
                                               fileEncoding = "UTF-8")
 
@@ -2770,7 +2770,7 @@ parseGBIF_app <- function()
 
                                                           occ <<- parsegbifLoad()
 
-                                                          summ <- parseGBIF::parseGBIF_summary(parseGBIF_all_data = occ)
+                                                          summ <- parseGBIF_summary(parseGBIF_all_data = occ)
 
                                                           summ$parseGBIF_general_summary
 
