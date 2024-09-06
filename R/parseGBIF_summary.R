@@ -179,7 +179,7 @@ parseGBIF_summary <- function(parseGBIF_all_data = NA,
       parseGBIF_general_summary <- add_summary(question, value, condition, parseGBIF_general_summary); parseGBIF_general_summary
 
       question <- 'total number of unusable records / unidentified'
-      ind <- occ_tmp$parseGBIF_dataset_result=='unusable'
+      ind <- occ_tmp$parseGBIF_dataset_result=='unusable' & occ_tmp$parseGBIF_unidentified_sample == TRUE
       value <- sum(ind)
       condition <- "where parseGBIF_dataset_result = 'unusable' AND parseGBIF_unidentified_sample = TRUE"
       parseGBIF_general_summary <- add_summary(question, value, condition, parseGBIF_general_summary); parseGBIF_general_summary

@@ -1789,7 +1789,6 @@ parseGBIF_app <- function()
           }
 
 
-
           # get Main Collector Last Name
           {
 
@@ -2360,7 +2359,6 @@ parseGBIF_app <- function()
         colSearch_sel <- reactive({
           # req(input$fam_map)
 
-          spp_list <<- as.character(spp$parseGBIF_sample_taxon_name[spp$parseGBIF_wcvp_family %in% input$fam_map])
 
           # updateSelectInput(session = session,
           #                   inputId = "sp_map",
@@ -2753,38 +2751,21 @@ parseGBIF_app <- function()
           lengthMenu = c(5, 100, 500, 1000),
           scrollX = TRUE),
           {
-            req(input$sp_map)
+            # req(NROW(occ)>0)
+
+            # occ %>%
+            #   dplyr::filter(
+            #     # parseGBIF_useful_for_spatial_analysis == TRUE &
+            #       # parseGBIF_sample_taxon_name == input$sp_map &
+            #       parseGBIF_dataset_result %in% c(input$sel_dataset_map)) %>%
+            #   dplyr::arrange_at('parseGBIF_dataset_result')
 
             occ %>%
               dplyr::filter(
                 # parseGBIF_useful_for_spatial_analysis == TRUE &
-                  parseGBIF_sample_taxon_name == input$sp_map &
+                  parseGBIF_wcvp_family %in% input$fam_map &
                   parseGBIF_dataset_result %in% c(input$sel_dataset_map)) %>%
               dplyr::arrange_at('parseGBIF_dataset_result')
-
-
-            # %>%
-            #   dplyr::select(input$pick)
-            # %>%
-            #   dplyr::arrange_at(c('Ctrl_key_family_recordedBy_recordNumber', 'parseGBIF_dataset_result'))#desc('parseGBIF_dataset_result'))
-
-
-            # col_raw <- colnames(occ)
-            # index_col <- col_all %in% col_raw
-            # if(sum(index_col)>1)
-            # {
-            #   occ <<- occ %>%
-            #     dplyr::select(col_all[index_col==TRUE])
-            # }
-
-            # index_col2 <- col_raw %in% c('Ctrl_key_family_recordedBy_recordNumber', 'parseGBIF_dataset_result')
-            # if(sum(index_col2)==2)
-            # {
-            #   occ <<- occ %>%
-            #     dplyr::arrange_at(c('Ctrl_key_family_recordedBy_recordNumber', 'parseGBIF_dataset_result'))
-            # }
-
-
 
 
           })
