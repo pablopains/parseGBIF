@@ -9,8 +9,7 @@ generate_collection_event_key(
   occ = NA,
   collectorDictionary_checked_file = NA,
   collectorDictionary_checked = NA,
-  collectorDictionary_file =
-    "https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv",
+  collectorDictionary_file = "",
   silence = TRUE
 )
 }
@@ -21,7 +20,7 @@ generate_collection_event_key(
 
 \item{collectorDictionary_checked}{Verified collector dictionary data frame (use file or data frame)}
 
-\item{collectorDictionary_file}{Collector dictionary file - point to a file on your local disk or upload via git at https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv.}
+\item{collectorDictionary_file}{Collector dictionary file - point to a file on your local disk. if empty, will load the default collector dictionary from the package at https://github.com/pablopains/parseGBIF/tree/main/collectorDictionary}
 
 \item{silence}{if TRUE does not display progress messages}
 }

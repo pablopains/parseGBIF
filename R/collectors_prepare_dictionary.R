@@ -21,7 +21,7 @@
 #' Once verified, the collector’s dictionary can be reused in the future.
 
 #' @param occ GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')
-#' @param collectorDictionary_file Collector dictionary file - point to a file on your local disk or download via git at 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary_parseGBIF.csv'.
+#' @param collectorDictionary_file Collector dictionary file - point to a file on your local disk. if empty, will load the default collector dictionary from the package at https://github.com/pablopains/parseGBIF/tree/main/collectorDictionary
 #' @param silence if TRUE does not display progress messages
 #'
 #' @details If recordedBy is present in the collector's dictionary, it returns the checked name, if not, it returns the last name of the main collector, extracted from the recordedBy field.
@@ -78,7 +78,7 @@
 #'}
 #' @export
 collectors_prepare_dictionary <- function(occ=NA,
-                                          collectorDictionary_file = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary_parseGBIF.csv',
+                                          collectorDictionary_file = '',
                                           silence = TRUE)
 {
 
@@ -102,9 +102,24 @@ collectors_prepare_dictionary <- function(occ=NA,
 
   }
 
-  collectorDictionary <- readr::read_csv(collectorDictionary_file,
-                                         locale = readr::locale(encoding = 'UTF-8'),
-                                         show_col_types = FALSE)
+  # collectorDictionary <- readr::read_csv(collectorDictionary_file,
+  #                                        locale = readr::locale(encoding = 'UTF-8'),
+  #                                        show_col_types = FALSE)
+
+
+  if (collectorDictionary_file=='')
+  {
+
+    collectorDictionary <- rbind(readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_1.csv',
+                                           locale = readr::locale(encoding = 'UTF-8'),
+                                           show_col_types = FALSE),
+                                 readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_2.csv',
+                                                 locale = readr::locale(encoding = 'UTF-8'),
+                                                 show_col_types = FALSE))
+  }
+
+
+
 
 
   if(NROW(collectorDictionary)==0 | any(colnames(collectorDictionary) %in% c('Ctrl_nameRecordedBy_Standard',

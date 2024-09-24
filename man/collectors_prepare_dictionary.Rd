@@ -6,15 +6,14 @@
 \usage{
 collectors_prepare_dictionary(
   occ = NA,
-  collectorDictionary_file =
-    "https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary_parseGBIF.csv",
+  collectorDictionary_file = "",
   silence = TRUE
 )
 }
 \arguments{
 \item{occ}{GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')}
 
-\item{collectorDictionary_file}{Collector dictionary file - point to a file on your local disk or download via git at 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary_parseGBIF.csv'.}
+\item{collectorDictionary_file}{Collector dictionary file - point to a file on your local disk. if empty, will load the default collector dictionary from the package at https://github.com/pablopains/parseGBIF/tree/main/collectorDictionary}
 
 \item{silence}{if TRUE does not display progress messages}
 }
