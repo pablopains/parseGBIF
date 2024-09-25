@@ -25,10 +25,12 @@
 #' @import shinyFiles
 #' @import stringr
 #' @import rscopus
+#' @import jsonify
 #'
 #' @export
 parseGBIF_app <- function()
 {
+  require(jsonify)
   require(leaflet)
   require(shiny)
   require(rnaturalearth)

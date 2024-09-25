@@ -96,11 +96,11 @@ collectors_prepare_dictionary <- function(occ=NA,
     print('Loading collectorDictionary...')
   }
 
-  if(collectorDictionary_file=='' | is.na(collectorDictionary_file) )
-  {
-    stop("Invalid Collector's Dictionary!")
-
-  }
+  # if(collectorDictionary_file=='' | is.na(collectorDictionary_file) )
+  # {
+  #   stop("Invalid Collector's Dictionary!")
+  #
+  # }
 
   # collectorDictionary <- readr::read_csv(collectorDictionary_file,
   #                                        locale = readr::locale(encoding = 'UTF-8'),
