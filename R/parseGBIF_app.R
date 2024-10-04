@@ -1349,9 +1349,10 @@ parseGBIF_app <- function()
                                            rvest::html_nodes("a") %>%
                                            rvest::html_attr("href")
 
-                                         li_dr_txt <- li_dr[seq(1, length(li_dr), 2)]
+                                         # li_dr_txt <- li_dr[seq(1, length(li_dr), 2)]
+                                         # url_file_zip_GBIF <- li_dr_txt[42]
 
-                                         url_file_zip_GBIF <- li_dr_txt[42]
+                                         url_file_zip_GBIF <- li_dr[84]
                                          path_file_zip_GBIF <- paste0(folder,'\\dataGBIF.zip')
 
                                          downloader::download(url_file_zip_GBIF, path_file_zip_GBIF, mode = "wb")

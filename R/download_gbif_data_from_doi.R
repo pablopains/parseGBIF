@@ -53,9 +53,13 @@ download_gbif_data_from_doi <- function(gbif_doi_url,
     rvest::html_nodes("a") %>%
     rvest::html_attr("href")
 
-  li_dr_txt <- li_dr[seq(1, length(li_dr), 2)]
+  # li_dr_txt <- li_dr[seq(1, length(li_dr), 2)]
+  #
+  # url_file_zip_GBIF <- li_dr_txt[42]
 
-  url_file_zip_GBIF <- li_dr_txt[42]
+
+  url_file_zip_GBIF <- li_dr[84]
+
   path_file_zip_GBIF <- paste0(folder,'\\dataGBIF.zip')
 
   # if( ( !file.exists(path_file_zip_GBIF)) | (!file.exists(paste0(folder,'\\occurrence.txt'))) |
