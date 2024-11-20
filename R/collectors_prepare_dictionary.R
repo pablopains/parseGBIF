@@ -52,6 +52,8 @@
 #' @import stringr
 #' @import dplyr
 #' @import rscopus
+#' @import shinyFiles
+#' @import jsonify
 #'
 #' @examples
 #' \donttest{
