@@ -84,6 +84,8 @@ collectors_prepare_dictionary <- function(occ=NA,
                                           silence = TRUE)
 {
 
+
+
   require(stringr)
   # require(googlesheets4)
 
