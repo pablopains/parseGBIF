@@ -269,9 +269,7 @@ export_data <- function(occ_digital_voucher_file = '',
         parseGBIF_freq_duplicate_or_missing_data = '',
         parseGBIF_duplicates_map = '',
         parseGBIF_merged_fields = '',
-        parseGBIF_merged = FALSE,
-
-        after = 'parseGBIF_dataset_result')
+        parseGBIF_merged = FALSE)
 
     occ_tmp <- occ_tmp %>%
       dplyr::arrange(Ctrl_key_family_recordedBy_recordNumber)

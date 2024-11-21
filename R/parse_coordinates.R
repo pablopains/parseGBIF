@@ -49,15 +49,6 @@ parse_coordinates <- function(occ = NA,
                              file_centroids = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataRaw/parseGBIF_GADM_centroids.CSV',
                              centroid_round = 'point_110m')
 {
-
-  if(is.na(path_centroids))
-  {
-    path_word <- tempdir()
-  }else
-  {
-    path_word <- path_centroids
-  }
-
   centroids <- get_centroids(file_centroids = file_centroids) %>%
     dplyr::mutate(point_11_1_km = paste0(format(round(lon, 1), nsmall = 1), ' _ ', format(round(lat, 1), nsmall = 1))) %>%
     dplyr::mutate(point_1_1_km = paste0(format(round(lon, 2), nsmall = 2), ' _ ', format(round(lat, 2), nsmall = 2))) %>%
@@ -105,12 +96,12 @@ parse_coordinates <- function(occ = NA,
     dplyr::mutate(decimalLongitude  = as.numeric(decimalLongitude),
                   decimalLatitude = as.numeric(decimalLatitude)) %>%
 
-    # dplyr::mutate(
-    #               # point = paste0(format(round(decimallongitude, n_dec_round), nsmall = n_dec_round), ' _ ', format(round(decimallatitude, n_dec_round), nsmall = n_dec_round)),
-    #               point_11_1_km = paste0(format(round(decimalLongitude, 1), nsmall = 1), ' _ ', format(round(decimalLatitude, 1), nsmall = 1)),
-    #               point_1_1_km = paste0(format(round(decimalLongitude, 2), nsmall = 2), ' _ ', format(round(decimalLatitude, 2), nsmall = 2)),
-    #               point_110m = paste0(format(round(decimalLongitude, 3), nsmall = 3), ' _ ', format(round(decimalLatitude, 3), nsmall = 3)),
-    #               point_11m = paste0(format(round(decimalLongitude, 4), nsmall = 4), ' _ ', format(round(decimalLatitude, 4), nsmall = 4))) %>%
+    dplyr::mutate(
+                  # point = paste0(format(round(decimallongitude, n_dec_round), nsmall = n_dec_round), ' _ ', format(round(decimallatitude, n_dec_round), nsmall = n_dec_round)),
+                  point_11_1_km = paste0(format(round(decimalLongitude, 1), nsmall = 1), ' _ ', format(round(decimalLatitude, 1), nsmall = 1)),
+                  point_1_1_km = paste0(format(round(decimalLongitude, 2), nsmall = 2), ' _ ', format(round(decimalLatitude, 2), nsmall = 2)),
+                  point_110m = paste0(format(round(decimalLongitude, 3), nsmall = 3), ' _ ', format(round(decimalLatitude, 3), nsmall = 3)),
+                  point_11m = paste0(format(round(decimalLongitude, 4), nsmall = 4), ' _ ', format(round(decimalLatitude, 4), nsmall = 4))) %>%
     dplyr::mutate(.val = FALSE,
                   .zer = FALSE,
                   .sea = FALSE,
@@ -370,18 +361,19 @@ parse_coordinates <- function(occ = NA,
 
     occ_cc$parseGBIF_coordinate_status <- ifelse(geo_issue==FALSE,'danger',ifelse(geo_issue_urb==FALSE,'warning','success'))
 
-    occ <- cbind(occ_cc %>% dplyr::select(point_11_1_km,
-                                          n_taxon_name_11_1_km,
-                                          n_unique_collection_event_11_1_km,
-                                          point_1_1_km,
-                                          n_taxon_name_1_1_km,
-                                          n_unique_collection_event_1_1_km,
-                                          point_110m,
-                                          n_taxon_name_110m,
-                                          n_unique_collection_event_110m,
-                                          point_11m,
-                                          n_taxon_name_11m,
-                                          n_unique_collection_event_11m,
+    occ <- cbind(occ_cc %>% dplyr::select(
+      # point_11_1_km,
+      #                                     n_taxon_name_11_1_km,
+      #                                     n_unique_collection_event_11_1_km,
+      #                                     point_1_1_km,
+      #                                     n_taxon_name_1_1_km,
+      #                                     n_unique_collection_event_1_1_km,
+      #                                     point_110m,
+      #                                     n_taxon_name_110m,
+      #                                     n_unique_collection_event_110m,
+      #                                     point_11m,
+      #                                     n_taxon_name_11m,
+      #                                     n_unique_collection_event_11m,
                                           parseGBIF_GADM_centroids,
                                           parseGBIF_GADM_centroids_level,
                                           parseGBIF_coordinate_status,
@@ -402,6 +394,8 @@ parse_coordinates <- function(occ = NA,
     print(paste0('.inst', '-', occ_cc %>% dplyr::filter(.inst == FALSE) %>% NROW()))
     print(paste0('.dup', '-', occ_cc %>% dplyr::filter(.dup == FALSE) %>% NROW()))
     print(paste0('.sea', '-', occ_cc %>% dplyr::filter(.sea == FALSE) %>% NROW()))
+    print(paste0('GADM centroids', '-', occ_cc %>% dplyr::filter(parseGBIF_GADM_centroids == FALSE) %>% NROW()))
+
 
 
     # parseGBIF_useful_for_spatial_analysis
