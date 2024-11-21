@@ -5,11 +5,12 @@
 \title{Load or generate table with centroids}
 \usage{
 get_centroids(
-  path_centroids = "https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataRaw"
+  file_centroids =
+    "https://github.com/pablopains/parseGBIF/blob/main/dataRaw/parseGBIF_GADM_centroids.CSV"
 )
 }
 \arguments{
-\item{path_centroids}{path to the centroids file, default 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataRaw'
+\item{file_centroids}{centroids file, default 'https://github.com/pablopains/parseGBIF/blob/main/dataRaw/parseGBIF_GADM_centroids.CSV'
 if not provided (NA), the table will be generated and loaded only into memory.}
 }
 \value{
@@ -26,7 +27,7 @@ Returns the table with centroids
 \donttest{
 help(standardize_country_from_iso2)
 
-centroids <- get_centroids(path_centroids=NA)
+centroids <- get_centroids()
 
 colnames(centroids)
 head(centroids)

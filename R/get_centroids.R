@@ -4,7 +4,7 @@
 #' @description load or generate table with centroids for levels 0, 1 and 2,
 #' countries, states and municipalities, in the world
 #'
-#' @param path_centroids path to the centroids file, default 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataRaw'
+#' @param file_centroids centroids file, default 'https://github.com/pablopains/parseGBIF/blob/main/dataRaw/parseGBIF_GADM_centroids.CSV'
 #' if not provided (NA), the table will be generated and loaded only into memory.
 #'
 #' @details Returns the table with centroids
@@ -21,7 +21,7 @@
 #' \donttest{
 #' help(standardize_country_from_iso2)
 #'
-#' centroids <- get_centroids(path_centroids=NA)
+#' centroids <- get_centroids()
 #'
 #' colnames(centroids)
 #' head(centroids)
@@ -34,7 +34,7 @@
 #' @import countrycode
 #' @import readr
 #' @export
-get_centroids <- function(path_centroids='https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataRaw')
+get_centroids <- function(file_centroids='https://github.com/pablopains/parseGBIF/blob/main/dataRaw/parseGBIF_GADM_centroids.CSV')
 {
   # library(raster)
   # library(geosphere)
@@ -52,9 +52,8 @@ get_centroids <- function(path_centroids='https://raw.githubusercontent.com/pabl
 
   centroids <- {}
 
-  if (!is.na(path_centroids))
+  if (!is.na(file_centroids))
   {
-    file_centroids <- paste0(path_centroids,'/','parseGBIF_GADM_centroids.CSV')
     centroids <- readr::read_csv(file_centroids,
                                  locale = locale(encoding = "UTF-8"),
                                  show_col_types = FALSE)

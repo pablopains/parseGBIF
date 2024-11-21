@@ -822,7 +822,7 @@ select_digital_voucher <-  function(occ = NA,
 
                       Ctrl_identifiedBy,
                       Ctrl_dateIdentified,
-                      Crl_scientificName,
+                      Ctrl_scientificName,
                       Ctrl_family,
                       Ctrl_taxonRank,
                       Ctrl_issue,

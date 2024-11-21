@@ -5,22 +5,9 @@
 #'
 #' @param occ GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')
 #' @param iso2_field_name indicates the name of the field with ISO2 code of the countries
-#' @param path_centroids 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataRaw'
-#' @param scale the scale of the default reference, as downloaded from natural earth. Must be one of 10, 50, 110. Higher numbers equal higher detail. Default = 110.
+#' @param file_centroids 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataRaw/parseGBIF_GADM_centroids.CSV'
 #' @param centroid_round point_11_1_km, point_1_1_km, point_110m or point_11m
 #' @details Adds the following fields, result of the coordinate checking process:
-#' point_11_1_km,
-#' n_taxon_name_11_1_km,
-#' n_unique_collection_event_11_1_km,
-#' point_1_1_km,
-#' n_taxon_name_1_1_km,
-#' n_unique_collection_event_1_1_km,
-#' point_110m,
-#' n_taxon_name_110m,
-#' n_unique_collection_event_110m,
-#' point_11m,
-#' n_taxon_name_11m,
-#' n_unique_collection_event_11m,
 #' parseGBIF_GADM_centroids,
 #' parseGBIF_GADM_centroids_level,
 #' parseGBIF_coordinate_status,
@@ -56,12 +43,10 @@
 #' @import sf
 #' @import readr
 #' @export
-  parse_coordinates <- function(occ = NA,
+parse_coordinates <- function(occ = NA,
                              file_occ = NA,
                              iso2_field_name = 'Ctrl_countryCode',
-                             # centroids = NA,
-                             path_centroids = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataRaw',
-                             scale = 110,
+                             file_centroids = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataRaw/parseGBIF_GADM_centroids.CSV',
                              centroid_round = 'point_110m')
 {
 
@@ -73,7 +58,7 @@
     path_word <- path_centroids
   }
 
-  centroids <- get_centroids(path_centroids=path_centroids) %>%
+  centroids <- get_centroids(file_centroids = file_centroids) %>%
     dplyr::mutate(point_11_1_km = paste0(format(round(lon, 1), nsmall = 1), ' _ ', format(round(lat, 1), nsmall = 1))) %>%
     dplyr::mutate(point_1_1_km = paste0(format(round(lon, 2), nsmall = 2), ' _ ', format(round(lat, 2), nsmall = 2))) %>%
     dplyr::mutate(point_110m = paste0(format(round(lon, 3), nsmall = 3), ' _ ', format(round(lat, 3), nsmall = 3))) %>%
@@ -90,7 +75,6 @@
 
   # standardize country codes ISO2 to ISO3
   occ <- standardize_country_from_iso2(occ = occ,
-                                       iso2_field_name = iso2_field_name,#'Ctrl_countryCode',
                                        silence = T)$occ
 
   # Warning messages:
@@ -121,12 +105,12 @@
     dplyr::mutate(decimalLongitude  = as.numeric(decimalLongitude),
                   decimalLatitude = as.numeric(decimalLatitude)) %>%
 
-    dplyr::mutate(
-                  # point = paste0(format(round(decimallongitude, n_dec_round), nsmall = n_dec_round), ' _ ', format(round(decimallatitude, n_dec_round), nsmall = n_dec_round)),
-                  point_11_1_km = paste0(format(round(decimalLongitude, 1), nsmall = 1), ' _ ', format(round(decimalLatitude, 1), nsmall = 1)),
-                  point_1_1_km = paste0(format(round(decimalLongitude, 2), nsmall = 2), ' _ ', format(round(decimalLatitude, 2), nsmall = 2)),
-                  point_110m = paste0(format(round(decimalLongitude, 3), nsmall = 3), ' _ ', format(round(decimalLatitude, 3), nsmall = 3)),
-                  point_11m = paste0(format(round(decimalLongitude, 4), nsmall = 4), ' _ ', format(round(decimalLatitude, 4), nsmall = 4))) %>%
+    # dplyr::mutate(
+    #               # point = paste0(format(round(decimallongitude, n_dec_round), nsmall = n_dec_round), ' _ ', format(round(decimallatitude, n_dec_round), nsmall = n_dec_round)),
+    #               point_11_1_km = paste0(format(round(decimalLongitude, 1), nsmall = 1), ' _ ', format(round(decimalLatitude, 1), nsmall = 1)),
+    #               point_1_1_km = paste0(format(round(decimalLongitude, 2), nsmall = 2), ' _ ', format(round(decimalLatitude, 2), nsmall = 2)),
+    #               point_110m = paste0(format(round(decimalLongitude, 3), nsmall = 3), ' _ ', format(round(decimalLatitude, 3), nsmall = 3)),
+    #               point_11m = paste0(format(round(decimalLongitude, 4), nsmall = 4), ' _ ', format(round(decimalLatitude, 4), nsmall = 4))) %>%
     dplyr::mutate(.val = FALSE,
                   .zer = FALSE,
                   .sea = FALSE,
@@ -214,149 +198,149 @@
   # occ e sp por ponto, se proximo de centroid
   {
 
-    # point_11_1_km
-    {
-      point_hot_oc <- sqldf::sqldf("SELECT DISTINCT point_11_1_km, Ctrl_gbifID
-                        FROM occ_cc
-                        WHERE parseGBIF_dataset_result = 'useable'
-                        GROUP BY point_11_1_km, Ctrl_gbifID
-                        ORDER BY point_11_1_km, Ctrl_gbifID")
-
-      point_hot_oc2 <- sqldf::sqldf("SELECT DISTINCT count(Ctrl_gbifID), point_11_1_km
-                        FROM point_hot_oc
-                        GROUP BY point_11_1_km
-                        ORDER BY count(Ctrl_gbifID) DESC") %>%
-        dplyr::rename(n_unique_collection_event_11_1_km=`count(Ctrl_gbifID)`)
-
-      occ_cc <- left_join(occ_cc,
-                          point_hot_oc2,
-                          by = 'point_11_1_km')
-
-
-      point_hot_sp <- sqldf::sqldf("SELECT DISTINCT point_11_1_km, species
-                        FROM occ_cc
-                        WHERE parseGBIF_dataset_result = 'useable'
-                        GROUP BY point_11_1_km, species
-                        ORDER BY point_11_1_km, species")
-
-      point_hot_sp2 <- sqldf::sqldf("SELECT DISTINCT count(species), point_11_1_km
-                        FROM point_hot_sp
-                        GROUP BY point_11_1_km
-                        ORDER BY count(species) DESC") %>%
-        dplyr::rename(n_taxon_name_11_1_km=`count(species)`)
-
-      occ_cc <- left_join(occ_cc,
-                          point_hot_sp2,
-                          by = 'point_11_1_km')
-    }
-
-    # point_1_1_km
-    {
-      point_hot_oc <- sqldf::sqldf("SELECT DISTINCT point_1_1_km, Ctrl_gbifID
-                        FROM occ_cc
-                        WHERE parseGBIF_dataset_result = 'useable'
-                        GROUP BY point_1_1_km, Ctrl_gbifID
-                        ORDER BY point_1_1_km, Ctrl_gbifID")
-
-      point_hot_oc2 <- sqldf::sqldf("SELECT DISTINCT count(Ctrl_gbifID), point_1_1_km
-                        FROM point_hot_oc
-                        GROUP BY point_1_1_km
-                        ORDER BY count(Ctrl_gbifID) DESC") %>%
-        dplyr::rename(n_unique_collection_event_1_1_km=`count(Ctrl_gbifID)`)
-
-      occ_cc <- left_join(occ_cc,
-                          point_hot_oc2,
-                          by = 'point_1_1_km')
-
-
-      point_hot_sp <- sqldf::sqldf("SELECT DISTINCT point_1_1_km, species
-                        FROM occ_cc
-                        WHERE parseGBIF_dataset_result = 'useable'
-                        GROUP BY point_1_1_km, species
-                        ORDER BY point_1_1_km, species")
-
-      point_hot_sp2 <- sqldf::sqldf("SELECT DISTINCT count(species), point_1_1_km
-                        FROM point_hot_sp
-                        GROUP BY point_1_1_km
-                        ORDER BY count(species) DESC") %>%
-        dplyr::rename(n_taxon_name_1_1_km=`count(species)`)
-
-      occ_cc <- left_join(occ_cc,
-                          point_hot_sp2,
-                          by = 'point_1_1_km')
-    }
-
-    # point_110m
-    {
-      point_hot_oc <- sqldf::sqldf("SELECT DISTINCT point_110m, Ctrl_gbifID
-                        FROM occ_cc
-                        WHERE parseGBIF_dataset_result = 'useable'
-                        GROUP BY point_110m, Ctrl_gbifID
-                        ORDER BY point_110m, Ctrl_gbifID")
-
-      point_hot_oc2 <- sqldf::sqldf("SELECT DISTINCT count(Ctrl_gbifID), point_110m
-                        FROM point_hot_oc
-                        GROUP BY point_110m
-                        ORDER BY count(Ctrl_gbifID) DESC") %>%
-        dplyr::rename(n_unique_collection_event_110m=`count(Ctrl_gbifID)`)
-
-      occ_cc <- left_join(occ_cc,
-                          point_hot_oc2,
-                          by = 'point_110m')
-
-
-      point_hot_sp <- sqldf::sqldf("SELECT DISTINCT point_110m, species
-                        FROM occ_cc
-                        WHERE parseGBIF_dataset_result = 'useable'
-                        GROUP BY point_110m, species
-                        ORDER BY point_110m, species")
-
-      point_hot_sp2 <- sqldf::sqldf("SELECT DISTINCT count(species), point_110m
-                        FROM point_hot_sp
-                        GROUP BY point_110m
-                        ORDER BY count(species) DESC") %>%
-        dplyr::rename(n_taxon_name_110m=`count(species)`)
-
-      occ_cc <- left_join(occ_cc,
-                          point_hot_sp2,
-                          by = 'point_110m')
-    }
-
-    # point_11m
-    {
-      point_hot_oc <- sqldf::sqldf("SELECT DISTINCT point_11m, Ctrl_gbifID
-                        FROM occ_cc
-                        WHERE parseGBIF_dataset_result = 'useable'
-                        GROUP BY point_11m, Ctrl_gbifID
-                        ORDER BY point_11m, Ctrl_gbifID")
-
-      point_hot_oc2 <- sqldf::sqldf("SELECT DISTINCT count(Ctrl_gbifID), point_11m
-                        FROM point_hot_oc
-                        GROUP BY point_11m
-                        ORDER BY count(Ctrl_gbifID) DESC") %>%
-        dplyr::rename(n_unique_collection_event_11m=`count(Ctrl_gbifID)`)
-
-      occ_cc <- left_join(occ_cc,
-                          point_hot_oc2,
-                          by = 'point_11m')
-
-
-      point_hot_sp <- sqldf::sqldf("SELECT DISTINCT point_11m, species
-                        FROM occ_cc
-                        WHERE parseGBIF_dataset_result = 'useable'
-                        GROUP BY point_11m, species
-                        ORDER BY point_11m, species")
-
-      point_hot_sp2 <- sqldf::sqldf("SELECT DISTINCT count(species), point_11m
-                        FROM point_hot_sp
-                        GROUP BY point_11m
-                        ORDER BY count(species) DESC") %>%
-        dplyr::rename(n_taxon_name_11m=`count(species)`)
-
-      occ_cc <- left_join(occ_cc,
-                          point_hot_sp2,
-                          by = 'point_11m')
-    }
+    # # point_11_1_km
+    # {
+    #   point_hot_oc <- sqldf::sqldf("SELECT DISTINCT point_11_1_km, Ctrl_gbifID
+    #                     FROM occ_cc
+    #                     WHERE parseGBIF_dataset_result = 'useable'
+    #                     GROUP BY point_11_1_km, Ctrl_gbifID
+    #                     ORDER BY point_11_1_km, Ctrl_gbifID")
+    #
+    #   point_hot_oc2 <- sqldf::sqldf("SELECT DISTINCT count(Ctrl_gbifID), point_11_1_km
+    #                     FROM point_hot_oc
+    #                     GROUP BY point_11_1_km
+    #                     ORDER BY count(Ctrl_gbifID) DESC") %>%
+    #     dplyr::rename(n_unique_collection_event_11_1_km=`count(Ctrl_gbifID)`)
+    #
+    #   occ_cc <- left_join(occ_cc,
+    #                       point_hot_oc2,
+    #                       by = 'point_11_1_km')
+    #
+    #
+    #   point_hot_sp <- sqldf::sqldf("SELECT DISTINCT point_11_1_km, species
+    #                     FROM occ_cc
+    #                     WHERE parseGBIF_dataset_result = 'useable'
+    #                     GROUP BY point_11_1_km, species
+    #                     ORDER BY point_11_1_km, species")
+    #
+    #   point_hot_sp2 <- sqldf::sqldf("SELECT DISTINCT count(species), point_11_1_km
+    #                     FROM point_hot_sp
+    #                     GROUP BY point_11_1_km
+    #                     ORDER BY count(species) DESC") %>%
+    #     dplyr::rename(n_taxon_name_11_1_km=`count(species)`)
+    #
+    #   occ_cc <- left_join(occ_cc,
+    #                       point_hot_sp2,
+    #                       by = 'point_11_1_km')
+    # }
+    #
+    # # point_1_1_km
+    # {
+    #   point_hot_oc <- sqldf::sqldf("SELECT DISTINCT point_1_1_km, Ctrl_gbifID
+    #                     FROM occ_cc
+    #                     WHERE parseGBIF_dataset_result = 'useable'
+    #                     GROUP BY point_1_1_km, Ctrl_gbifID
+    #                     ORDER BY point_1_1_km, Ctrl_gbifID")
+    #
+    #   point_hot_oc2 <- sqldf::sqldf("SELECT DISTINCT count(Ctrl_gbifID), point_1_1_km
+    #                     FROM point_hot_oc
+    #                     GROUP BY point_1_1_km
+    #                     ORDER BY count(Ctrl_gbifID) DESC") %>%
+    #     dplyr::rename(n_unique_collection_event_1_1_km=`count(Ctrl_gbifID)`)
+    #
+    #   occ_cc <- left_join(occ_cc,
+    #                       point_hot_oc2,
+    #                       by = 'point_1_1_km')
+    #
+    #
+    #   point_hot_sp <- sqldf::sqldf("SELECT DISTINCT point_1_1_km, species
+    #                     FROM occ_cc
+    #                     WHERE parseGBIF_dataset_result = 'useable'
+    #                     GROUP BY point_1_1_km, species
+    #                     ORDER BY point_1_1_km, species")
+    #
+    #   point_hot_sp2 <- sqldf::sqldf("SELECT DISTINCT count(species), point_1_1_km
+    #                     FROM point_hot_sp
+    #                     GROUP BY point_1_1_km
+    #                     ORDER BY count(species) DESC") %>%
+    #     dplyr::rename(n_taxon_name_1_1_km=`count(species)`)
+    #
+    #   occ_cc <- left_join(occ_cc,
+    #                       point_hot_sp2,
+    #                       by = 'point_1_1_km')
+    # }
+    #
+    # # point_110m
+    # {
+    #   point_hot_oc <- sqldf::sqldf("SELECT DISTINCT point_110m, Ctrl_gbifID
+    #                     FROM occ_cc
+    #                     WHERE parseGBIF_dataset_result = 'useable'
+    #                     GROUP BY point_110m, Ctrl_gbifID
+    #                     ORDER BY point_110m, Ctrl_gbifID")
+    #
+    #   point_hot_oc2 <- sqldf::sqldf("SELECT DISTINCT count(Ctrl_gbifID), point_110m
+    #                     FROM point_hot_oc
+    #                     GROUP BY point_110m
+    #                     ORDER BY count(Ctrl_gbifID) DESC") %>%
+    #     dplyr::rename(n_unique_collection_event_110m=`count(Ctrl_gbifID)`)
+    #
+    #   occ_cc <- left_join(occ_cc,
+    #                       point_hot_oc2,
+    #                       by = 'point_110m')
+    #
+    #
+    #   point_hot_sp <- sqldf::sqldf("SELECT DISTINCT point_110m, species
+    #                     FROM occ_cc
+    #                     WHERE parseGBIF_dataset_result = 'useable'
+    #                     GROUP BY point_110m, species
+    #                     ORDER BY point_110m, species")
+    #
+    #   point_hot_sp2 <- sqldf::sqldf("SELECT DISTINCT count(species), point_110m
+    #                     FROM point_hot_sp
+    #                     GROUP BY point_110m
+    #                     ORDER BY count(species) DESC") %>%
+    #     dplyr::rename(n_taxon_name_110m=`count(species)`)
+    #
+    #   occ_cc <- left_join(occ_cc,
+    #                       point_hot_sp2,
+    #                       by = 'point_110m')
+    # }
+    #
+    # # point_11m
+    # {
+    #   point_hot_oc <- sqldf::sqldf("SELECT DISTINCT point_11m, Ctrl_gbifID
+    #                     FROM occ_cc
+    #                     WHERE parseGBIF_dataset_result = 'useable'
+    #                     GROUP BY point_11m, Ctrl_gbifID
+    #                     ORDER BY point_11m, Ctrl_gbifID")
+    #
+    #   point_hot_oc2 <- sqldf::sqldf("SELECT DISTINCT count(Ctrl_gbifID), point_11m
+    #                     FROM point_hot_oc
+    #                     GROUP BY point_11m
+    #                     ORDER BY count(Ctrl_gbifID) DESC") %>%
+    #     dplyr::rename(n_unique_collection_event_11m=`count(Ctrl_gbifID)`)
+    #
+    #   occ_cc <- left_join(occ_cc,
+    #                       point_hot_oc2,
+    #                       by = 'point_11m')
+    #
+    #
+    #   point_hot_sp <- sqldf::sqldf("SELECT DISTINCT point_11m, species
+    #                     FROM occ_cc
+    #                     WHERE parseGBIF_dataset_result = 'useable'
+    #                     GROUP BY point_11m, species
+    #                     ORDER BY point_11m, species")
+    #
+    #   point_hot_sp2 <- sqldf::sqldf("SELECT DISTINCT count(species), point_11m
+    #                     FROM point_hot_sp
+    #                     GROUP BY point_11m
+    #                     ORDER BY count(species) DESC") %>%
+    #     dplyr::rename(n_taxon_name_11m=`count(species)`)
+    #
+    #   occ_cc <- left_join(occ_cc,
+    #                       point_hot_sp2,
+    #                       by = 'point_11m')
+    # }
 
     colx <- c(centroid_round,'level')
     occ_cc <- left_join(occ_cc,

@@ -8,8 +8,8 @@ parse_coordinates(
   occ = NA,
   file_occ = NA,
   iso2_field_name = "Ctrl_countryCode",
-  path_centroids = "https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataRaw",
-  scale = 110,
+  file_centroids =
+    "https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataRaw/parseGBIF_GADM_centroids.CSV",
   centroid_round = "point_110m"
 )
 }
@@ -18,9 +18,7 @@ parse_coordinates(
 
 \item{iso2_field_name}{indicates the name of the field with ISO2 code of the countries}
 
-\item{path_centroids}{'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataRaw'}
-
-\item{scale}{the scale of the default reference, as downloaded from natural earth. Must be one of 10, 50, 110. Higher numbers equal higher detail. Default = 110.}
+\item{file_centroids}{'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataRaw/parseGBIF_GADM_centroids.CSV'}
 
 \item{centroid_round}{point_11_1_km, point_1_1_km, point_110m or point_11m}
 }
@@ -33,18 +31,6 @@ Checking coordinates, centroids, artificial points, also makes use of basic func
 }
 \details{
 Adds the following fields, result of the coordinate checking process:
-point_11_1_km,
-n_taxon_name_11_1_km,
-n_unique_collection_event_11_1_km,
-point_1_1_km,
-n_taxon_name_1_1_km,
-n_unique_collection_event_1_1_km,
-point_110m,
-n_taxon_name_110m,
-n_unique_collection_event_110m,
-point_11m,
-n_taxon_name_11m,
-n_unique_collection_event_11m,
 parseGBIF_GADM_centroids,
 parseGBIF_GADM_centroids_level,
 parseGBIF_coordinate_status,
