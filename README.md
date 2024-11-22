@@ -36,6 +36,15 @@ You can install the development version of parseGBIF from
 run
 
 ``` r
+
+install.packages('rscopus')
+install.packages('shinyFiles')
+install.packages('jsonify')
+install.packages('vctrs')
+install.packages("rvest")
+install.packages("tidyverse")
+install.packages("writexl")
+
 devtools::install_github("pablopains/parseGBIF",
                            dependencies = TRUE)
 ```
