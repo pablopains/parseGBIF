@@ -171,6 +171,27 @@ parseGBIF_summary <- function(parseGBIF_all_data = NA,
       parseGBIF_general_summary <- add_summary(question, value, condition, parseGBIF_general_summary); parseGBIF_general_summary
     }
 
+
+    question <- 'total number of useable records / coordinate status success'
+    ind <- occ_tmp$parseGBIF_dataset_result=='useable' & occ_tmp$parseGBIF_coordinate_status %in% "success"
+    value <- sum(ind)
+    condition <- "where parseGBIF_dataset_result = 'useable' AND parseGBIF_coordinate_status = 'success'"
+    parseGBIF_general_summary <- add_summary(question, value, condition, parseGBIF_general_summary); parseGBIF_general_summary
+
+
+    question <- 'total number of useable records / coordinate status warning'
+    ind <- occ_tmp$parseGBIF_dataset_result=='useable' & occ_tmp$parseGBIF_coordinate_status %in% "warning"
+    value <- sum(ind)
+    condition <- "where parseGBIF_dataset_result = 'useable' AND parseGBIF_coordinate_status = 'warning'"
+    parseGBIF_general_summary <- add_summary(question, value, condition, parseGBIF_general_summary); parseGBIF_general_summary
+
+
+    question <- 'total number of useable records / coordinate status danger'
+    ind <- occ_tmp$parseGBIF_dataset_result=='useable' & occ_tmp$parseGBIF_coordinate_status %in% "danger"
+    value <- sum(ind)
+    condition <- "where parseGBIF_dataset_result = 'useable' AND parseGBIF_coordinate_status = 'danger'"
+    parseGBIF_general_summary <- add_summary(question, value, condition, parseGBIF_general_summary); parseGBIF_general_summary
+
     {
       question <- 'total number of unusable records'
       ind <- sum(occ_tmp$parseGBIF_dataset_result=='unusable')

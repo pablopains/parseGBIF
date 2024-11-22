@@ -361,7 +361,8 @@ parse_coordinates <- function(occ = NA,
 
     occ_cc$parseGBIF_coordinate_status <- ifelse(geo_issue==FALSE,'danger',ifelse(geo_issue_urb==FALSE,'warning','success'))
 
-    occ <- cbind(occ_cc %>% dplyr::select(
+    occ <- cbind(occ,
+                 occ_cc %>% dplyr::select(
       # point_11_1_km,
       #                                     n_taxon_name_11_1_km,
       #                                     n_unique_collection_event_11_1_km,
@@ -378,8 +379,7 @@ parse_coordinates <- function(occ = NA,
                                           parseGBIF_GADM_centroids_level,
                                           parseGBIF_coordinate_status,
                                           .coordinates_outOfRange,
-                                          .val,.zer,.sea,.equ,.cen,.cap,.urb,.inst,.dup),
-                 occ)
+                                          .val,.zer,.sea,.equ,.cen,.cap,.urb,.inst,.dup))
 
     occ$parseGBIF_useful_for_spatial_analysis <- ifelse(geo_issue==FALSE,geo_issue, occ$parseGBIF_useful_for_spatial_analysis)
 
