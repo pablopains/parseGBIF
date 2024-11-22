@@ -1362,11 +1362,11 @@ parseGBIF_app <- function()
                                          files_tmp <- list.files(path =  folder, full.names = TRUE)
                                          # ind_files <- grepl(paste0('occurrence.txt|','dataGBIF.zip'), files_tmp)
 
-                                         ind_del <- grepl('citations.txt|meta.xml|metadata.xml|multimedia.txt|rights.txt|verbatim.txt|dataGBIF.zip',
-                                                          files_tmp)
-                                         unlink(files_tmp[ind_del==TRUE],recursive = TRUE)
-
-                                         unlink(paste0(folder,'\\dataset'),recursive = TRUE)
+                                         # ind_del <- grepl('citations.txt|meta.xml|metadata.xml|multimedia.txt|rights.txt|verbatim.txt|dataGBIF.zip',
+                                         #                  files_tmp)
+                                         # unlink(files_tmp[ind_del==TRUE],recursive = TRUE)
+                                         #
+                                         # unlink(paste0(folder,'\\dataset'),recursive = TRUE)
 
                                        }
 
