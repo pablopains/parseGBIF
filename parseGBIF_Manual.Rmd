@@ -1,15 +1,17 @@
 ---
 title: "parseGBIF Manual"
 author:
-  - Pablo Hendrigo Alves de Melo^[Instituto Federal de Educação, Ciência e Tecnologia de Minas Gerais, pablopains@yahoo.com.br]
-  - Nadia Bystriakova^[Natural History Museum, London, n_bystriakova@yahoo.com]
-  - Alexandre Monro^[Royal Botanic Gardens, Kew, a.monro@kew.org]
+- Pablo Hendrigo Alves de Melo^[Instituto Federal de Educação, Ciência e Tecnologia
+  de Minas Gerais, pablopains@yahoo.com.br]
+- Nadia Bystriakova^[Natural History Museum, London, n_bystriakova@yahoo.com]
+- Alexandre Monro^[Royal Botanic Gardens, Kew, a.monro@kew.org]
 date: "`r Sys.Date()`"
-  
-output: word_document
+output:
+  word_document: default
+  pdf_document: default
 template: template.tex
-editor_options: 
-  markdown: 
+editor_options:
+  markdown:
     wrap: 72
 ---
 
@@ -43,7 +45,7 @@ You can install the development version of parseGBIF from
 run
 
 ```{r example_install, eval=FALSE}
-devtools::install_github("pablopains/parseGBIF")
+devtools::install_github("pablopains/parseGBIF", dempendeces = TRUE)
 ```
 
 Please site parseGBIF as:
@@ -77,16 +79,24 @@ print(citation("parseGBIF"), bibtex = FALSE)
 prepare_gbif_occurrence_data(gbif_occurrece_file = 'occurrence.txt')
 function
 
+```{r example_download_gbif_data_from_doi, eval=TRUE, message=FALSE, warning=FALSE}
+ library(parseGBIF)
+
+ folder_download <- tempdir()
+ 
+ download_gbif_data_from_doi(gbif_doi_url = 'https://doi.org/10.15468/dl.nbcqc6', folder = folder_download, keep_only_occurrence_file = TRUE)
+```
+
 #### 1.2. Preparing occurrence data downloaded from GBIF
 
 To prepare occurrence data downloaded from GBIF to be used by parseGBIF
 functions, run prepare_gbif_occurrence_data.
 
 ```{r example_prepare_gbif_occurrence_data, eval=TRUE, message=FALSE, warning=FALSE}
-library(parseGBIF)
 
-occ_file <- 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt'
-  
+occ_file <- paste0(folder_download,'\\','occurrence.txt')
+# occ_file <- 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt'
+
 occ <- parseGBIF::prepare_gbif_occurrence_data(gbif_occurrece_file = occ_file, columns = 'standard')
   
 head(occ)
@@ -108,19 +118,7 @@ str(col_all)
 
 #### 1.3. Extracting GBIF issues
 
-GBIF recognises and documents several issues relating to the data fields
-for an individual record. The issue field stores terms that represent an
-enumeration of GBIF validation rules. Issues can lead to errors or
-unexpected data. The issues fields are therefore a valuable source of
-information when assessing the quality of a record. In order to help
-GBIF and the data publishers improve the data, GBIF flag records with
-various issues that they have encountered. These issues can be used as
-filters applied to occurrence searches. Not all issues indicate bad
-data, some flagthe fact that GBIF has altered values during processing.
-The values of EnumOccurrenceIssue will be used by the function
-extract_gbif_issue as a model to tabulate the GBIF issues of each
-record, individualizing them, in columns.TRUE or FALSE, flagging whether
-the issue applies or not for each record.
+GBIF recognises and documents several issues relating to the data fields for an individual record. The issue field stores terms that represent an enumeration of GBIF validation rules. Issues can lead to errors or unexpected data. The issues fields are therefore a valuable source of information when assessing the quality of a record. In order to help GBIF and the data publishers improve the data, GBIF flag records with various issues that they have encountered. These issues can be used as filters applied to occurrence searches. Not all issues indicate bad data, some flagthe fact that GBIF has altered values during processing. The values of EnumOccurrenceIssue will be used by the function extract_gbif_issue as a model to tabulate the GBIF issues of each record, individualizing them, in columns.TRUE or FALSE, flagging whether the issue applies or not for each record.
 
 ```{r aaa, eval=TRUE, message=FALSE, warning=FALSE}
 data(EnumOccurrenceIssue)
@@ -131,11 +129,27 @@ head(dplyr::arrange(EnumOccurrenceIssue,desc(score)))
 ```
 
 ```{r example_extract_gbif_issue, eval=TRUE, message=FALSE, warning=FALSE}
-occ_gbif_issue <- parseGBIF::extract_gbif_issue(occ = occ)
+gbif_issue <- parseGBIF::extract_gbif_issue(occ = occ)
 
-names(occ_gbif_issue)
+names(gbif_issue)
 
-head(occ_gbif_issue$summary)
+head(gbif_issue$summary)
+
+file.name <- 'parseGBIF_1_occ_issue.csv'
+
+write.csv(gbif_issue$occ_gbif_issue,
+            file.name, 
+            row.names = FALSE, 
+            fileEncoding = "UTF-8", 
+            na = "")
+
+file.name <- 'parseGBIF_1_summary_issue.csv'
+
+write.csv(gbif_issue$summary,
+          file.name, 
+          row.names = FALSE, 
+          fileEncoding = "UTF-8", 
+          na = "")
 ```
 
 ### 2. Check species names against WCVP database
@@ -151,6 +165,8 @@ data(wcvp_names_Achatocarpaceae)
 wcvp_names <- wcvp_names_Achatocarpaceae
   
 # wcvp_names <- wcvp_get_data(read_only_to_memory = TRUE)$wcvp_names
+# wcvp_names <-  wcvp_get_data_v2.1(read_only_to_memory = TRUE,
+#                                   load_rda_data = TRUE)$wcvp_names
   
 colnames(wcvp_names)
 ```
@@ -171,14 +187,23 @@ It uses the occurrence data (occ) and WCVP names list (wcvp_names)
 generated in the previous steps.
 
 ```{r example_wcvp_check_name_batch, eval=TRUE, message=FALSE, warning=FALSE}
-names.checked <- wcvp_check_name_batch(occ = occ,
-                                                 wcvp_names =  wcvp_names,
-                                                 if_author_fails_try_without_combinations = TRUE,
-                                                 wcvp_selected_fields = 'standard')
+names.checked <- wcvp_check_name_batch(occ = occ, 
+                                       wcvp_names =  wcvp_names,
+                                       if_author_fails_try_without_combinations = TRUE,
+                                       wcvp_selected_fields = 'standard',
+                                       silence = TRUE)
+
   
 names(names.checked)
   
 head(names.checked$summary)
+
+file.name <- 'parseGBIF_2_occ_wcvp_check_name.csv'
+write.csv(names.checked$occ_wcvp_check_name,
+            file.name, 
+            row.names = FALSE, 
+            fileEncoding = "UTF-8", 
+            na = "")
 ```
 
 To bring species' names into line with the format used by WCVP, the
@@ -213,7 +238,7 @@ collectors_get_name("BORNMÜLLER, JOSEPH FRIEDRICH NICOLAUS")
 
 collectors_get_name("Botão, S.R.; Machado, F.P.")
 
-collectors_get_name('Melo, P.H.A, Bystriakova, N. & Monro, A.')
+collectors_get_name('Melo, P.H.A | Bystriakova, N. & Monro, A.')
 
 collectors_get_name('Monro, A.; Bystriakova, N. & Melo, P.H.A')
 
@@ -233,10 +258,13 @@ collectors_prepare_dictionary function. It uses the occurrence data
 
 ```{r example_collectors_prepare_dictionary, eval=TRUE, message=FALSE, warning=FALSE}
 
-collectorsDictionary.dataset <- collectors_prepare_dictionary(occ = occ, 
-                                                              collectorDictionary_file = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary_parseGBIF.csv')
+collectorsDictionary.dataset <- collectors_prepare_dictionary(occ = occ,
+                                                              silence = TRUE)
+
+NROW(collectorsDictionary.dataset)
 
 head(collectorsDictionary.dataset)
+
 ```
 
 #### 3.2 Check the main collector's last name
@@ -256,17 +284,19 @@ CollectorDictionary field will be flagged as 'checked'), otherwise, the
 function will return the last name of the main collector, extracted
 automatically from the recordedBy field .
 
-Once verified, the collector's dictionary can be reused in the future.
+Once verified, the collector's dictionary can be reused in the future.The collectorDictionary_file parameter, in the collectors_prepare_dictionary function,  indicates the collector dictionary file on your local disk, or by default the collector dictionary will be indicated, verified and maintained by the parseGBIF team, downloaded via git from https://raw.githubusercontent.com/pablopains/parseGBIF/main/ collectorDictionary/CollectorsDictionary.csv
+
 
 ```{r example_check_collectorsDictionary, eval=TRUE, message=FALSE, warning=FALSE}
 
-  file.collectorsDictionary.dataset <-  'file_collectorsDictionary_dataset.csv'
+  file.collectorsDictionary.dataset <-  'parseGBIF_3_collectorsDictionary_dataset.csv'
 
   write.csv(collectorsDictionary.dataset,
             file.collectorsDictionary.dataset, 
             row.names = FALSE, 
             fileEncoding = "UTF-8", 
             na = "")
+  
 ```
 
 #### 3.3 Generating the collection event key
@@ -277,19 +307,39 @@ the collector's number and the botanical family, a key is created
 (family + recordByStandardized + recordNumber_Standard) that allows
 grouping the duplicates of the same unique collection event.
 
+The collection event key for grouping duplicates is complete when the records match all parts of the key (the botanical family, the primary collector’s surname and the collector’s number). If part of the key is missing, the collection event key is incomplete.
+
 It also identifiesnew collectors to be added to the collector dictionary
 and that can be reused in the future.
 
 ```{r example_generate_collection_event_key, eval=TRUE, message=FALSE, warning=FALSE}
 
+  collectorsDictionary <- generate_collection_event_key(occ=occ,
+                                          collectorDictionary_checked_file = file.collectorsDictionary.dataset)
 
-  occ_collectorsDictionary <- generate_collection_event_key(occ=occ,
-                                                        collectorDictionary_checked = collectorsDictionary.dataset,
-                                                        silence = FALSE )
-
-  names(occ_collectorsDictionary)
+  names(collectorsDictionary)
   
-  head(occ_collectorsDictionary$occ_collectorsDictionary[,c(1,3)])
+  head(collectorsDictionary$occ_collectorsDictionary[,c(1,3)])
+  
+  file.name <- 'parseGBIF_3_occ_collectorsDictionary.csv'
+  write.csv(collectorsDictionary$occ_collectorsDictionary, file.name, 
+            row.names = FALSE, 
+            fileEncoding = "UTF-8", 
+            na = "")
+  
+  
+  file.name <- 'parseGBIF_3_summary_collectorsDictionary.csv'
+  write.csv(collectorsDictionary$summary, file.name, 
+            row.names = FALSE, 
+            fileEncoding = "UTF-8", 
+            na = "")
+  
+file.name <- 'parseGBIF_3_collectorsDictionary_add.csv'
+  write.csv(collectorsDictionary$collectorsDictionary_add, file.name, 
+            row.names = FALSE, 
+            fileEncoding = "UTF-8", 
+            na = "")
+
 
 ```
 
@@ -302,34 +352,17 @@ designate one of these 'duplicate' records as the master digital
 voucher, to which data from other duplicate vouchers can be merged (see
 export_data):
 
--   **Where the collection event key for grouping duplicates is
-    complete**, then duplicates can be grouped / parsed. To do so, we
-    evaluate record completeness. Record completeness is calculated
-    based on data-quality scores for the information in the following
-    fields: recordedBy, recordNumber, year, institutionCode,
-    catalogNumber, locality, municipality, countryCode, stateProvince
-    and fieldNotes. The spatial coordinates associated with each
-    duplicate are ranked using a score for the quality of the geospatial
-    information. This score is calculated using the issues listed in the
-    GBIF table, EnumOccurrenceIssue.\
-    A score is calculated based on these issues (see above). The
-    duplicate with the highest total score is assigned as the master
-    voucher for the unique collection event. Missing information
-    contained in duplicate records of the unique collection event can
-    then be merged into the master digital voucher (see export_data).
+-   **Where the collection event key for grouping duplicates is complete**, then duplicates can be grouped / parsed. To do so, we evaluate record completeness. Record completeness is calculated based on data-quality scores for the information in the following fields: recordedBy, recordNumber, year, institutionCode, catalogNumber, locality, municipality, countryCode, stateProvince and fieldNotes. The spatial coordinates associated with each duplicate are ranked using a score for the quality of the geospatial information. This score is calculated using the issues listed in the GBIF table, EnumOccurrenceIssue.
+A score is calculated based on these issues (see above). The duplicate with the highest total score is assigned as the master voucher for the unique collection event. Missing information contained in duplicate records of the unique collection event can then be merged into the master digital voucher (see export_data).
 
--   **Where the collection event key is incomplete**, unique collection
-    event duplicates cannot be parsed. In this case, each record is
-    considered as a unique collection event, without duplicates.
-    However, to know the integrity of the information, record
-    completeness and quality of the geospatial information, are
-    evaluated as described above.
 
-**How is the quality score calculated?** parseGBIF_digital_voucher = The
-duplicate with the highest total score, sum of record completeness +
-quality of geospatial information.
+-   **Where the collection event key is incomplete**, unique collection event duplicates cannot be parsed. In this case, each record is considered as a unique collection event, without duplicates. However, to know the integrity of the information, record completeness and quality of the geospatial information, are evaluated as described above.
+    
+**How is the quality score calculated to select the master digital voucher?** 
+Master digital voucher is the duplicate with the highest total score, sum of record completeness + quality of geospatial information.
 
-**How is record completeness calculated?** The quality of the duplicate
+**How is record completeness calculated?** 
+The quality of the duplicate
 records associated with each collection event key is measured as the
 completeness of a record, using the sum of a number of flags (see below)
 equal to TRUE.
@@ -344,171 +377,287 @@ equal to TRUE.
 -   Is there information about the locality?
 -   Is there information about the municipality of collection?
 -   Is there information about the state/province of collection?
+-   Is there information about the country (using a GBIF issue COUNTRY_INVALID)?
 -   Is there information about the field notes?
 
 **The quality of geospatial information is based on geographic issues
-raised by GBIF.** GIBF issues relating to geospatial data were
+raised by GBIF.** 
+GIBF issues relating to geospatial data were
 classified into three classes based on the data quality scores that we
 assigned to each of the following GBIF issues recorded in the
 EnumOccurrenceIssue.
 
--   Issue does not affect coordinating accuracy, with selection_score
-    equal to -1
--   Issue has potential to affect coordinate accuracy, with
-    selection_score equal to -3
--   Records with a selection_score equal to -9 are excluded.
+-   Issue does not affect coordinating accuracy, with selection_score equal to -1
+-   Issue has potential to affect coordinate accuracy, with selection_score equal to -3
+-   Records with a selection_score equal to -9 If they are selected as a digital voucher (for example, due to lack of duplicates), in the export step, they will be classified as unusable.
+
+**The quality of geospatial information is based on geographic issues raised by GBIF.** 
+GIBF issues relating to geospatial data were classified into three classes based on the data quality scores that we assigned to each of the following GBIF issues recorded in the EnumOccurrenceIssue.
+
+-   Issue does not affect coordinating accuracy, with selection_score equal to -1
+-   Issue has potential to affect coordinate accuracy, with selection_score equal to -3
+-   Records with a selection_score equal to -9, coordinates are not useful for spatial analysis. If they are selected as a digital voucher (for example, due to lack of duplicates), in the export step, they will be classified as unusable.
+
+**How is the taxon binomial attributed to the unique collection event selected?**
+
+-   **Where the unique collection event key is complete:** The accepted TAXON_NAME selected is that which is most frequently applied to the duplicate vouchers at or below the rank of species. Where two named are applied with equal frequency then a mechanical approach, using alphabetical order, is applied, the first listed TAXON_NAME being chosen. Where there is no identification, at or below the rank of species, then the unique collection event, the unique collection event is indicated as unidentified.
+
+-   **Where the unique collection event key is incomplete:** Where the unique collection event key is incomplete, then each record is treated as a unique collection event. If there is no identification, at or below the rank of species, then the unique collection event is classified as unidentified.
+
+**How is the geospatial information selected?**
+If the master voucher does not have geographic coordinates, or if the quality of the geospatial information according to the classification of the GBIF issue is poor (-9), we will search for the coordinates in the duplicate records associated with it.
+
+**The main output fields relating to taxonomic identification and geographic coordinates:**
+
+-   parseGBIF_digital_voucher = TRUE indicates the master digital voucher.
+-   parseGBIF_duplicates = TRUE indicates whether there are duplicates associated with the master digital voucher using the unique collection event key.                   
+-   parseGBIF_num_duplicates = number of duplicates associated with the master digital voucher using the unique collection event key.                
+-   parseGBIF_non_groupable_duplicates = TRUE indicates where the collection event key is incomplete.     
+-   parseGBIF_duplicates_grouping_status = duplicate grouping status as:  "groupable", "not groupable: no recordNumber ", "not groupable: no recordedBy" or "not groupable: no recordedBy and no recordNumber".  
+-   parseGBIF_unidentified_sample = if unique collection event has taxonomic identification.           
+-   parseGBIF_sample_taxon_name = scientific name chosen as taxonomic identification for unique collection event.
+-   parseGBIF_sample_taxon_name_status  = indicates the selection status of the binomial taxon attributed to the unique collection event as: “identified”, “divergent identifications”, or “not identified”.
+-   parseGBIF_number_taxon_names = number of scientific names found in duplicates of unique collection event.
+-   parseGBIF_useful_for_spatial_analysis = whether the coordinates are useful for spatial analysis.
+-   parseGBIF_decimalLatitude = latitude in decimal degrees.
+-   parseGBIF_decimalLongitude = longitude in decimal degrees.              
+-   parseGBIF_dataset_result = indicates the datasets resulting from the parseGBIF classification with: usable data, unusable data and their duplicates.                
+-   parseGBIF_wcvp_plant_name_id = Information from the World Checklist of Vascular Plants (WCVP) database on the taxon binomial attributed to the unique collection event.             
+-   parseGBIF_wcvp_taxon_rank = as in previous.              
+-   parseGBIF_wcvp_taxon_status = as in previous.
+-   parseGBIF_wcvp_family = as in previous.
+-   parseGBIF_wcvp_taxon_name = as in previous.
+-   parseGBIF_wcvp_taxon_authors = as in previous.
+-   parseGBIF_wcvp_reviewed = as in previous.
+
+&nbsp;
+&nbsp;
 
 ```{r example_select_digital_voucher, eval=TRUE, message=FALSE, warning=FALSE}
+digital_voucher <- select_digital_voucher(occ = occ,
+                                                        occ_gbif_issue = gbif_issue$occ_gbif_issue,
+                                                        occ_wcvp_check_name = names.checked$occ_wcvp_check_name,
+                                                        occ_collectorsDictionary = collectorsDictionary$occ_collectorsDictionary,
+                                                        silence = TRUE)
 
-occ_digital_voucher <- parseGBIF::select_digital_voucher(occ = occ,
-                                                         occ_gbif_issue = occ_gbif_issue$occ_gbif_issue,
-                                                         occ_wcvp_check_name = names.checked$occ_wcvp_check_name ,
-                                                         occ_collectorsDictionary = occ_collectorsDictionary$occ_collectorsDictionary)
+names(digital_voucher)
 
-  names(occ_digital_voucher)
+NROW(digital_voucher$occ_digital_voucher)
+
+colnames(digital_voucher$occ_digital_voucher)
+
+head(digital_voucher$occ_digital_voucher[,50:69])
+
+
+digital_voucher$occ_digital_voucher$parseGBIF_dataset_result %>% unique()
   
-  colnames(occ_digital_voucher$occ_digital_voucher)
-    
-  file.occ_digital_voucher <-  'occ_digital_voucher.csv'
+ind <- digital_voucher$occ_digital_voucher$parseGBIF_dataset_result == "useable" 
+NROW(digital_voucher$occ_digital_voucher[ind==TRUE,])
 
-  write.csv(occ_digital_voucher$occ_digital_voucher,
-            file.occ_digital_voucher, 
+ind <- digital_voucher$occ_digital_voucher$parseGBIF_dataset_result == "duplicate" 
+NROW(digital_voucher$occ_digital_voucher[ind==TRUE,])
+
+ind <- digital_voucher$occ_digital_voucher$parseGBIF_dataset_result == "unusable" 
+NROW(digital_voucher$occ_digital_voucher[ind==TRUE,])
+```
+
+
+```{r example_write_select_digital_voucher, eval=TRUE, message=FALSE, warning=FALSE}
+
+file.name <- 'parseGBIF_4_occ_digital_voucher.csv'
+write.csv(digital_voucher$occ_digital_voucher,
+            file.name, 
             row.names = FALSE, 
             fileEncoding = "UTF-8", 
             na = "")
+
+
+
 ```
 
 ### 5. Export of results
 
-For each unique collection event key, complete or incomplete, outputs
-will be created which combine information from duplicate records and
-generate a single unique collection event record to replace them.
-
-The main output fields relating to taxonomic identification and geographic coordinates:
-
--   parseGBIF_sample_taxon_name = scientific name chosen as taxonomic identification for unique collection event
--   parseGBIF_number_taxon_names = number of scientific names found in duplicates of unique collection event parseGBIF_sample_taxon_name_status
-= status of choice of 'identified', 'divergent identifications', 'unidentified'
--   parseGBIF_unidentified_sample = if unique collection event has taxonomic identification
--   parseGBIF_decimalLatitude = latitude in decimal degrees 
--   parseGBIF_decimalLongitude = longitude in decimal degrees 
--   parseGBIF_useful_for_spatial_analysis = whether the coordinates are useful for spatial analysis.
-
-**How is the taxon binomial attributed to the unique collection event selected?**
-
--   **Where the unique collection event key is complete**: The accepted
-    TAXON_NAME selected is that which is most frequently applied to the
-    duplicate vouchers at or below the rank of species. Where two named
-    are applied with equal frequency then a mechanical approach, using
-    alphabetical order, is applied, the first listed TAXON_NAME being
-    chosen. Where there is no identification, at or below the rank of
-    species, then the unique collection event, the unique collection
-    event is indicated as unidentified.
-
--   **Where the unique collection event key is incomplete**: Where the
-    unique collection event key is incomplete, then each record is
-    treated as a unique collection event. If there is no identification,
-    at or below the rank of species, then the unique collection event is
-    classified as unidentified. 
-
-**Geospatial information**
-
-If the master voucher does not have geographic coordinates, we will seek coordinates from the duplicate records associated with it. Finally, the records are separated into three sets of data:
-
--  **useable_data** Where unique collection event with taxonomic identification and geographic coordinates are complete. This represents the useable dataset.  
-
--  **unusable_data** Where unique collection event without taxonomic identification and/or geographic coordinates.  
-
--  **duplicates** The duplicates of unique collection events complete / incomplete.  
-
+For each unique collection event key, complete or incomplete, outputs will be generated a single unique collection event record. Where the unique collection event key is complete, a single unique collection event record will be created which combine information from duplicate records.
 With this, it is possible to perform:
 
-Merge information between fields of duplicates of a unique collection event to create a synthetic record for each unique collection event, Compare the frequency of content in fields Generate a work package summary.  
+Merge information between fields of duplicates of a unique collection event to create a synthetic record for each unique collection event (where the unique collection event key is complete), Compare the frequency of content in fields Generate a work package summary.
 
 For each complete unique collection event key, data fields that are empty in the digital voucher record will be populated with data from the respective duplicates. During content merging, we indicate fields associated with the description, location, and data of the unique collection event. By default, fields_to_merge parameter of export_data function contains: 
--  Ctrl_fieldNotes
--  Ctrl_year
--  Ctrl_stateProvince
--  Ctrl_municipality
--  Ctrl_locality
--  Ctrl_countryCode
--  Ctrl_eventDate
--  Ctrl_habitat
--  Ctrl_level0Name
--  Ctrl_level1Name
--  Ctrl_level2Name
--  Ctrl_level3Name
 
-**export_data function return a list with 10 data frames**:
+-   Ctrl_fieldNotes
+-   Ctrl_year
+-   Ctrl_stateProvince
+-   Ctrl_municipality
+-   Ctrl_locality
+-   Ctrl_countryCode
+-   Ctrl_eventDate
+-   Ctrl_habitat
+-   Ctrl_level0Name
+-   Ctrl_level1Name
+-   Ctrl_level2Name
+-   Ctrl_level3Name
 
--  **all_data** All records processed, merged Unique collection events complete / incomplete and their duplicates 
--  **useable_data_merge** Merged useable dataset
--  **useable_data_raw** Raw useable dataset
--  **duplicates** Duplicates of unique collection events of useable and useable datasets
+**export_data function return a list with six data frames**:
+
+-  **all_data** All records processed, merged. To separate the records into three datasets by filtering parseGBIF_dataset_result field by"useable", “unusable” and “duplicates”.
+-  **useable_data_merge** Merged useable dataset.
+-  **useable_data_raw** Raw useable dataset.
+-  **duplicates**  Duplicates of unique collection events of useable and unusable datasets.
 -  **unusable_data_merge** Merged unusable dataset. It is NA if merge_unusable_data is FALSE.
--  **unusable_data_raw** Raw unusable dataset
--  **parseGBIF_general_summary**
--  **parseGBIF_merge_fields_summary**
--  **parseGBIF_merge_fields_summary_useable_data**
--  **parseGBIF_merge_fields_summary_unusable_data** It is NA if merge_unusable_data is FALSE
+-  **unusable_data_raw** Raw unusable dataset.
 
 ```{r example_export, eval=TRUE, message=FALSE, warning=FALSE}
 
-results <- export_data(occ_digital_voucher_file = file.occ_digital_voucher,
-                           merge_unusable_data = TRUE)
+results <- export_data(occ_digital_voucher_file = '',
+                                occ_digital_voucher = digital_voucher$occ_digital_voucher,
+                                merge_unusable_data = TRUE,
+                                silence = TRUE)
+
 
 names(results)
-
-results$parseGBIF_general_summary
-results$parseGBIF_merge_fields_summary
-results$parseGBIF_merge_fields_summary_useable_data
 
 NROW(results$all_data)
 NROW(results$useable_data_merge)
 NROW(results$useable_data_raw)
 NROW(results$duplicates)
+NROW(results$unusable_data_merge)
+NROW(results$unusable_data_raw)
 
-file.all <- 'parseGBIF_all_data.csv'
+
+file.name <-  file.name <- 'parseGBIF_5_occ_all_data.csv'
 write.csv(results$all_data,
-          file.all, 
-          row.names = FALSE, 
-          fileEncoding = "UTF-8", 
-          na = "")
+              file.name, 
+              row.names = FALSE, 
+              fileEncoding = "UTF-8", 
+              na = "")
+    
+        
+file.name <- 'parseGBIF_5_occ_useable_data_merge.csv'
+write.csv(results$useable_data_merge,
+              file.name, 
+              row.names = FALSE, 
+              fileEncoding = "UTF-8", 
+              na = "")
+    
+    
+file.name <-  'parseGBIF_5_occ_useable_data_raw.csv'
+write.csv(results$useable_data_raw,
+              file.name, 
+              row.names = FALSE, 
+              fileEncoding = "UTF-8", 
+              na = "")
+    
+    
+file.name <-  'parseGBIF_5_occ_duplicates.csv'
+write.csv(results$duplicates,
+              file.name, 
+              row.names = FALSE, 
+              fileEncoding = "UTF-8", 
+              na = "")
+    
+    
+file.name <-  'parseGBIF_5_occ_unusable_data_merge.csv'
+write.csv(results$unusable_data_merge,
+              file.name, 
+              row.names = FALSE, 
+              fileEncoding = "UTF-8", 
+              na = "")
+    
+file.name <-  'parseGBIF_5_occ_unusable_data_raw.csv'
+write.csv(results$unusable_data_raw,
+              file.name, 
+              row.names = FALSE, 
+              fileEncoding = "UTF-8", 
+              na = "")
+```
 
-file.summary <- 'parseGBIF_general_summary.csv'
-write.csv(results$parseGBIF_general_summary,
-          file.summary, 
-          row.names = FALSE, 
-          fileEncoding = "UTF-8", 
-          na = "")
-  
-file.summary <- 'parseGBIF_merge_fields_summary.csv'
-write.csv(results$parseGBIF_merge_fields_summary,
-          file.summary, 
-          row.names = FALSE, 
-          fileEncoding = "UTF-8", 
-          na = "")
+### 6. Check coordinates
+Checking coordinates, centroids, artificial points, also makes use of basic functions of CoordinateCleaner and other packages
 
-file.summary <- 'parseGBIF_merge_fields_summary_complete.csv'
-write.csv(results$parseGBIF_merge_fields_summary_complete,
-          file.summary, 
-          row.names = FALSE, 
-          fileEncoding = "UTF-8", 
-          na = "")
+```{r parse_coordinates, eval=TRUE, message=FALSE, warning=FALSE}
+
+  occ_parse_coordinates <- parse_coordinates(occ = results$all_data,
+                                 centroid_round = 'point_11m')
+
+```
+
+### 7. ParseGBIF summary
+
+parseGBIF_summary function return a list with four data frames:
+
+-  **parseGBIF_general_summary**
+-  **parseGBIF_merged_fields_summary** = frequency of merge actions in the fields
+-  **parseGBIF_merged_fields_summary_useable_data** = frequency of merge actions on fields in the usable dataset
+-  **parseGBIF_merged_fields_summary_unusable_data** = frequency of merge actions on fields in the unusable dataset. It is NA if merge_unusable_data is FALSE
+
+Detail of the **general summary:**
+
+-   total number of records
+-   total number of unique collection events
+-   total number of duplicates records of unique collection events
+-   total number of useable records
+-   total number of useable records / consensus on identification
+-   total number of useable records / divergent identifications
+-   total number of unusable records
+-   total number of unusable records / unidentified
+-   total number of unusable records / not suitable for geospatial analysis
+-   total unique collection events containing merged fields
+
+```{r summary, eval=TRUE, message=FALSE, warning=FALSE}
+
+summ <- parseGBIF_summary(parseGBIF_all_data = occ_parse_coordinates)
+
+names(summ)
+
+head(summ$parseGBIF_general_summary)
+
+head(summ$parseGBIF_merge_fields_summary)
+
+head(summ$parseGBIF_merge_fields_summary_useable_data)
+
+file.name <-  file.name <- 'parseGBIF_6_general_summary.csv'
+write.csv(summ$parseGBIF_general_summary,
+              file.name, 
+              row.names = FALSE, 
+              fileEncoding = "UTF-8", 
+              na = "")
+
+file.name <-  file.name <- 'parseGBIF_6_merge_fields_summary.csv'
+write.csv(summ$parseGBIF_merge_fields_summary,
+              file.name, 
+              row.names = FALSE, 
+              fileEncoding = "UTF-8", 
+              na = "")
+
+file.name <-  file.name <- 'parseGBIF_6_merge_fields_summary_useable_data.csv'
+write.csv(summ$parseGBIF_merge_fields_summary_useable_data,
+              file.name, 
+              row.names = FALSE, 
+              fileEncoding = "UTF-8", 
+              na = "")
+
+file.name <-  file.name <- 'parseGBIF_6_merge_fields_summary_unusable_data.csv'
+write.csv(summ$parseGBIF_merge_fields_summary_unusable_data,
+              file.name, 
+              row.names = FALSE, 
+              fileEncoding = "UTF-8", 
+              na = "")
+
+
 ```
 
 ### Accessing map of merged information and frequency of content in fields
 
--  Merged information between fields of duplicates of a unique collection event
+-  Merged information between fields of duplicates of a unique collection event key = ACHATOCARPACEAE_ZARDINI_5592
 
 ```{r example_json1, eval=TRUE, message=FALSE, warning=FALSE}
-index <- results$useable_data_merge$Ctrl_key_family_recordedBy_recordNumber %in% 'ACHATOCARPACEAE_ZARDINI_5592'
+index <- results$all_data$Ctrl_key_family_recordedBy_recordNumber %in% results$all_data$Ctrl_key_family_recordedBy_recordNumber[83]
 
 print('merged fields')
-print(jsonlite::fromJSON(results$useable_data_merge$parseGBIF_merged_fields[index==TRUE]))
+print(jsonlite::fromJSON(results$all_data$parseGBIF_merged_fields[index==TRUE]))
 
 print('merged fields map')
-print(jsonlite::fromJSON(results$useable_data_merge$parseGBIF_duplicates_map[index==TRUE]))
+print(jsonlite::fromJSON(results$all_data$parseGBIF_duplicates_map[index==TRUE]))
 
 ```
 
@@ -517,6 +666,6 @@ print(jsonlite::fromJSON(results$useable_data_merge$parseGBIF_duplicates_map[ind
 ```{r example_json2, eval=TRUE, message=FALSE, warning=FALSE}
 
 print('Frequency of content in fields')
-print(jsonlite::fromJSON(results$useable_data_merge$parseGBIF_freq_duplicate_or_missing_data[index==TRUE]))
+print(jsonlite::fromJSON(results$all_data$parseGBIF_freq_duplicate_or_missing_data[index==TRUE]))
 ```
 
