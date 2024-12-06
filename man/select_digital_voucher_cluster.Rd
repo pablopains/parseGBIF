@@ -5,6 +5,10 @@
 \title{Selecting the digital voucher cluster - divides the processing for selecting the digital voucher into 24 parts}
 \usage{
 select_digital_voucher_cluster(
+  occ = NA,
+  occ_gbif_issue = NA,
+  occ_wcvp_check_name = NA,
+  occ_collectorsDictionary = NA,
   file_name_occ_issue = NA,
   file_name_occ_wcvp_check_name = NA,
   file_name_occ_collectorsDictionary = NA,
