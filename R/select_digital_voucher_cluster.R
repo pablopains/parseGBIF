@@ -51,7 +51,7 @@
 #' @param occ_wcvp_check_name = result of function batch_checkName_wcvp()$occ_wcvp_check_name
 #' @param occ_collectorsDictionary = result of function update_collectorsDictionary()$occ_collectorsDictionary
 #' @param enumOccurrenceIssue An enumeration of validation rules for single occurrence records by GBIF file, if NA, will be used, data(EnumOccurrenceIssue)
-#' @param silence if TRUE does not display progress messages
+#' @param n_minimo minimum number of records to split processing
 #'
 #' @details
 #' * parseGBIF_duplicates_grouping_status - "groupable", "not groupable: no recordedBy and no recordNumber",
@@ -98,21 +98,21 @@ select_digital_voucher_cluster <- function(occ = NA,
                                            file_name_occ_issue=NA,
                                            file_name_occ_wcvp_check_name=NA,
                                            file_name_occ_collectorsDictionary=NA,
-                                           n_minimo=100000)
+                                           n_minimo=10000)
 {
 # file_name_occ_issue <- 'parseGBIF_1_occ_issue.csv'
-  if(is.na(occ_gbif_issue)){
+  if(!is.na(file_name_occ_issue)){
 occ_gbif_issue <- readr::read_csv(file_name_occ_issue,
                                   locale = readr::locale(encoding = "UTF-8"),
                                   show_col_types = FALSE)}
 
-  if(is.na(occ_wcvp_check_name)){
+  if(!is.na(file_name_occ_wcvp_check_name)){
 # file_name_occ_wcvp_check_name <- 'parseGBIF_2_occ_wcvp_check_name.csv'
 occ_wcvp_check_name <- readr::read_csv(file_name_occ_wcvp_check_name,
                                        locale = readr::locale(encoding = "UTF-8"),
                                        show_col_types = FALSE)}
 
-  if(is.na(occ_collectorsDictionary)){
+  if(!is.na(file_name_occ_collectorsDictionary)){
 # file_name_occ_collectorsDictionary <- 'parseGBIF_3_occ_collectorsDictionary.csv'
 occ_collectorsDictionary <- readr::read_csv(file_name_occ_collectorsDictionary,
                                             locale = readr::locale(encoding = "UTF-8"),
