@@ -376,9 +376,11 @@ if(NROW(occ)<=n_minimo)
                                               occ_wcvp_check_name = occ_wcvp_check_name[i_k_24==TRUE,],
                                               occ_collectorsDictionary = occ_collectorsDictionary[i_k_24==TRUE,],
                                               silence = TRUE)
+  # results <- list(all_data = {},
+  #                 occ_results = {})
 
 
-  digital_voucher$occ_digital_voucher <- rbind(digital_voucher1$occ_digital_voucher,
+  digital_voucher <- rbind(digital_voucher1$occ_digital_voucher,
                                                digital_voucher2$occ_digital_voucher,
                                                digital_voucher3$occ_digital_voucher,
                                                digital_voucher4$occ_digital_voucher,
@@ -404,17 +406,6 @@ if(NROW(occ)<=n_minimo)
                                                digital_voucher24$occ_digital_voucher) %>%
     data.frame(stringsAsFactors = FALSE)
 
-
-  digital_voucher$occ_results <- rbind(digital_voucher1$occ_results,
-                                       digital_voucher2$occ_results,
-                                       digital_voucher3$occ_results,
-                                       digital_voucher4$occ_results,
-                                       digital_voucher5$occ_results,
-                                       digital_voucher6$occ_results,
-                                       digital_voucher7$occ_results,
-                                       digital_voucher8$occ_results,
-                                       digital_voucher9$occ_results) %>%
-    data.frame(stringsAsFactors = FALSE)
 
 
 }
