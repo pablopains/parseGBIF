@@ -1352,7 +1352,12 @@ parseGBIF_app <- function()
                                          # li_dr_txt <- li_dr[seq(1, length(li_dr), 2)]
                                          # url_file_zip_GBIF <- li_dr_txt[42]
 
-                                         url_file_zip_GBIF <- li_dr[84]
+                                         index <- str_detect(li_dr,  "https://api.gbif.org/v1/occurrence/download/request/")
+                                         index <- ifelse(is.na(index), FALSE, index)
+                                         sum(index)
+
+                                         url_file_zip_GBIF <- li_dr[index==TRUE]
+
                                          path_file_zip_GBIF <- paste0(folder,'\\dataGBIF.zip')
 
                                          downloader::download(url_file_zip_GBIF, path_file_zip_GBIF, mode = "wb")

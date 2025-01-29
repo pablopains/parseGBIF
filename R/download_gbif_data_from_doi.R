@@ -58,7 +58,11 @@ download_gbif_data_from_doi <- function(gbif_doi_url,
   # url_file_zip_GBIF <- li_dr_txt[42]
 
 
-  url_file_zip_GBIF <- li_dr[84]
+  index <- str_detect(li_dr,  "https://api.gbif.org/v1/occurrence/download/request/")
+  index <- ifelse(is.na(index), FALSE, index)
+  sum(index)
+
+  url_file_zip_GBIF <- li_dr[index==TRUE]
 
   path_file_zip_GBIF <- paste0(folder,'\\dataGBIF.zip')
 
