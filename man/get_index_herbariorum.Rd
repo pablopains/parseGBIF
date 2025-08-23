@@ -4,17 +4,7 @@
 \alias{get_index_herbariorum}
 \title{Download Index Herbariorum data}
 \usage{
-get_index_herbariorum(save_file = FALSE, file_path = NULL, quiet = FALSE)
-}
-\arguments{
-\item{save_file}{Logical indicating whether to save the data to a CSV file.
-Default is FALSE.}
-
-\item{file_path}{Path where to save the CSV file if save_file is TRUE.
-If NULL, uses a temporary file.}
-
-\item{quiet}{Logical indicating whether to suppress progress messages.
-Default is FALSE.}
+get_index_herbariorum()
 }
 \value{
 A tibble containing the Index Herbariorum data with the following
@@ -41,9 +31,6 @@ the New York Botanical Garden's official CSV endpoint. The dataset
 contains information about herbaria institutions worldwide, including
 their standard codes, locations, contact information, and collection
 statistics.
-
-The function uses multiple download methods to ensure reliability and
-handles various HTTP issues that may occur during the download process.
 }
 \examples{
 \donttest{
@@ -55,12 +42,6 @@ head(herbarium_data)
 
 # Count herbaria by country
 table(herbarium_data$Country)
-
-# Download and save to a specific file
-herbarium_data <- get_index_herbariorum(
-  save_file = TRUE,
-  file_path = "index_herbariorum_data.csv"
-)
 }
 
 }
