@@ -7,81 +7,114 @@
 collectors_prepare_dictionary(
   occ = NA,
   collectorDictionary_file = "",
-  silence = TRUE
+  collectorDictionary = NULL,
+  silence = TRUE,
+  surname_selection_type = "largest_string",
+  max_words_name = 6,
+  maximum_characters_in_name = 3
 )
 }
 \arguments{
-\item{occ}{GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')}
+\item{occ}{GBIF occurrence table with selected columns as returned by \code{select_gbif_fields(columns = 'standard')}.}
 
-\item{collectorDictionary_file}{Collector dictionary file - point to a file on your local disk. if empty, will load the default collector dictionary from the package at https://github.com/pablopains/parseGBIF/tree/main/collectorDictionary}
+\item{collectorDictionary_file}{Character. Collector dictionary file - point to a file on your local disk.
+If empty, will load the default collector dictionary from the package at
+https://github.com/pablopains/parseGBIF/tree/main/collectorDictionary.}
 
-\item{silence}{if TRUE does not display progress messages}
+\item{collectorDictionary}{Data frame. Collector dictionary data. If provided, uses this data instead of loading from file.}
+
+\item{silence}{Logical. If \code{TRUE}, does not display progress messages. Default is \code{TRUE}.}
+
+\item{surname_selection_type}{Character. Allows you to select two types of results for the main collector's last name:
+\itemize{
+\item \code{"largest_string"}: word with the largest number of characters (default)
+\item \code{"last_name"}: literally the last name of the main collector, with more than two characters.
+}}
+
+\item{max_words_name}{Integer. Maximum words in the name. Default is 6.}
+
+\item{maximum_characters_in_name}{Integer. Maximum characters in name. Default is 3.}
 }
 \value{
-Ctrl_nameRecordedBy_Standard,
-Ctrl_recordedBy,
-Ctrl_notes,
-collectorDictionary,
-Ctrl_update,
-collectorName,
-Ctrl_fullName,
-Ctrl_fullNameII,
-CVStarrVirtualHerbarium_PersonDetails
+Returns a data frame with the following columns:
+\itemize{
+\item \code{Ctrl_nameRecordedBy_Standard}: Standardized collector surname
+\item \code{Ctrl_recordedBy}: Original recordedBy field content
+\item \code{Ctrl_notes}: Additional notes from dictionary
+\item \code{collectorDictionary}: Verification status ("checked" if verified)
+\item \code{Ctrl_update}: Update information
+\item \code{collectorName}: Full collector name
+\item \code{Ctrl_fullName}: Alternative full name representation
+\item \code{Ctrl_fullNameII}: Secondary name representation
+\item \code{CVStarrVirtualHerbarium_PersonDetails}: Additional person details
+}
 }
 \description{
 Returns the list with the last name of the main collector associated with the unique key recordedBy.
 A necessary step for parsing duplicate records is generating a robust key for each unique collecting event
-(aka ‘gathering’) that will support the recognition of duplicate records. For this purpose we generate a string
-combining the plant family name +  first collector’s surname +  the collection number.
+(aka 'gathering') that will support the recognition of duplicate records. For this purpose we generate a string
+combining the plant family name + first collector's surname + the collection number.
 It is therefore essential to consistently record the collector surname and for this purpose we provide a collector
 dictionary. To extract the surname of the main collector based on the recordedBy field and assemble a list relating
 the last name of the main collector and the raw data from the recordedBy, use the collectors_prepare_dictionary function.
 
-It is recommended to check the main collector’s last name in the nameRecordedBy_Standard field.
-Our goal is to standardize the main collector’s last name, which is automatically extracted from the recordedBy field.
-We do so by standardizing the text string so that it begins with an uppercase character and to replace non-ascii
-characters, so that collector reponsible for a collection event is always recorded using  the same string of characters.
-If the searched recordedBy entry is present in the collector’s dictionary, the function retrieves the last name
+It is recommended to check the main collector's last name in the nameRecordedBy_Standard field.
+Our goal is to standardize the main collector's last name, which is automatically extracted from the recordedBy field.
+We do so by standardizing the text string so that it begins with an uppercase character and to replace non-ASCII
+characters, so that collector responsible for a collection event is always recorded using the same string of characters.
+If the searched recordedBy entry is present in the collector's dictionary, the function retrieves the last name
 of the main collector with reference to the recordedBy field (in which case the CollectorDictionary field will be
-flagged as ‘checked’), otherwise, the function will return the last name of the main collector, extracted
-automatically from the recordedBy field .
+flagged as 'checked'), otherwise, the function will return the last name of the main collector, extracted
+automatically from the recordedBy field.
 
-Once verified, the collector’s dictionary can be reused in the future.
+Once verified, the collector's dictionary can be reused in the future.
 }
 \details{
-If recordedBy is present in the collector's dictionary, it returns the checked name, if not, it returns the last name of the main collector, extracted from the recordedBy field.
-If recordedBy is present in the collector's dictionary, returns the main collector's last name associated with the single recordedBy key,
-otherwise, returns the main collector's last name, extracted from the recordedBy field.
-It is recommended to curate the main collector's surname, automatically extracted from the recordedBy field.
-The objective is to standardize the last name of the main collector.
-That the primary botanical collector of a sample is always recognized by the same last name, standardized in capital letters and non-ascii characters replaced
+If recordedBy is present in the collector's dictionary, it returns the checked name; if not,
+it returns the last name of the main collector extracted from the recordedBy field.
+
+If recordedBy is present in the collector's dictionary, returns the main collector's last name
+associated with the single recordedBy key; otherwise, returns the main collector's last name
+extracted from the recordedBy field.
+
+It is recommended to curate the main collector's surname automatically extracted from the recordedBy field.
+The objective is to standardize the last name of the main collector so that the primary botanical
+collector of a sample is always recognized by the same last name, standardized in capital letters
+and with non-ASCII characters replaced.
 }
 \examples{
 \donttest{
-help(collectors_prepare_dictionary)
+# Load GBIF occurrence data
+occ <- prepare_gbif_occurrence_data(
+  gbif_occurrece_file = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary_parseGBIF.csv',
+  columns = 'standard'
+)
 
-occ <- prepare_gbif_occurrence_data(gbif_occurrece_file =  'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary_parseGBIF.csv',
-                                    columns = 'standard')
+# Prepare collector dictionary
+collectorsDictionaryFromDataset <- collectors_prepare_dictionary(
+  occ = occ,
+  collectorDictionary_file = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv'
+)
 
-collectorsDictionaryFromDataset <- collectors_prepare_dictionary(occ = occ,
-                                                                collectorDictionary_file =  'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv')
-
+# View results
 colnames(collectorsDictionaryFromDataset)
 head(collectorsDictionaryFromDataset)
 
-collectorDictionary_checked_file <- paste0(tempdir(),'/','collectorsDictionaryFromDataset.csv')
-
-collectorDictionary_checked_file
-
-write.csv(collectorsDictionaryFromDataset,
-          collectorDictionary_checked_file,
-          row.names = FALSE,
-          fileEncoding = "UTF-8",
-          na = "")
+# Save results to file
+collectorDictionary_checked_file <- paste0(tempdir(), '/', 'collectorsDictionaryFromDataset.csv')
+write.csv(
+  collectorsDictionaryFromDataset,
+  collectorDictionary_checked_file,
+  row.names = FALSE,
+  fileEncoding = "UTF-8",
+  na = ""
+)
 }
+
 }
 \seealso{
-\code{\link[parseGBIF]{collectors_get_name}}, \code{\link[parseGBIF]{generate_collection_event_key}}
+\code{\link[=collectors_get_name]{collectors_get_name()}} for extracting collector names from recordedBy fields,
+\code{\link[=generate_collection_event_key]{generate_collection_event_key()}} for creating unique collection event identifiers
 }
 \author{
 Pablo Hendrigo Alves de Melo,

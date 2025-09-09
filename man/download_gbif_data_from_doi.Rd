@@ -12,39 +12,42 @@ download_gbif_data_from_doi(
 )
 }
 \arguments{
-\item{gbif_doi_url}{The url of the GBIF DOI}
+\item{gbif_doi_url}{Character. The URL of the GBIF DOI for the occurrence dataset.}
 
-\item{folder}{Save folder}
+\item{folder}{Character. Directory path where files will be saved. If the folder doesn't exist, it will be created.}
 
-\item{keep_only_occurrence_file}{Keep only occurrence.txt file}
+\item{keep_only_occurrence_file}{Logical. If \code{TRUE} (default), keeps only the occurrence.txt file and removes auxiliary files.}
 
-\item{overwrite}{overwrite files}
-
-\item{subfolder}{Save in subfolder}
+\item{overwrite}{Logical. If \code{TRUE}, overwrites existing files. Default is \code{FALSE}.}
 }
 \value{
-list of downloaded and unzipped files
+Character vector. List of downloaded and unzipped files with full paths.
 }
 \description{
-Download and unzip GBIF occurrence data from DOI to be used by ParsGBIF functions
+Download and unzip GBIF occurrence data from DOI to be used by parseGBIF functions.
 }
 \details{
-Download GBIF occurrence data downloaded from DOI
+Downloads GBIF occurrence data from a DOI URL, extracts the compressed files,
+and optionally cleans up auxiliary files to keep only the main occurrence data.
 }
 \examples{
 \donttest{
+library(parseGBIF)
 
-library(ParsGBIF)
+# Download GBIF data from DOI
+downloaded_files <- download_gbif_data_from_doi(
+  gbif_doi_url = 'https://www.gbif.org/occurrence/download/0151470-230224095556074',
+  folder = 'c:/dataGBIF/Achatocarpaceae'
+)
 
-help(download_gbif_data_from_doi)
-
-download_gbif_data_from_doi(gbif_doi_url='https://www.gbif.org/occurrence/download/0151470-230224095556074',
-                            folder = 'c://dataGBIF//Achatocarpaceae')
-
+# List downloaded files
+print(downloaded_files)
 }
+
 }
 \seealso{
-\code{\link[parseGBIF]{prepare_gbif_occurrence_data}}, \code{\link[parseGBIF]{extract_gbif_issue}}
+\code{\link[=prepare_gbif_occurrence_data]{prepare_gbif_occurrence_data()}} for preparing downloaded GBIF data,
+\code{\link[=extract_gbif_issue]{extract_gbif_issue()}} for extracting GBIF data quality issues
 }
 \author{
 Pablo Hendrigo Alves de Melo,

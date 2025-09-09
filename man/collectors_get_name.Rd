@@ -8,40 +8,57 @@ collectors_get_name(
   x = NA,
   surname_selection_type = "largest_string",
   max_words_name = 6,
-  maximum_characters_in_name = 4
+  maximum_characters_in_name = 3
 )
 }
 \arguments{
-\item{x}{recordedBy field}
+\item{x}{Character string. The recordedBy field content.}
 
-\item{surname_selection_type}{Allows you to select two types of results
-for the main collector's last name: large_string - word with the
-largest number of characters or last_name - literally the last name
-of the main collector, with more than two characters.}
+\item{surname_selection_type}{Character. Allows you to select two types of results for the main collector's last name:
+\itemize{
+\item \code{"largest_string"}: word with the largest number of characters (default)
+\item \code{"last_name"}: literally the last name of the main collector, with more than two characters.
+}}
 
-\item{maximum_characters_in_name}{Maximum characters in name}
+\item{max_words_name}{Integer. Maximum words in the name. Default is 6.}
+
+\item{maximum_characters_in_name}{Integer. Maximum characters in name. Default is 3.}
 }
 \value{
-last name of the main collector
+Character string. Last name of the main collector, or:
+\itemize{
+\item \code{"UNKNOWN-COLLECTOR"} for empty or invalid inputs
+\item \code{NA} if extracted name doesn't meet minimum character requirements
+}
 }
 \description{
 Get the last name of the main collector in recordedBy field
 }
 \details{
-Returns the last name
+Returns the last name of the main collector extracted from the recordedBy field.
+The function processes the recordedBy field to identify and standardize the main collector's surname,
+handling various formats, special characters, and common abbreviations.
 }
 \examples{
 \donttest{
-help(collectors_get_name)
-
+# Basic usage
 collectors_get_name('Melo, P.H.A & Monro, A.')
-
 collectors_get_name('Monro, A. & Melo, P.H.A')
+
+# Different selection methods
+collectors_get_name('Smith-Jones, John', surname_selection_type = 'largest_string')
+collectors_get_name('Smith-Jones, John', surname_selection_type = 'last_name')
+
+# Edge cases
+collectors_get_name(NA) # Returns "UNKNOWN-COLLECTOR"
+collectors_get_name('')  # Returns "UNKNOWN-COLLECTOR"
+collectors_get_name('et al.') # Returns "UNKNOWN-COLLECTOR"
 }
 
 }
 \seealso{
-\code{\link[parseGBIF]{collectors_prepare_dictionary}}, \code{\link[parseGBIF]{collectors_update_dictionary}}
+\code{\link[=collectors_prepare_dictionary]{collectors_prepare_dictionary()}} for creating collector dictionaries,
+\code{\link[=collectors_update_dictionary]{collectors_update_dictionary()}} for updating existing dictionaries
 }
 \author{
 Pablo Hendrigo Alves de Melo,

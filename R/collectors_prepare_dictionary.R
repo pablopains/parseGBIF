@@ -1,87 +1,126 @@
 #' @title Prepare the list with the last name of the main collector
 #' @name collectors_prepare_dictionary
 #'
-#' @description Returns the list with the last name of the main collector associated with the unique key recordedBy.
+#' @description
+#' Returns the list with the last name of the main collector associated with the unique key recordedBy.
 #' A necessary step for parsing duplicate records is generating a robust key for each unique collecting event
-#' (aka ‘gathering’) that will support the recognition of duplicate records. For this purpose we generate a string
-#' combining the plant family name +  first collector’s surname +  the collection number.
+#' (aka 'gathering') that will support the recognition of duplicate records. For this purpose we generate a string
+#' combining the plant family name + first collector's surname + the collection number.
 #' It is therefore essential to consistently record the collector surname and for this purpose we provide a collector
 #' dictionary. To extract the surname of the main collector based on the recordedBy field and assemble a list relating
 #' the last name of the main collector and the raw data from the recordedBy, use the collectors_prepare_dictionary function.
 #'
-#' It is recommended to check the main collector’s last name in the nameRecordedBy_Standard field.
-#' Our goal is to standardize the main collector’s last name, which is automatically extracted from the recordedBy field.
-#' We do so by standardizing the text string so that it begins with an uppercase character and to replace non-ascii
-#' characters, so that collector reponsible for a collection event is always recorded using  the same string of characters.
-#' If the searched recordedBy entry is present in the collector’s dictionary, the function retrieves the last name
+#' It is recommended to check the main collector's last name in the nameRecordedBy_Standard field.
+#' Our goal is to standardize the main collector's last name, which is automatically extracted from the recordedBy field.
+#' We do so by standardizing the text string so that it begins with an uppercase character and to replace non-ASCII
+#' characters, so that collector responsible for a collection event is always recorded using the same string of characters.
+#' If the searched recordedBy entry is present in the collector's dictionary, the function retrieves the last name
 #' of the main collector with reference to the recordedBy field (in which case the CollectorDictionary field will be
-#' flagged as ‘checked’), otherwise, the function will return the last name of the main collector, extracted
-#' automatically from the recordedBy field .
+#' flagged as 'checked'), otherwise, the function will return the last name of the main collector, extracted
+#' automatically from the recordedBy field.
 #'
-#' Once verified, the collector’s dictionary can be reused in the future.
-
-#' @param occ GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')
-#' @param collectorDictionary_file Collector dictionary file - point to a file on your local disk. if empty, will load the default collector dictionary from the package at https://github.com/pablopains/parseGBIF/tree/main/collectorDictionary
-#' @param silence if TRUE does not display progress messages
+#' Once verified, the collector's dictionary can be reused in the future.
 #'
-#' @details If recordedBy is present in the collector's dictionary, it returns the checked name, if not, it returns the last name of the main collector, extracted from the recordedBy field.
-#' If recordedBy is present in the collector's dictionary, returns the main collector's last name associated with the single recordedBy key,
-#' otherwise, returns the main collector's last name, extracted from the recordedBy field.
-#' It is recommended to curate the main collector's surname, automatically extracted from the recordedBy field.
-#' The objective is to standardize the last name of the main collector.
-#' That the primary botanical collector of a sample is always recognized by the same last name, standardized in capital letters and non-ascii characters replaced
+#' @param occ
+#' GBIF occurrence table with selected columns as returned by `select_gbif_fields(columns = 'standard')`.
 #'
+#' @param collectorDictionary_file
+#' Character. Collector dictionary file - point to a file on your local disk.
+#' If empty, will load the default collector dictionary from the package at
+#' https://github.com/pablopains/parseGBIF/tree/main/collectorDictionary.
+#'
+#' @param collectorDictionary
+#' Data frame. Collector dictionary data. If provided, uses this data instead of loading from file.
+#'
+#' @param silence
+#' Logical. If `TRUE`, does not display progress messages. Default is `TRUE`.
+#'
+#' @param surname_selection_type
+#' Character. Allows you to select two types of results for the main collector's last name:
+#' - `"largest_string"`: word with the largest number of characters (default)
+#' - `"last_name"`: literally the last name of the main collector, with more than two characters.
+#'
+#' @param max_words_name
+#' Integer. Maximum words in the name. Default is 6.
+#'
+#' @param maximum_characters_in_name
+#' Integer. Maximum characters in name. Default is 3.
+#'
+#' @details
+#' If recordedBy is present in the collector's dictionary, it returns the checked name; if not,
+#' it returns the last name of the main collector extracted from the recordedBy field.
+#'
+#' If recordedBy is present in the collector's dictionary, returns the main collector's last name
+#' associated with the single recordedBy key; otherwise, returns the main collector's last name
+#' extracted from the recordedBy field.
+#'
+#' It is recommended to curate the main collector's surname automatically extracted from the recordedBy field.
+#' The objective is to standardize the last name of the main collector so that the primary botanical
+#' collector of a sample is always recognized by the same last name, standardized in capital letters
+#' and with non-ASCII characters replaced.
 #'
 #' @return
-#' Ctrl_nameRecordedBy_Standard,
-#' Ctrl_recordedBy,
-#' Ctrl_notes,
-#' collectorDictionary,
-#' Ctrl_update,
-#' collectorName,
-#' Ctrl_fullName,
-#' Ctrl_fullNameII,
-#' CVStarrVirtualHerbarium_PersonDetails
+#' Returns a data frame with the following columns:
+#' - `Ctrl_nameRecordedBy_Standard`: Standardized collector surname
+#' - `Ctrl_recordedBy`: Original recordedBy field content
+#' - `Ctrl_notes`: Additional notes from dictionary
+#' - `collectorDictionary`: Verification status ("checked" if verified)
+#' - `Ctrl_update`: Update information
+#' - `collectorName`: Full collector name
+#' - `Ctrl_fullName`: Alternative full name representation
+#' - `Ctrl_fullNameII`: Secondary name representation
+#' - `CVStarrVirtualHerbarium_PersonDetails`: Additional person details
 #'
-#' @author Pablo Hendrigo Alves de Melo,
-#'         Nadia Bystriakova &
-#'         Alexandre Monro
+#' @author
+#' Pablo Hendrigo Alves de Melo,
+#' Nadia Bystriakova &
+#' Alexandre Monro
 #'
-#' @seealso \code{\link[parseGBIF]{collectors_get_name}}, \code{\link[parseGBIF]{generate_collection_event_key}}
-#'
-#' @import stringr
-#' @import dplyr
-#' @import rscopus
-#' @import shinyFiles
-#' @import jsonify
+#' @seealso
+#' [`collectors_get_name()`] for extracting collector names from recordedBy fields,
+#' [`generate_collection_event_key()`] for creating unique collection event identifiers
 #'
 #' @examples
 #' \donttest{
-#' help(collectors_prepare_dictionary)
+#' # Load GBIF occurrence data
+#' occ <- prepare_gbif_occurrence_data(
+#'   gbif_occurrece_file = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary_parseGBIF.csv',
+#'   columns = 'standard'
+#' )
 #'
-#' occ <- prepare_gbif_occurrence_data(gbif_occurrece_file =  'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary_parseGBIF.csv',
-#'                                     columns = 'standard')
+#' # Prepare collector dictionary
+#' collectorsDictionaryFromDataset <- collectors_prepare_dictionary(
+#'   occ = occ,
+#'   collectorDictionary_file = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv'
+#' )
 #'
-#' collectorsDictionaryFromDataset <- collectors_prepare_dictionary(occ = occ,
-#'                                                                 collectorDictionary_file =  'https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/CollectorsDictionary.csv')
-#'
+#' # View results
 #' colnames(collectorsDictionaryFromDataset)
 #' head(collectorsDictionaryFromDataset)
 #'
-#' collectorDictionary_checked_file <- paste0(tempdir(),'/','collectorsDictionaryFromDataset.csv')
+#' # Save results to file
+#' collectorDictionary_checked_file <- paste0(tempdir(), '/', 'collectorsDictionaryFromDataset.csv')
+#' write.csv(
+#'   collectorsDictionaryFromDataset,
+#'   collectorDictionary_checked_file,
+#'   row.names = FALSE,
+#'   fileEncoding = "UTF-8",
+#'   na = ""
+#' )
+#' }
 #'
-#' collectorDictionary_checked_file
-#'
-#' write.csv(collectorsDictionaryFromDataset,
-#'           collectorDictionary_checked_file,
-#'           row.names = FALSE,
-#'           fileEncoding = "UTF-8",
-#'           na = "")
-#'}
+#' @importFrom stringr %>%
+#' @importFrom dplyr mutate rename left_join select
+#' @importFrom readr read_csv locale
+#' @importFrom rscopus replace_non_ascii
 #' @export
 collectors_prepare_dictionary <- function(occ=NA,
                                           collectorDictionary_file = '',
-                                          silence = TRUE)
+                                          collectorDictionary = NULL,
+                                          silence = TRUE,
+                                          surname_selection_type = 'largest_string', #'last_name' OR largest_string
+                                          max_words_name = 6,
+                                          maximum_characters_in_name = 3)
 {
 
 
@@ -111,7 +150,7 @@ collectors_prepare_dictionary <- function(occ=NA,
   #                                        show_col_types = FALSE)
 
 
-  if (collectorDictionary_file=='')
+  if (collectorDictionary_file=='' & is.null(collectorDictionary))
   {
 
     collectorDictionary <- rbind(readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_1.csv',
@@ -159,7 +198,13 @@ collectors_prepare_dictionary <- function(occ=NA,
   Ctrl_lastNameRecordedBy <- lapply(occ$Ctrl_recordedBy %>%
                                       toupper() %>%
                                       unique(),
-                                    collectors_get_name) %>%
+                                    function(x) collectors_get_name(
+                                      x,
+                                      surname_selection_type = surname_selection_type,
+                                      max_words_name = max_words_name,
+                                      maximum_characters_in_name = maximum_characters_in_name
+                                    )
+  ) %>%
     do.call(rbind.data.frame, .)
 
   #   recordedBy_Standart <- data.frame(
@@ -181,7 +226,7 @@ collectors_prepare_dictionary <- function(occ=NA,
     dplyr::mutate(Ctrl_nameRecordedBy_Standard = ifelse(collectorDictionary=='checked',
                                                         Ctrl_nameRecordedBy_Standard_x,
                                                         Ctrl_nameRecordedBy_Standard)) %>%
-    dplyr::arrange(collectorDictionary, Ctrl_nameRecordedBy_Standard, Ctrl_recordedBy) %>%
+    # dplyr::arrange(collectorDictionary, Ctrl_nameRecordedBy_Standard, Ctrl_recordedBy) %>%
     dplyr::mutate(Ctrl_notes = Ctrl_notes %>% as.character(),
                   Ctrl_update = Ctrl_update %>% as.character(),
                   Ctrl_nameRecordedBy_Standard = Ctrl_nameRecordedBy_Standard %>% as.character(),

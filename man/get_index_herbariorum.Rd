@@ -4,7 +4,12 @@
 \alias{get_index_herbariorum}
 \title{Download Index Herbariorum data}
 \usage{
-get_index_herbariorum()
+get_index_herbariorum(
+  url = "https://sweetgum.nybg.org/science/api/v1/institutions",
+  flatten = TRUE,
+  timeout_sec = 30,
+  verbose = FALSE
+)
 }
 \value{
 A tibble containing the Index Herbariorum data with the following

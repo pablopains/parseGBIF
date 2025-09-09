@@ -50,31 +50,65 @@
 #' @importFrom readr read_csv
 #' @importFrom utils download.file
 #' @export
-get_index_herbariorum <- function() {
+get_index_herbariorum <- function(
+    url = "https://sweetgum.nybg.org/science/api/v1/institutions",
+    flatten = TRUE,
+    timeout_sec = 30,
+    verbose = FALSE
+) {
+  # Preferir httr2; se não estiver instalado, cair para httr
+  use_httr2 <- requireNamespace("httr2", quietly = TRUE)
+  if (!requireNamespace("jsonlite", quietly = TRUE))
+    stop("Pacote 'jsonlite' é necessário.", call. = FALSE)
 
-  url_csv <- "https://sweetgum.nybg.org/science/ih/herbarium-csv/"
-  temp_file <- tempfile(fileext = ".csv")
+  if (use_httr2) {
+    req <- httr2::request(url) |>
+      httr2::req_user_agent(
+        # UA "de browser" costuma resolver 403 de WAF
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) R-httr2"
+      ) |>
+      httr2::req_headers(Accept = "application/json") |>
+      httr2::req_timeout(timeout_sec) |>
+      # Tentativas com backoff (403 às vezes é intermitente no WAF)
+      httr2::req_retry(
+        max_tries = 3,
+        backoff = ~ runif(1, 1, 3),
+        is_transient = function(resp) {
+          sc <- httr2::resp_status(resp)
+          sc >= 500 || sc == 403
+        }
+      )
 
-  tryCatch({
-    # Download do arquivo CSV
-    utils::download.file(url_csv, temp_file, mode = "wb", quiet = TRUE)
+    if (verbose) req <- httr2::req_verbose(req)
 
-    if (file.exists(temp_file) && file.size(temp_file) > 0) {
-      herbarium_df <- readr::read_csv(temp_file, show_col_types = FALSE)
-      message("✅ Successfully downloaded ", nrow(herbarium_df), " herbarium records")
-
-      # Limpar arquivo temporário
-      unlink(temp_file)
-
-      return(herbarium_df)
-    } else {
-      stop("Downloaded file is empty or does not exist")
+    resp <- httr2::req_perform(req)
+    status <- httr2::resp_status(resp)
+    if (status >= 400) {
+      stop(sprintf("Falha HTTP %s ao acessar %s", status, url), call. = FALSE)
     }
-  }, error = function(e) {
-    # Limpar arquivo temporário em caso de erro
-    if (file.exists(temp_file)) {
-      unlink(temp_file)
+    txt <- httr2::resp_body_string(resp)
+    out <- jsonlite::fromJSON(txt, flatten = isTRUE(flatten))
+    return(out)
+
+  } else {
+    # Fallback com httr
+    if (!requireNamespace("httr", quietly = TRUE))
+      stop("Instale 'httr2' ou 'httr'.", call. = FALSE)
+
+    resp <- httr::GET(
+      url,
+      httr::add_headers(
+        "User-Agent" = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) R-httr",
+        "Accept"     = "application/json"
+      ),
+      httr::timeout(timeout_sec)
+    )
+    if (httr::http_error(resp)) {
+      stop(sprintf("Falha HTTP %s ao acessar %s",
+                   httr::status_code(resp), url), call. = FALSE)
     }
-    stop("Failed to download Index Herbariorum data: ", e$message)
-  })
+    txt <- httr::content(resp, as = "text", encoding = "UTF-8")
+    out <- jsonlite::fromJSON(txt, flatten = isTRUE(flatten))
+    return(out)
+  }
 }

@@ -1,39 +1,56 @@
 #' @title Download GBIF occurrence data from DOI
-#'
 #' @name download_gbif_data_from_doi
 #'
-#' @description Download and unzip GBIF occurrence data from DOI to be used by ParsGBIF functions
+#' @description
+#' Download and unzip GBIF occurrence data from DOI to be used by parseGBIF functions.
 #'
-#' @param gbif_doi_url The url of the GBIF DOI
-#' @param folder Save folder
-#' @param subfolder Save in subfolder
-#' @param keep_only_occurrence_file Keep only occurrence.txt file
-#' @param overwrite overwrite files
+#' @param gbif_doi_url
+#' Character. The URL of the GBIF DOI for the occurrence dataset.
 #'
-#' @details Download GBIF occurrence data downloaded from DOI
+#' @param folder
+#' Character. Directory path where files will be saved. If the folder doesn't exist, it will be created.
+#'
+#' @param keep_only_occurrence_file
+#' Logical. If `TRUE` (default), keeps only the occurrence.txt file and removes auxiliary files.
+#'
+#' @param overwrite
+#' Logical. If `TRUE`, overwrites existing files. Default is `FALSE`.
+#'
+#' @details
+#' Downloads GBIF occurrence data from a DOI URL, extracts the compressed files,
+#' and optionally cleans up auxiliary files to keep only the main occurrence data.
 #'
 #' @return
-#' list of downloaded and unzipped files
+#' Character vector. List of downloaded and unzipped files with full paths.
 #'
-#' @author Pablo Hendrigo Alves de Melo,
-#'         Nadia Bystriakova &
-#'         Alexandre Monro
+#' @author
+#' Pablo Hendrigo Alves de Melo,
+#' Nadia Bystriakova &
+#' Alexandre Monro
 #'
-#' @seealso \code{\link[parseGBIF]{prepare_gbif_occurrence_data}}, \code{\link[parseGBIF]{extract_gbif_issue}}
-#'
-#' @import downloader
+#' @seealso
+#' [`prepare_gbif_occurrence_data()`] for preparing downloaded GBIF data,
+#' [`extract_gbif_issue()`] for extracting GBIF data quality issues
 #'
 #' @examples
 #' \donttest{
+#' library(parseGBIF)
 #'
-#' library(ParsGBIF)
+#' # Download GBIF data from DOI
+#' downloaded_files <- download_gbif_data_from_doi(
+#'   gbif_doi_url = 'https://www.gbif.org/occurrence/download/0151470-230224095556074',
+#'   folder = 'c:/dataGBIF/Achatocarpaceae'
+#' )
 #'
-#' help(download_gbif_data_from_doi)
-#'
-#' download_gbif_data_from_doi(gbif_doi_url='https://www.gbif.org/occurrence/download/0151470-230224095556074',
-#'                             folder = 'c://dataGBIF//Achatocarpaceae')
-#'
+#' # List downloaded files
+#' print(downloaded_files)
 #' }
+#'
+#' @importFrom xml2 read_html
+#' @importFrom rvest html_nodes html_attr
+#' @importFrom stringr str_detect
+#' @importFrom downloader download
+#' @importFrom utils unzip
 #' @export
 download_gbif_data_from_doi <- function(gbif_doi_url,
                                         folder = '',

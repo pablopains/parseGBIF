@@ -1,41 +1,65 @@
 #' @title Get the last name of the main collector
 #' @name collectors_get_name
 #'
-#' @description Get the last name of the main collector in recordedBy field
+#' @description
+#' Get the last name of the main collector in recordedBy field
 #'
-#' @param x recordedBy field
-#' @param surname_selection_type Allows you to select two types of results
-#' for the main collector's last name: large_string - word with the
-#' largest number of characters or last_name - literally the last name
-#' of the main collector, with more than two characters.
-#' @param maximum_characters_in_name Maximum characters in name
+#' @param x
+#' Character string. The recordedBy field content.
 #'
-#' @details Returns the last name
+#' @param surname_selection_type
+#' Character. Allows you to select two types of results for the main collector's last name:
+#' - `"largest_string"`: word with the largest number of characters (default)
+#' - `"last_name"`: literally the last name of the main collector, with more than two characters.
+#'
+#' @param max_words_name
+#' Integer. Maximum words in the name. Default is 6.
+#'
+#' @param maximum_characters_in_name
+#' Integer. Maximum characters in name. Default is 3.
+#'
+#' @details
+#' Returns the last name of the main collector extracted from the recordedBy field.
+#' The function processes the recordedBy field to identify and standardize the main collector's surname,
+#' handling various formats, special characters, and common abbreviations.
 #'
 #' @return
-#' last name of the main collector
+#' Character string. Last name of the main collector, or:
+#' - `"UNKNOWN-COLLECTOR"` for empty or invalid inputs
+#' - `NA` if extracted name doesn't meet minimum character requirements
 #'
-#' @author Pablo Hendrigo Alves de Melo,
-#'         Nadia Bystriakova &
-#'         Alexandre Monro
+#' @author
+#' Pablo Hendrigo Alves de Melo,
+#' Nadia Bystriakova &
+#' Alexandre Monro
 #'
-#' @seealso \code{\link[parseGBIF]{collectors_prepare_dictionary}}, \code{\link[parseGBIF]{collectors_update_dictionary}}
+#' @seealso
+#' [`collectors_prepare_dictionary()`] for creating collector dictionaries,
+#' [`collectors_update_dictionary()`] for updating existing dictionaries
 #'
 #' @examples
 #' \donttest{
-#' help(collectors_get_name)
-#'
+#' # Basic usage
 #' collectors_get_name('Melo, P.H.A & Monro, A.')
-#'
 #' collectors_get_name('Monro, A. & Melo, P.H.A')
+#'
+#' # Different selection methods
+#' collectors_get_name('Smith-Jones, John', surname_selection_type = 'largest_string')
+#' collectors_get_name('Smith-Jones, John', surname_selection_type = 'last_name')
+#'
+#' # Edge cases
+#' collectors_get_name(NA) # Returns "UNKNOWN-COLLECTOR"
+#' collectors_get_name('')  # Returns "UNKNOWN-COLLECTOR"
+#' collectors_get_name('et al.') # Returns "UNKNOWN-COLLECTOR"
 #' }
 #'
-#' @import stringr
+#' @importFrom stringr str_locate str_sub str_replace_all str_count str_trim
+#' @importFrom lubridate ymd is.Date
 #' @export
 collectors_get_name <- function(x=NA,
                                 surname_selection_type = 'largest_string', #'last_name' OR largest_string
                                 max_words_name = 6,
-                                maximum_characters_in_name = 4
+                                maximum_characters_in_name = 3
                                 # ,bionomia = FALSE
 )
 {
@@ -543,58 +567,92 @@ collectors_get_name <- function(x=NA,
     }
   }
 
-  sobren = str_trim(sobren)
-  sobren = gsub("?","", sobren)
-  sobren = paste(sobren,sep="-")
-  sobren = toupper(sobren)
+  sobren <- str_trim(sobren)
+  sobren <- gsub("?", "", sobren, fixed = TRUE)
+  sobren <- paste(sobren, sep = "-")
+  sobren <- toupper(sobren)
 
-  if(length(sobren)>0 & !is.na(sobren) & nchar(sobren)>=maximum_characters_in_name)
-  {
-    x = strsplit(sobren,"\\|")[[1]]
-    sobren = x[1]
+  ## AQUI: use && e force sobren ser length 1
+  if (length(sobren) == 1 &&
+      !is.na(sobren) &&
+      nchar(sobren) >= maximum_characters_in_name) {
 
-    if(substr(sobren, 1,1)=='-')
-    {
-      # sobren <- substr(sobren, 2,nchar(sobren)-1)
-      sobren <- substr(sobren, 2,nchar(sobren))
-    }
+    x_split <- strsplit(sobren, "-", fixed = TRUE)[[1]]
+    sobren <- x_split[1]
 
-    if(substr(sobren, nchar(sobren),nchar(sobren))=='-')
-    {
-      sobren <- substr(sobren, 1,nchar(sobren)-1)
-    }
+    sobren <- sub("^-+", "", sobren)  # remove hífens iniciais
+    sobren <- sub("-+$", "", sobren)  # remove hífens finais
 
-    if(grepl('-', sobren) &
-       str_count(sobren, '-')==1)
-    {
-
-      x_t = strsplit(sobren,"-")[[1]]
-
-      ind_name <- ! x_t %in% c('JUNIOR','JR','FILHO','NETO','SOBRINHO')
-
-      ind_name <- ind_name & !nchar(x_t)==1
-
-      if(sum(ind_name)==1)
-      {
-        sobren <- x_t[ind_name==T]
+    # se tiver exatamente um hífen e for composto, tenta de novo
+    if (grepl("-", sobren, fixed = TRUE) &&
+        stringr::str_count(sobren, "-") == 1) {
+      parts <- strsplit(sobren, "-", fixed = TRUE)[[1]]
+      # remove sufixos tipo JR, FILHO etc.
+      keep <- !toupper(parts) %in% c("JUNIOR","JR","FILHO","NETO","SOBRINHO")
+      if (sum(keep) == 1) {
+        sobren <- parts[keep]
+      } else {
+        sobren <- ""
       }
-
-      if(sum(ind_name)==0)
-      {
-        sobren <- ''
-      }
-
-
     }
-
 
     return(sobren)
-
-    # return(list(main_collector_surname = sobren,
-    #             bionomia = bionomia_result))
-  }else{
+  } else {
     return(NA)
   }
 }
+#   sobren = str_trim(sobren)
+#   sobren = gsub("?","", sobren)
+#   sobren = paste(sobren,sep="-")
+#   sobren = toupper(sobren)
+#
+#   if(length(sobren)>0 & !is.na(sobren) & nchar(sobren)>=maximum_characters_in_name)
+#   {
+#     x = strsplit(sobren,"\\|")[[1]]
+#     sobren = x[1]
+#
+#     if(substr(sobren, 1,1)=='-')
+#     {
+#       # sobren <- substr(sobren, 2,nchar(sobren)-1)
+#       sobren <- substr(sobren, 2,nchar(sobren))
+#     }
+#
+#     if(substr(sobren, nchar(sobren),nchar(sobren))=='-')
+#     {
+#       sobren <- substr(sobren, 1,nchar(sobren)-1)
+#     }
+#
+#     if(grepl('-', sobren) &
+#        str_count(sobren, '-')==1)
+#     {
+#
+#       x_t = strsplit(sobren,"-")[[1]]
+#
+#       ind_name <- ! x_t %in% c('JUNIOR','JR','FILHO','NETO','SOBRINHO')
+#
+#       ind_name <- ind_name & !nchar(x_t)==1
+#
+#       if(sum(ind_name)==1)
+#       {
+#         sobren <- x_t[ind_name==T]
+#       }
+#
+#       if(sum(ind_name)==0)
+#       {
+#         sobren <- ''
+#       }
+#
+#
+#     }
+#
+#
+#     return(sobren)
+#
+#     # return(list(main_collector_surname = sobren,
+#     #             bionomia = bionomia_result))
+#   }else{
+#     return(NA)
+#   }
+# }
 
 
