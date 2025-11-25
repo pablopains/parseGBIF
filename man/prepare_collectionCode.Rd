@@ -4,7 +4,7 @@
 \alias{prepare_collectionCode}
 \title{Standardize collection codes using Index Herbariorum}
 \usage{
-prepare_collectionCode(occ = NA, herbarium_data = NA)
+prepare_collectionCode(occ = NA, herbarium_data = NA, quiet = FALSE)
 }
 \arguments{
 \item{occ}{A data frame containing occurrence records with columns
@@ -13,6 +13,8 @@ prepare_collectionCode(occ = NA, herbarium_data = NA)
 \item{herbarium_data}{A data frame containing Index Herbariorum data
 with a column \code{code} for herbarium acronyms. If not provided, the function
 will attempt to download it automatically.}
+
+\item{quiet}{Logical, if TRUE suppresses progress messages}
 }
 \value{
 The input data frame \code{occ} with an additional column:
@@ -40,13 +42,9 @@ The function returns the input data frame with an additional column
 # Load example data
 data(example_occurrences)
 
-# Download Index Herbariorum data (or use pre-downloaded)
-herbarium_data <- get_index_herbariorum(quiet = TRUE)
-
 # Standardize collection codes
 standardized_data <- prepare_collectionCode(
-  occ = example_occurrences,
-  herbarium_data = herbarium_data
+  occ = example_occurrences
 )
 
 # View results
@@ -56,8 +54,7 @@ head(standardized_data[, c("Ctrl_collectionCode", "Ctrl_institutionCode",
 
 }
 \seealso{
-\code{\link[parseGBIF]{get_index_herbariorum}},
-\code{\link[parseGBIF]{preprocess_data}}
+\code{\link[parseGBIF]{get_index_herbariorum}}
 }
 \author{
 Pablo Hendrigo Alves de Melo,

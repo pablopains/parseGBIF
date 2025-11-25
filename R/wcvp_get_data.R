@@ -13,7 +13,9 @@
 #'
 #' @details http://sftp.kew.org/pub/data-repositories/WCVP/ This is the public SFTP (Secure File Transfer Protocol) site of the Royal Botanic Gardens, Kew. This space contains data resources publicly accessible to the user `anonymous'.  No password required for access. Use of data made available via this site may be subject to legal and licensing restrictions. The README in the top-level directory for each data resource provides specific information about its terms of use.
 #'
-#' @return list with two data frames: wcvp_names and wcvp_distribution
+#' @return list with two data frames:
+#' - `wcvp_names`: taxonomic names database
+#' - `wcvp_distribution`: geographical distribution data (if load_distribution = TRUE)
 #'
 #' @author Pablo Hendrigo Alves de Melo,
 #'         Nadia Bystriakova &
@@ -46,8 +48,9 @@
 #' colnames(wcvp$wcvp_distribution)
 #' }
 #'
-#' @import utils
-#'
+#' @importFrom dplyr mutate
+#' @importFrom utils download.file unzip read.table
+#' @importFrom downloader download
 #' @export
 wcvp_get_data <- function(url_source = "http://sftp.kew.org/pub/data-repositories/WCVP/",
                      read_only_to_memory = FALSE,

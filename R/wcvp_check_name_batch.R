@@ -2,7 +2,7 @@
 #'
 #' @name wcvp_check_name_batch
 #'
-#' @description Species’ names can be checked against WCVP database one by one, or in a batch mode. 
+#' @description Species' names can be checked against WCVP database one by one, or in a batch mode.
 #' To verify individual names, the function wcvp_check_name is used.
 #'
 #' @param occ GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')
@@ -14,12 +14,11 @@
 #' The default is 'standard'
 #' @param silence if TRUE does not display progress messages
 #'
-#' @details See help(checkName_wcvp) 
+#' @details See help(wcvp_check_name)
 #' * [about WCVP database](http://sftp.kew.org/pub/data-repositories/WCVP/)
-#' * [World Checklist of Vascular Plants](https://powo.science.kew.org//)
+#' * [World Checklist of Vascular Plants](https://powo.science.kew.org/)
 #' * [WCVP database](http://sftp.kew.org/pub/data-repositories/WCVP/)
 #' * [(about WCVP)](https://powo.science.kew.org/about-wcvp)
-
 #'
 #' @author Pablo Hendrigo Alves de Melo,
 #'         Nadia Bystriakova &
@@ -27,18 +26,13 @@
 #'
 #' @seealso \code{\link[parseGBIF]{wcvp_get_data}}, \code{\link[parseGBIF]{wcvp_check_name}}
 #'
-#' @return list with two data frames: summary, species list and occ_wcvp_check_name, with WCVP fields
-#'
-#' @import dplyr
-#' @import stringr
-#' @import tidyselect
-#'
-#' @importFrom dplyr mutate
+#' @return list with two data frames:
+#' - `summary`: summary of name checking results
+#' - `occ_wcvp_check_name`: occurrence data with WCVP fields
 #'
 #' @examples
 #' # These examples take >10 minutes to run and require 'parseGBIF::wcvp_get_data()'
 #' \donttest{
-#'
 #' library(parseGBIF)
 #'
 #' help(wcvp_check_name_batch)
@@ -57,20 +51,17 @@
 #'                                                  wcvp_names =  wcvp_names,
 #'                                                  if_author_fails_try_without_combinations = TRUE,
 #'                                                  wcvp_selected_fields = 'standard',
-#'                                                  show_process = TRUE)
+#'                                                  silence = TRUE)
 #'
 #' names(res_wcvp_check_name_batch)
 #'
 #' head(res_wcvp_check_name_batch$summary)
 #'
 #' head(res_wcvp_check_name_batch$occ_wcvp_check_name)
-#'
 #' }
 #'
-#' @import dplyr
-#' @import stringr
-#' @import tidyselect
-#'
+#' @importFrom dplyr mutate select
+#' @importFrom tidyselect all_of
 #' @export
 wcvp_check_name_batch <- function(occ = NA,
                                  wcvp_names = '',
@@ -196,7 +187,7 @@ wcvp_check_name_batch <- function(occ = NA,
   for(i in 1:tot_rec)
   {
     sp_tmp <- name_search_wcvp[i]
-    
+
     if(! silence == TRUE)
     {
       print( paste0( i, '-',tot_rec ,' ',  sp_tmp))

@@ -70,6 +70,8 @@ automatically from the recordedBy field.
 Once verified, the collector's dictionary can be reused in the future.
 }
 \details{
+\subsection{Workflow Description:}{
+
 If recordedBy is present in the collector's dictionary, it returns the checked name; if not,
 it returns the last name of the main collector extracted from the recordedBy field.
 
@@ -81,6 +83,26 @@ It is recommended to curate the main collector's surname automatically extracted
 The objective is to standardize the last name of the main collector so that the primary botanical
 collector of a sample is always recognized by the same last name, standardized in capital letters
 and with non-ASCII characters replaced.
+}
+
+\subsection{Technical Implementation:}{
+\enumerate{
+\item \strong{Data Extraction}: Extracts unique recordedBy values from occurrence data
+\item \strong{Name Processing}: Applies \code{collectors_get_name()} to extract surnames using specified selection method
+\item \strong{Dictionary Integration}: Merges results with existing collector dictionary
+\item \strong{Verification Flagging}: Marks dictionary-verified entries as "checked"
+\item \strong{Character Standardization}: Converts to uppercase and replaces non-ASCII characters
+}
+}
+
+\subsection{Key Features:}{
+\itemize{
+\item Supports both local files and default GitHub dictionary
+\item Maintains backward compatibility with existing collector dictionaries
+\item Provides flexible surname extraction methods
+\item Ensures consistent naming across duplicate collection events
+}
+}
 }
 \examples{
 \donttest{

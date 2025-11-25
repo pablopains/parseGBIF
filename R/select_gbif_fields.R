@@ -272,7 +272,7 @@
 #'  * 'iucnRedListCategory'
 #'
 #' @return
-#' list of the columns names
+#' Character vector of selected column names
 #'
 #' @author Pablo Hendrigo Alves de Melo,
 #'         Nadia Bystriakova &
@@ -282,14 +282,15 @@
 #'
 #' @examples
 #' \donttest{
-#' # select_gbif_fields()
+#' # Get standard columns
+#' col_sel <- select_gbif_fields(columns = 'standard')
 #'
-#' help(select_gbif_fields)
-#'
+#' # Get all columns
 #' col_sel <- select_gbif_fields(columns = 'all')
 #'
-#' col_sel <- select_gbif_fields(columns = 'standard')
-#'}
+#' # Get specific columns
+#' col_sel <- select_gbif_fields(columns = c('gbifID', 'scientificName', 'decimalLatitude'))
+#' }
 #'
 #' @export
 select_gbif_fields <- function(columns = 'standard')

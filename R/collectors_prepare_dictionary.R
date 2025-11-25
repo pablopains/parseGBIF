@@ -47,6 +47,8 @@
 #' Integer. Maximum characters in name. Default is 3.
 #'
 #' @details
+#' ## Workflow Description:
+#'
 #' If recordedBy is present in the collector's dictionary, it returns the checked name; if not,
 #' it returns the last name of the main collector extracted from the recordedBy field.
 #'
@@ -58,6 +60,20 @@
 #' The objective is to standardize the last name of the main collector so that the primary botanical
 #' collector of a sample is always recognized by the same last name, standardized in capital letters
 #' and with non-ASCII characters replaced.
+#'
+#' ## Technical Implementation:
+#'
+#' 1. **Data Extraction**: Extracts unique recordedBy values from occurrence data
+#' 2. **Name Processing**: Applies `collectors_get_name()` to extract surnames using specified selection method
+#' 3. **Dictionary Integration**: Merges results with existing collector dictionary
+#' 4. **Verification Flagging**: Marks dictionary-verified entries as "checked"
+#' 5. **Character Standardization**: Converts to uppercase and replaces non-ASCII characters
+#'
+#' ## Key Features:
+#' - Supports both local files and default GitHub dictionary
+#' - Maintains backward compatibility with existing collector dictionaries
+#' - Provides flexible surname extraction methods
+#' - Ensures consistent naming across duplicate collection events
 #'
 #' @return
 #' Returns a data frame with the following columns:
@@ -110,9 +126,10 @@
 #' }
 #'
 #' @importFrom stringr %>%
-#' @importFrom dplyr mutate rename left_join select
+#' @importFrom dplyr mutate rename left_join select arrange
 #' @importFrom readr read_csv locale
 #' @importFrom rscopus replace_non_ascii
+#' @importFrom utils rbind
 #' @export
 collectors_prepare_dictionary <- function(occ=NA,
                                           collectorDictionary_file = '',
@@ -122,17 +139,6 @@ collectors_prepare_dictionary <- function(occ=NA,
                                           max_words_name = 6,
                                           maximum_characters_in_name = 3)
 {
-
-
-
-  require(stringr)
-  # require(googlesheets4)
-
-  require(dplyr)
-
-  #require(textclean)
-
-  require(rscopus)
 
   if(! silence == TRUE)
   {

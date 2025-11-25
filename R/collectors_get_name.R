@@ -2,30 +2,40 @@
 #' @name collectors_get_name
 #'
 #' @description
-#' Get the last name of the main collector in recordedBy field
+#' Extracts and standardizes the main collector's surname from the recordedBy field in GBIF data.
+#' Handles various formats, special characters, abbreviations, and multiple collector scenarios.
 #'
 #' @param x
-#' Character string. The recordedBy field content.
+#' Character string. The recordedBy field content from GBIF occurrence data.
 #'
 #' @param surname_selection_type
-#' Character. Allows you to select two types of results for the main collector's last name:
-#' - `"largest_string"`: word with the largest number of characters (default)
-#' - `"last_name"`: literally the last name of the main collector, with more than two characters.
+#' Character. Method for selecting the main collector's surname:
+#' - `"largest_string"`: Selects the word with the largest number of characters (default)
+#' - `"last_name"`: Selects the last valid name component with more than two characters
 #'
 #' @param max_words_name
-#' Integer. Maximum words in the name. Default is 6.
+#' Integer. Maximum number of words to consider in a name. Default is 6.
 #'
 #' @param maximum_characters_in_name
-#' Integer. Maximum characters in name. Default is 3.
+#' Integer. Minimum character length for valid surnames. Default is 3.
 #'
 #' @details
-#' Returns the last name of the main collector extracted from the recordedBy field.
-#' The function processes the recordedBy field to identify and standardize the main collector's surname,
-#' handling various formats, special characters, and common abbreviations.
+#' ## Processing Steps:
+#' 1. Cleans and standardizes input text (removes special characters, abbreviations)
+#' 2. Handles multiple collectors (uses first collector before "&", "AND", ";")
+#' 3. Converts diacritics and special characters to ASCII equivalents
+#' 4. Applies selection method to extract main surname
+#' 5. Validates extracted name against exclusion list and minimum length
+#'
+#' ## Common Abbreviations Handled:
+#' - Team/expedition references: "TEAM", "EXPED", "STAFF", "CLUB"
+#' - Academic references: "UNIVERSITY", "DEPARTMENT", "HERBARIUM"
+#' - Relationship suffixes: "JR", "FILHO", "NETO", "SOBRINHO"
+#' - Connectors: "ET", "AND", "WITH", "FROM"
 #'
 #' @return
-#' Character string. Last name of the main collector, or:
-#' - `"UNKNOWN-COLLECTOR"` for empty or invalid inputs
+#' Character string. Standardized surname of the main collector, or:
+#' - `"UNKNOWN-COLLECTOR"` for empty, invalid, or unrecognizable inputs
 #' - `NA` if extracted name doesn't meet minimum character requirements
 #'
 #' @author
@@ -34,11 +44,9 @@
 #' Alexandre Monro
 #'
 #' @seealso
-#' [`collectors_prepare_dictionary()`] for creating collector dictionaries,
-#' [`collectors_update_dictionary()`] for updating existing dictionaries
+#' [`collectors_prepare_dictionary()`] for creating collector dictionaries
 #'
 #' @examples
-#' \donttest{
 #' # Basic usage
 #' collectors_get_name('Melo, P.H.A & Monro, A.')
 #' collectors_get_name('Monro, A. & Melo, P.H.A')
@@ -51,10 +59,14 @@
 #' collectors_get_name(NA) # Returns "UNKNOWN-COLLECTOR"
 #' collectors_get_name('')  # Returns "UNKNOWN-COLLECTOR"
 #' collectors_get_name('et al.') # Returns "UNKNOWN-COLLECTOR"
-#' }
 #'
-#' @importFrom stringr str_locate str_sub str_replace_all str_count str_trim
-#' @importFrom lubridate ymd is.Date
+#' # Special characters and diacritics
+#' collectors_get_name('Müller, Hans')
+#' collectors_get_name('Silva Neto, João')
+#' collectors_get_name('O''Brien, Patrick')
+#'
+#' @importFrom stringr str_locate str_sub str_replace_all str_count str_trim str_detect
+#' @importFrom lubridate ymd
 #' @export
 collectors_get_name <- function(x=NA,
                                 surname_selection_type = 'largest_string', #'last_name' OR largest_string
@@ -137,43 +149,62 @@ collectors_get_name <- function(x=NA,
               )
 
 
-  check_date_num <- function(x_t,
-                             no_name)
-  {
-    x_r <- FALSE
+  # check_date_num <- function(x_t,
+  #                            no_name)
+  # {
+  #   x_r <- FALSE
+  #
+  #   x_t_1 <- lubridate::ymd(x_t, locale="en_US.UTF-8")
+  #   if(!is.na(x_t_1))
+  #   {
+  #     x_r <- lubridate::is.Date(x_t_1)
+  #   }
+  #
+  #   if(is.na(x_t_1) & !x_r)
+  #   {
+  #     x_t_1 <- as.numeric(x_t)
+  #     if(!is.na(x_t_1))
+  #     {
+  #       x_r <- is.numeric(x_t_1)
+  #     }
+  #
+  #   }
+  #
+  #   if(!x_r)
+  #   {
+  #     x_t_1 <- str_replace_all(x_t, "[^A-Z]", "")
+  #     x_r <- is.na(x_t_1) | x_t_1 ==''
+  #   }
+  #
+  #   if(!x_r)
+  #   {
+  #     x_r <- x_t %in% no_name
+  #   }
+  #
+  #   # if(!x_r)
+  #   # {
+  #   #   x_r <- nchar(x_t)==1
+  #   # }
+  #
+  #
+  #   return(x_r)
+  # }
+  check_date_num <- function(x_t, no_name) {
+    # Check if it's a date
+    x_t_1 <- lubridate::ymd(x_t, quiet = TRUE)
+    x_r <- !is.na(x_t_1)
 
-    x_t_1 <- lubridate::ymd(x_t, locale="en_US.UTF-8")
-    if(!is.na(x_t_1))
-    {
-      x_r <- lubridate::is.Date(x_t_1)
+    # If not date, check if numeric
+    if (!x_r) {
+      x_t_1 <- suppressWarnings(as.numeric(x_t))
+      x_r <- !is.na(x_t_1)
     }
 
-    if(is.na(x_t_1) & !x_r)
-    {
-      x_t_1 <- as.numeric(x_t)
-      if(!is.na(x_t_1))
-      {
-        x_r <- is.numeric(x_t_1)
-      }
-
+    # If not numeric, check if it's in exclusion list or has no letters
+    if (!x_r) {
+      x_t_clean <- str_replace_all(x_t, "[^A-Z]", "")
+      x_r <- is.na(x_t_clean) | x_t_clean == '' | x_t %in% no_name
     }
-
-    if(!x_r)
-    {
-      x_t_1 <- str_replace_all(x_t, "[^A-Z]", "")
-      x_r <- is.na(x_t_1) | x_t_1 ==''
-    }
-
-    if(!x_r)
-    {
-      x_r <- x_t %in% no_name
-    }
-
-    # if(!x_r)
-    # {
-    #   x_r <- nchar(x_t)==1
-    # }
-
 
     return(x_r)
   }

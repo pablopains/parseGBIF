@@ -2,115 +2,64 @@
 % Please edit documentation in R/export_data_cluster.R
 \name{export_data_cluster}
 \alias{export_data_cluster}
-\title{Export of results Cluster - divides the work into 24 steps to reduce the total processing time}
+\title{Export Parsed GBIF Data Results with Parallel Processing}
 \usage{
 export_data_cluster(
   occ_digital_voucher_file = "",
   occ_digital_voucher = NA,
+  merge_unusable_data = TRUE,
   n_minimo = 10000
 )
 }
 \arguments{
-\item{occ_digital_voucher_file}{CSV fila result of function select_digital_voucher()$occ_digital_voucher}
+\item{occ_digital_voucher_file}{Character. Path to CSV file result from \code{select_digital_voucher()$occ_digital_voucher}.}
 
-\item{occ_digital_voucher}{data frame result of function select_digital_voucher()$occ_digital_voucher}
+\item{occ_digital_voucher}{Data frame. Result from \code{select_digital_voucher()$occ_digital_voucher}.}
 
-\item{n_minimo}{minimum number of records to split processing}
+\item{merge_unusable_data}{Logical. If \code{TRUE}, includes incomplete unique collection events in merge processing.
+Default is \code{TRUE}.}
+
+\item{n_minimo}{Integer. Minimum number of records to trigger parallel processing. If the dataset
+has fewer records than this threshold, processing is done in a single batch.
+Default is 10000.}
 }
 \value{
-list with 10 data frames
+Data frame. Combined results from all partitions containing:
 \itemize{
-\item \strong{all_data} All records processed, merged Unique collection events complete / incomplete and their duplicates
-\item \strong{useable_data_merge} Merged Unique collection events complete
-\item \strong{useable_data_raw} Raw Unique collection events complete
-\item \strong{duplicates} Duplicates of unique collection events complete / incomplete
-\item \strong{unusable_data_merge} Merged Unique collection events incomplete,
-It is NA if merge_unusable_data is FALSE.
-\item \strong{unusable_data_raw} Raw Unique collection events incomplete
-\item \strong{parseGBIF_general_summary}
-\item \strong{parseGBIF_merge_fields_summary}
-\item \strong{parseGBIF_merge_fields_summary_useable_data}
-\item \strong{parseGBIF_merge_fields_summary_unusable_data} It is NA if merge_unusable_data is FALSE
+\item All processed records (merged unique collection events and duplicates)
+\item Standardized taxonomic identifications and geographic coordinates
+\item Merged field information from duplicate records
 }
 }
 \description{
-divides the work into 24 steps to reduce the total processing time
-For each unique collection event key, complete or incomplete,
-outputs will be created which combine information from duplicate records and generate a
-single unique collection event record to replace them.
-The main output fields relating to taxonomic identification and geographic coordinates:
-\itemize{
-\item parseGBIF_sample_taxon_name = scientific name chosen as taxonomic identification for unique collection event
-\item parseGBIF_number_taxon_names = number of scientific names found in duplicates of unique collection event
-\item parseGBIF_sample_taxon_name_status = status of choice of 'identified', 'divergent identifications', 'unidentified'
-\item parseGBIF_unidentified_sample = if unique collection event has taxonomic identification
-\item parseGBIF_decimalLatitude = latitude in decimal degrees
-\item parseGBIF_decimalLongitude = longitude in decimal degrees
-\item parseGBIF_useful_for_spatial_analysis = whether the coordinates are useful for spatial analysis.
-\strong{How is the taxon binomial attributed to the unique collection event selected?}
-}
-\enumerate{
-\item Where the unique collection event key is complete:
-The accepted TAXON_NAME selected is that which is most frequently applied to the duplicate vouchers at or below the rank of species.
-Where two named are applied with equal frequency then a mechanical approach, using alphabetical order, is applied, the first listed TAXON_NAME being chosen.
-Where there is no identification, at or below the rank of species, then the unique collection event, the unique collection event is indicated as unidentified.
-\item Where the unique collection event key is incomplete:
-Where the unique collection event key is incomplete, then each record is treated as a unique collection event. If there is no identification, at or below the rank of species, then the unique collection event is classified as unidentified.
-__Geospatial information __
-If the master voucher does not have geographic coordinates, we will seek coordinates from the duplicate records associated with it.
-Finally, the records are separated into three sets of data:
-\strong{useable_data} - Where unique collection event with taxonomic identification and geographic coordinates are complete. This represents the useable dataset.
-\strong{unusable_data}  - Where unique collection event without taxonomic identification and/or geographic coordinates.
-\strong{duplicates} The duplicates of unique collection events complete / incomplete
-}
-
-With this, it is possible to perform:
-Merge information between fields of duplicates of a unique collection event to create a synthetic record for each unique collection event,
-Compare the frequency of content in fields
-Generate a work package summary
-
-For each complete unique collection event key, data fields that are empty in the digital voucher record will be populated with data from the respective duplicates.
-During content merging, we indicate fields associated with the description, location, and data of the unique collection event.
-By default, fields_to_merge parameter of export_data function contains:
-\itemize{
-\item Ctrl_fieldNotes
-\item Ctrl_year
-\item Ctrl_stateProvince
-\item Ctrl_municipality
-\item Ctrl_locality
-\item Ctrl_countryCode
-\item Ctrl_eventDate
-\item Ctrl_habitat
-\item Ctrl_level0Name
-\item Ctrl_level1Name
-\item Ctrl_level2Name
-\item Ctrl_level3Name
-}
+Processes and exports results from parsed GBIF occurrence data by dividing the work
+into multiple parallel steps to reduce total processing time for large datasets.
+This function splits the data into 24 partitions and processes each separately
+using the \code{export_data()} function, then combines the results.
 }
 \details{
-Each data frame should be used as needed
+\subsection{Parallel Processing:}{
+
+For datasets larger than \code{n_minimo} records, the function:
+\enumerate{
+\item Divides unique collection event keys into 24 equal partitions
+\item Processes each partition separately using \code{export_data()}
+\item Combines results from all partitions
+\item Returns the combined dataset
 }
-\examples{
-\donttest{
-help(export_data)
 
-results <- export_data(occ_digital_voucher_file = file.occ_digital_voucher,
-                       merge_unusable_data = TRUE)
+For smaller datasets, processing is done in a single batch for efficiency.
+}
 
-names(results)
+\subsection{Output:}{
 
-results$parseGBIF_general_summary
-results$parseGBIF_merge_fields_summary
-results$parseGBIF_merge_fields_summary_complete
-NROW(results$all_data)
-NROW(results$unique_collection_event_complete_merge)
-NROW(results$unique_collection_event_incomplete_raw)
-NROW(results$duplicates)
-
+Returns the same data structure as \code{export_data()} but processed in parallel
+for improved performance on large datasets.
 }
 }
 \seealso{
-\code{\link[ParsGBIF]{batch_checkName_wcvp}}, \code{\link[ParsGBIF]{extract_gbif_issue}}
+\code{\link[=export_data]{export_data()}} for the standard sequential processing version,
+\code{\link[=select_digital_voucher]{select_digital_voucher()}} for selecting digital vouchers
 }
 \author{
 Pablo Hendrigo Alves de Melo,

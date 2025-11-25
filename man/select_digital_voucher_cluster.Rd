@@ -12,31 +12,36 @@ select_digital_voucher_cluster(
   file_name_occ_issue = NA,
   file_name_occ_wcvp_check_name = NA,
   file_name_occ_collectorsDictionary = NA,
+  enumOccurrenceIssue = NA,
   n_minimo = 10000
 )
 }
 \arguments{
 \item{occ}{GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')}
 
-\item{occ_gbif_issue}{= result of function extract_gbif_issue()$occ_gbif_issue}
+\item{occ_gbif_issue}{result of function extract_gbif_issue()$occ_gbif_issue}
 
-\item{occ_wcvp_check_name}{= result of function batch_checkName_wcvp()$occ_wcvp_check_name}
+\item{occ_wcvp_check_name}{result of function batch_checkName_wcvp()$occ_wcvp_check_name}
 
-\item{occ_collectorsDictionary}{= result of function update_collectorsDictionary()$occ_collectorsDictionary}
+\item{occ_collectorsDictionary}{result of function update_collectorsDictionary()$occ_collectorsDictionary}
 
-\item{n_minimo}{minimum number of records to split processing}
+\item{file_name_occ_issue}{character, path to CSV file with occ_gbif_issue data}
+
+\item{file_name_occ_wcvp_check_name}{character, path to CSV file with occ_wcvp_check_name data}
+
+\item{file_name_occ_collectorsDictionary}{character, path to CSV file with occ_collectorsDictionary data}
 
 \item{enumOccurrenceIssue}{An enumeration of validation rules for single occurrence records by GBIF file, if NA, will be used, data(EnumOccurrenceIssue)}
+
+\item{n_minimo}{minimum number of records to split processing}
 }
 \value{
-list with two data frames: occ_digital voucher_and:
-occ_digital_voucher,  with all data processing fields and
-occ_results, only result fields.
+data frame with processed digital voucher data
 }
 \description{
 Divides the processing for selecting the digital voucher into 24 parts
 To group duplicates and choose the digital voucher:
-Unique collection events can result in many ‘duplicate’ GBIF records. We designate one of these ‘duplicate’ records
+Unique collection events can result in many 'duplicate' GBIF records. We designate one of these 'duplicate' records
 as the master digital voucher, to which data from other duplicate vouchers can be merged (see export_data):
 
 \strong{Where the collection event key for grouping duplicates is complete}, then duplicates can be grouped / parsed.
@@ -89,6 +94,8 @@ scores that we assigned to each of the following GBIF issues recorded in the Enu
 \item parseGBIF_duplicates TRUE/FALSE
 \item parseGBIF_non_groupable_duplicates TRUE/FALSE
 }
+
+This function divides large datasets into 24 parts for parallel processing to handle very large occurrence datasets.
 }
 \examples{
 \donttest{
@@ -109,9 +116,10 @@ head(res_digital_voucher_and_sample_identification$occ_digital_voucher)
 colnames(res_digital_voucher_and_sample_identification$occ_digital_voucher)
 
 }
+
 }
 \seealso{
-\code{\link[ParsGBIF]{batch_checkName_wcvp}}, \code{\link[ParsGBIF]{extract_gbif_issue}}
+\code{\link[ParsGBIF]{batch_checkName_wcvp}}, \code{\link[ParsGBIF]{extract_gbif_issue}}, \code{\link[ParsGBIF]{select_digital_voucher}}
 }
 \author{
 Pablo Hendrigo Alves de Melo,

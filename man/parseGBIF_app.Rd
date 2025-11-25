@@ -18,8 +18,10 @@ parseGBIF::parseGBIF_app()
 }
 }
 \seealso{
-\code{\link[ParsGBIF]{batch_checkName_wcvp}}, \code{\link[ParsGBIF]{extract_gbif_issue}}
+\code{\link[parseGBIF]{batch_checkName_wcvp}}, \code{\link[parseGBIF]{extract_gbif_issue}}
 }
 \author{
 Pablo Hendrigo Alves de Melo,
+Nadia Bystriakova &
+Alexandre Monro
 }

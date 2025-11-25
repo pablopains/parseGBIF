@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_index_herbariorum.R
 \name{get_index_herbariorum}
 \alias{get_index_herbariorum}
-\title{Download Index Herbariorum data}
+\title{Download Index Herbariorum Data from API}
 \usage{
 get_index_herbariorum(
   url = "https://sweetgum.nybg.org/science/api/v1/institutions",
@@ -11,48 +11,79 @@ get_index_herbariorum(
   verbose = FALSE
 )
 }
+\arguments{
+\item{url}{Character. The API endpoint URL for Index Herbariorum data.
+Default is "https://sweetgum.nybg.org/science/api/v1/institutions".}
+
+\item{flatten}{Logical. If \code{TRUE} (default), flattens nested JSON structures into
+a data frame. If \code{FALSE}, returns the raw nested list structure.}
+
+\item{timeout_sec}{Numeric. Timeout in seconds for API request. Default is 30 seconds.}
+
+\item{verbose}{Logical. If \code{TRUE}, displays verbose HTTP request information.
+Default is \code{FALSE}.}
+}
 \value{
-A tibble containing the Index Herbariorum data with the following
-typical columns:
+A list or data frame (depending on \code{flatten} parameter) containing
+Index Herbariorum institution data. Typical structure includes:
 \itemize{
-\item{Code}{Herbarium code (e.g., "NY", "RB", "K")}
-\item{Name}{Full name of the herbarium}
-\item{Country}{Country where the herbarium is located}
-\item{City}{City where the herbarium is located}
-\item{No. Specimens}{Number of specimens in the collection}
-\item{Date Founded}{Date when the herbarium was founded}
-\item{URL}{Website URL of the herbarium}
-\item{...}{Additional columns with detailed information}
+\item Institution codes and names
+\item Geographic information (country, city)
+\item Contact details and URLs
+\item Collection statistics
+\item Administrative metadata
 }
 }
 \description{
-Download the complete Index Herbariorum dataset containing
-information about herbaria worldwide, including codes, locations,
-and collection statistics.
+Downloads herbarium institution data from the Index Herbariorum API maintained
+by the New York Botanical Garden. Returns a structured list or data frame
+containing information about herbaria worldwide.
 }
 \details{
-This function downloads the complete Index Herbariorum dataset from
-the New York Botanical Garden's official CSV endpoint. The dataset
-contains information about herbaria institutions worldwide, including
-their standard codes, locations, contact information, and collection
-statistics.
+\subsection{Data Source:}{
+
+The Index Herbariorum API provides comprehensive information about
+herbaria institutions worldwide, including codes, locations, contact
+information, and collection statistics.
+}
+
+\subsection{HTTP Client:}{
+
+The function preferentially uses \code{httr2} if available for modern
+HTTP handling with retry logic. Falls back to \code{httr} if \code{httr2} is
+not installed.
+}
+
+\subsection{Error Handling:}{
+\itemize{
+\item Implements retry logic for transient errors (403, 500+)
+\item Provides informative error messages for HTTP failures
+\item Handles timeout scenarios gracefully
+}
+}
 }
 \examples{
 \donttest{
 # Download Index Herbariorum data
-herbarium_data <- get_index_herbariorum()
+tryCatch({
+  herbarium_data <- get_index_herbariorum()
 
-# View the structure of the data
-head(herbarium_data)
+  # View the structure of the data
+  str(herbarium_data, max.level = 2)
 
-# Count herbaria by country
-table(herbarium_data$Country)
+  # Access specific elements
+  if (!is.null(herbarium_data$data)) {
+    head(herbarium_data$data)
+  }
+}, error = function(e) {
+  message("API request failed: ", e$message)
+})
 }
 
 }
 \seealso{
-\code{\link[parseGBIF]{preprocess_data}},
-\code{\link[parseGBIF]{get_gbif_data}}
+\code{\link[=prepare_gbif_occurrence_data]{prepare_gbif_occurrence_data()}} for preparing GBIF occurrence data,
+\code{\link[=select_gbif_fields]{select_gbif_fields()}} for selecting relevant GBIF fields
 }
 \author{
 Pablo Hendrigo Alves de Melo,

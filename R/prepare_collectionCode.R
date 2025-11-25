@@ -10,6 +10,7 @@
 #' @param herbarium_data A data frame containing Index Herbariorum data
 #' with a column `code` for herbarium acronyms. If not provided, the function
 #' will attempt to download it automatically.
+#' @param quiet Logical, if TRUE suppresses progress messages
 #'
 #' @details
 #' This function performs several standardization steps:
@@ -33,21 +34,16 @@
 #' Alexandre Monro
 #'
 #' @seealso
-#' \code{\link[parseGBIF]{get_index_herbariorum}},
-#' \code{\link[parseGBIF]{preprocess_data}}
+#' \code{\link[parseGBIF]{get_index_herbariorum}}
 #'
 #' @examples
 #' \donttest{
 #' # Load example data
 #' data(example_occurrences)
 #'
-#' # Download Index Herbariorum data (or use pre-downloaded)
-#' herbarium_data <- get_index_herbariorum(quiet = TRUE)
-#'
 #' # Standardize collection codes
 #' standardized_data <- prepare_collectionCode(
-#'   occ = example_occurrences,
-#'   herbarium_data = herbarium_data
+#'   occ = example_occurrences
 #' )
 #'
 #' # View results
@@ -55,36 +51,37 @@
 #'                           "parseGBIF_collectionCode_standardized")])
 #' }
 #'
-#' @importFrom dplyr distinct mutate case_when arrange pull %>%
+#' @importFrom dplyr distinct mutate case_when arrange pull
 #' @importFrom stats na.omit
 #' @export
-prepare_collectionCode <- function(occ = NA, herbarium_data = NA) {
-  
+prepare_collectionCode <- function(occ = NA, herbarium_data = NA, quiet = FALSE)
+{
+
   # Validate input
   if (missing(occ) || !is.data.frame(occ)) {
     stop("Parameter 'occ' must be a data frame")
   }
-  
+
   if (missing(herbarium_data) || !is.data.frame(herbarium_data)) {
     message("Downloading Index Herbariorum data...")
     herbarium_data <- get_index_herbariorum(quiet = TRUE)
   }
-  
+
   # Check required columns
   required_cols <- c("Ctrl_collectionCode", "Ctrl_institutionCode")
   if (!all(required_cols %in% colnames(occ))) {
     stop("Input data must contain columns: ",
          paste(required_cols, collapse = ", "))
   }
-  
+
   if (!"code" %in% colnames(herbarium_data)) {
     stop("Herbarium data must contain 'code' column")
   }
-  
+
   # Create unique pairs of institution and collection codes
   pares_instituicao_colecao <- occ %>%
     distinct(Ctrl_collectionCode, Ctrl_institutionCode)
-  
+
   # Initial standardization logic
   pares_instituicao_colecao <- pares_instituicao_colecao %>%
     mutate(
@@ -95,26 +92,26 @@ prepare_collectionCode <- function(occ = NA, herbarium_data = NA) {
         TRUE ~ Ctrl_institutionCode
       )
     )
-  
+
   # Handle numeric codes
   index_numeric_collection <- grepl("^[0-9]+$", pares_instituicao_colecao$Ctrl_collectionCode)
   pares_instituicao_colecao$Ctrl_collectionCode_standardized[index_numeric_collection] <-
     pares_instituicao_colecao$Ctrl_institutionCode[index_numeric_collection]
-  
+
   index_numeric_institution <- grepl("^[0-9]+$", pares_instituicao_colecao$Ctrl_institutionCode)
   pares_instituicao_colecao$Ctrl_collectionCode_standardized[index_numeric_institution] <-
     pares_instituicao_colecao$Ctrl_collectionCode[index_numeric_institution]
-  
+
   # Sort for consistency
   pares_instituicao_colecao <- pares_instituicao_colecao %>%
     arrange(Ctrl_collectionCode_standardized, Ctrl_collectionCode, Ctrl_institutionCode)
-  
+
   # Get unique herbarium acronyms
   herbarium_acronyms <- herbarium_data %>%
     pull(code) %>%
     unique() %>%
     na.omit()
-  
+
   # Add acronym identification
   pares_instituicao_colecao <- pares_instituicao_colecao %>%
     mutate(
@@ -129,7 +126,7 @@ prepare_collectionCode <- function(occ = NA, herbarium_data = NA) {
         TRUE ~ Ctrl_collectionCode_standardized
       )
     )
-  
+
   # Mark non-standard codes
   pares_instituicao_colecao <- pares_instituicao_colecao %>%
     mutate(
@@ -138,39 +135,39 @@ prepare_collectionCode <- function(occ = NA, herbarium_data = NA) {
         TRUE ~ paste(Ctrl_collectionCode_standardized, " *")
       )
     )
-  
+
   # Initialize standardized column
   occ$parseGBIF_collectionCode_standardized <- NA
-  
+
   # Vectorized processing for better performance
   tot <- nrow(pares_instituicao_colecao)
   ctrl_collection <- pares_instituicao_colecao$Ctrl_collectionCode_standardized
   is_acronym <- pares_instituicao_colecao$is_acronym
-  
+
   # Pre-process occurrence columns
   occ_collection <- occ$Ctrl_collectionCode
   occ_institution <- occ$Ctrl_institutionCode
-  
+
   # Main processing loop
   for(i in seq_len(tot)) {
     if(i %% 100 == 0) {
       message(paste0(i, " : ", tot, ' - ', ctrl_collection[i]))
     }
-    
+
     current_code <- ctrl_collection[i]
-    
+
     if(is_acronym[i] == "Ctrl_collectionCode") {
       index <- which(occ_collection == current_code)
       if(length(index) > 0) {
         occ$parseGBIF_collectionCode_standardized[index] <- current_code
       }
-      
+
     } else if(is_acronym[i] == "Ctrl_institutionCode") {
       index <- which(occ_institution == current_code)
       if(length(index) > 0) {
         occ$parseGBIF_collectionCode_standardized[index] <- current_code
       }
-      
+
     } else {
       index <- which(occ_institution == current_code)
       if(length(index) > 0) {
@@ -178,14 +175,14 @@ prepare_collectionCode <- function(occ = NA, herbarium_data = NA) {
       }
     }
   }
-  
+
   # Provide summary statistics
   standardized_count <- sum(!is.na(occ$parseGBIF_collectionCode_standardized))
   total_count <- nrow(occ)
-  
+
   message("Standardization completed: ",
           standardized_count, " of ", total_count,
           " records (", round(standardized_count/total_count * 100, 1), "%)")
-  
+
   return(occ)
 }

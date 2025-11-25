@@ -1,7 +1,0 @@
-"0","library(parseGBIF)"
-"0",""
-"0","occ_file <- 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt'"
-"0","  "
-"0","occ <- parseGBIF::prepare_gbif_occurrence_data(gbif_occurrece_file = occ_file, columns = 'standard')"
-"0","  "
-"0","head(occ)"

@@ -2,7 +2,7 @@
 % Please edit documentation in R/standardize_scientificName.R
 \name{standardize_scientificName}
 \alias{standardize_scientificName}
-\title{standardize_scientificName}
+\title{Standardize scientific names for WCVP compatibility}
 \usage{
 standardize_scientificName(
   searchedName = "Alomia angustata (Gardner) Benth. ex Baker"
@@ -12,13 +12,16 @@ standardize_scientificName(
 \item{searchedName}{scientific name, with or without author}
 }
 \value{
-searchedName,
-standardizeName,
-taxonAuthors,
-taxonAuthors_last
+A list with four elements:
+\itemize{
+\item \code{searchedName}: original scientific name
+\item \code{standardizeName}: standardized scientific name without authors
+\item \code{taxonAuthors}: full author string
+\item \code{taxonAuthors_last}: last author(s) after parentheses
+}
 }
 \description{
-standardize binomial name, variety, subspecies, form and hybrids, authorship
+Standardize binomial name, variety, subspecies, form and hybrids, authorship
 to allow comparison with names of taxa in the World Checklist of Vascular Plants (WCVP) database
 }
 \details{
@@ -39,7 +42,7 @@ standardize_scientificName('Centaurea ×aemiliae Font Quer')
 
 }
 \seealso{
-\code{\link[ParsGBIF]{get_wcvp}}, \code{\link[ParsGBIF]{checkName_wcvp}}
+\code{\link[parseGBIF]{get_wcvp}}, \code{\link[parseGBIF]{checkName_wcvp}}
 }
 \author{
 Pablo Hendrigo Alves de Melo,

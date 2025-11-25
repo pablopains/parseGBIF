@@ -10,7 +10,7 @@ select_gbif_fields(columns = "standard")
 \item{columns}{'standard' basic columns about what, when, where, and who collected, 'all' all available columns or list column names}
 }
 \value{
-list of the columns names
+Character vector of selected column names
 }
 \description{
 Select columns in GBIF occurrence data
@@ -283,13 +283,14 @@ or
 }
 \examples{
 \donttest{
-# select_gbif_fields()
+# Get standard columns
+col_sel <- select_gbif_fields(columns = 'standard')
 
-help(select_gbif_fields)
-
+# Get all columns
 col_sel <- select_gbif_fields(columns = 'all')
 
-col_sel <- select_gbif_fields(columns = 'standard')
+# Get specific columns
+col_sel <- select_gbif_fields(columns = c('gbifID', 'scientificName', 'decimalLatitude'))
 }
 
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/parse_coordinates.R
 \name{parse_coordinates}
 \alias{parse_coordinates}
-\title{Checking coordinates, centroids, artificial points and others}
+\title{Coordinate Quality Assessment and Validation}
 \usage{
 parse_coordinates(
   occ = NA,
@@ -14,43 +14,72 @@ parse_coordinates(
 )
 }
 \arguments{
-\item{occ}{GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')}
+\item{occ}{Data frame. GBIF occurrence data with coordinate fields.}
 
-\item{iso2_field_name}{indicates the name of the field with ISO2 code of the countries}
+\item{file_occ}{Character. Alternative file path to load occurrence data if \code{occ} is not provided.}
 
-\item{file_centroids}{'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataRaw/parseGBIF_GADM_centroids.CSV'}
+\item{iso2_field_name}{Character. Name of the field containing ISO2 country codes.
+Default is 'Ctrl_countryCode'.}
 
-\item{centroid_round}{point_11_1_km, point_1_1_km, point_110m or point_11m}
+\item{file_centroids}{Character. URL or path to centroids data file.
+Default uses parseGBIF GitHub repository.}
+
+\item{centroid_round}{Character. Precision level for centroid detection.
+Options: 'point_11_1_km', 'point_1_1_km', 'point_110m', 'point_11m'.
+Default is 'point_110m'.}
 }
 \value{
-list with two data frames, occ, with the original data set plus two columns, parseGBIF_countryCode_ISO3 and
-parseGBIF_countryName_en and countrycodelist, with the list of countries found with all the columns of countrycode::codelist
+Returns the input occurrence data with additional coordinate quality assessment
+columns including validation flags and centroid detection results.
 }
 \description{
-Checking coordinates, centroids, artificial points, also makes use of basic functions of CoordinateCleaner and other packages
+Performs comprehensive coordinate quality assessment using multiple validation
+methods including CoordinateCleaner, BDC, and centroid detection. Identifies
+problematic coordinates such as centroids, sea points, urban areas, and more.
 }
 \details{
-Adds the following fields, result of the coordinate checking process:
-parseGBIF_GADM_centroids,
-parseGBIF_GADM_centroids_level,
-parseGBIF_coordinate_status,
-.coordinates_outOfRange, .val,.zer,.sea,.equ,.cen,.cap,.urb,.con,.inst,.dup
+\subsection{Validation Methods:}{
+\itemize{
+\item \strong{CoordinateCleaner}: Validates coordinates, detects zeros, sea points, etc.
+\item \strong{BDC (Biodiversity Data Cleaning)}: Checks for coordinates out of range
+\item \strong{Centroid Detection}: Identifies coordinates matching administrative centroids
+\item \strong{Multiple Precision Levels}: Validates at different spatial resolutions
+}
+}
+
+\subsection{Quality Flags Added:}{
+\itemize{
+\item \code{.coordinates_outOfRange}: Coordinates outside valid range
+\item \code{.val}: Valid coordinate test
+\item \code{.zer}: Zero coordinate test
+\item \code{.sea}: Sea coordinate test
+\item \code{.equ}: Equator coordinate test
+\item \code{.cen}: Country centroid test
+\item \code{.cap}: Capital centroid test
+\item \code{.urb}: Urban area test
+\item \code{.inst}: Institution coordinate test
+\item \code{.dup}: Duplicate coordinate test
+\item \code{parseGBIF_coordinate_status}: Overall quality status
+}
+}
 }
 \examples{
 \donttest{
-help(standardize_country_from_iso2)
+# Perform coordinate validation
+occ_validated <- parse_coordinates(
+  occ = occ_data,
+  centroid_round = 'point_110m'
+)
 
-occ <- prepare_gbif_occurrence_data(gbif_occurrece_file =  'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt',
-                                    columns = 'standard')
-x <- standardize_country_from_iso2(occ = occ,
-                                     iso2_field_name = 'Ctrl_countryCode',
-                                     return_fields = c('iso3c','country.name.en'))
-colnames(x$occ)
-head(x$countrycodelist)
+# View validation results
+colnames(occ_validated)
+table(occ_validated$parseGBIF_coordinate_status)
 }
+
 }
 \seealso{
-\code{\link[parseGBIF]{prepare_gbif_occurrence_data}}, \code{\link[parseGBIF]{download_gbif_data_from_doi}}
+\code{\link[=prepare_gbif_occurrence_data]{prepare_gbif_occurrence_data()}} for preparing GBIF occurrence data,
+\code{\link[=get_centroids]{get_centroids()}} for loading centroid data
 }
 \author{
 Pablo Hendrigo Alves de Melo,

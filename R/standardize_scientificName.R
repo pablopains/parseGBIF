@@ -1,7 +1,7 @@
-#' @title standardize_scientificName
+#' @title Standardize scientific names for WCVP compatibility
 #' @name standardize_scientificName
 #'
-#' @description standardize binomial name, variety, subspecies, form and hybrids, authorship
+#' @description Standardize binomial name, variety, subspecies, form and hybrids, authorship
 #' to allow comparison with names of taxa in the World Checklist of Vascular Plants (WCVP) database
 #'
 #' @param searchedName scientific name, with or without author
@@ -15,16 +15,17 @@
 #' hybrid separator separate x from the specific epithet.
 #'
 #' @return
-#' searchedName,
-#' standardizeName,
-#' taxonAuthors,
-#' taxonAuthors_last
+#' A list with four elements:
+#' - `searchedName`: original scientific name
+#' - `standardizeName`: standardized scientific name without authors
+#' - `taxonAuthors`: full author string
+#' - `taxonAuthors_last`: last author(s) after parentheses
 #'
 #' @author Pablo Hendrigo Alves de Melo,
 #'         Nadia Bystriakova &
 #'         Alexandre Monro
 #'
-#' @seealso \code{\link[ParsGBIF]{get_wcvp}}, \code{\link[ParsGBIF]{checkName_wcvp}}
+#' @seealso \code{\link[parseGBIF]{get_wcvp}}, \code{\link[parseGBIF]{checkName_wcvp}}
 #'
 #' @examples
 #' \donttest{
@@ -33,6 +34,7 @@
 #' standardize_scientificName('Centaurea ×aemiliae Font Quer')
 #' }
 #'
+#' @importFrom stringr str_split str_detect str_sub str_locate
 #' @export
 standardize_scientificName <- function(searchedName = 'Alomia angustata (Gardner) Benth. ex Baker')
 {
@@ -177,22 +179,4 @@ standardize_scientificName <- function(searchedName = 'Alomia angustata (Gardner
               taxonAuthors= taxon_authors,
               taxonAuthors_last= taxon_authors_last))
 }
-
-# standardize_scientificName(searchedName = '×Cryptbergia rubra')
-
-# searchedName = "Senna glutinosa nothosubsp. luerssenii (Domin) Randell"
-# standardize_scientificName(searchedName)
-
-
-# # hibrido no genero
-# if(substr(xx[1],1,1)=="×")
-# {
-#   sobren <- xx[1]
-#
-#   if(length(xx)>1)
-#   {
-#     sobren <- paste0(xx[1], ' ', xx[2])
-#   }
-#   return(sobren)
-# }
 

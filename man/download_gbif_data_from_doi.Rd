@@ -12,36 +12,64 @@ download_gbif_data_from_doi(
 )
 }
 \arguments{
-\item{gbif_doi_url}{Character. The URL of the GBIF DOI for the occurrence dataset.}
+\item{gbif_doi_url}{Character. The URL of the GBIF DOI for the occurrence dataset.
+Expected format: https://www.gbif.org/occurrence/download/XXXXXXX}
 
-\item{folder}{Character. Directory path where files will be saved. If the folder doesn't exist, it will be created.}
+\item{folder}{Character. Directory path where files will be saved. If the folder doesn't exist,
+it will be created automatically. Use forward slashes (/) for cross-platform compatibility.}
 
-\item{keep_only_occurrence_file}{Logical. If \code{TRUE} (default), keeps only the occurrence.txt file and removes auxiliary files.}
+\item{keep_only_occurrence_file}{Logical. If \code{TRUE} (default), keeps only the occurrence.txt file and removes
+auxiliary files (citations.txt, meta.xml, multimedia.txt, rights.txt, verbatim.txt,
+and dataset folder) to save disk space.}
 
-\item{overwrite}{Logical. If \code{TRUE}, overwrites existing files. Default is \code{FALSE}.}
+\item{overwrite}{Logical. If \code{TRUE}, overwrites existing files when re-downloading.
+Default is \code{FALSE} to prevent accidental data loss.}
 }
 \value{
-Character vector. List of downloaded and unzipped files with full paths.
+Character vector. List of downloaded and unzipped files with full paths,
+typically containing occurrence.txt and any other retained files.
 }
 \description{
 Download and unzip GBIF occurrence data from DOI to be used by parseGBIF functions.
+This function automates the process of accessing GBIF occurrence datasets through their
+DOI URLs, downloading the compressed data, and extracting the relevant files.
 }
 \details{
-Downloads GBIF occurrence data from a DOI URL, extracts the compressed files,
-and optionally cleans up auxiliary files to keep only the main occurrence data.
+\subsection{Workflow:}{
+\enumerate{
+\item Parses the GBIF DOI webpage to extract the direct download link
+\item Downloads the compressed occurrence data file (dataGBIF.zip)
+\item Extracts all files to the specified directory
+\item Optionally removes auxiliary files to keep only the main occurrence data
+}
+}
+
+\subsection{File Management:}{
+\itemize{
+\item Creates target directory recursively if it doesn't exist
+\item Skips download if occurrence.txt already exists (unless overwrite=TRUE)
+\item Uses cross-platform file paths for Windows, Mac, and Linux compatibility
+\item Returns list of all extracted files with full paths
+}
+}
 }
 \examples{
 \donttest{
-library(parseGBIF)
+# Download GBIF data from DOI to temporary directory
+tryCatch({
+  downloaded_files <- download_gbif_data_from_doi(
+    gbif_doi_url = 'https://www.gbif.org/occurrence/download/0151470-230224095556074',
+    folder = tempdir(),  # Use temporary directory for safe example
+    keep_only_occurrence_file = TRUE,
+    overwrite = FALSE
+  )
 
-# Download GBIF data from DOI
-downloaded_files <- download_gbif_data_from_doi(
-  gbif_doi_url = 'https://www.gbif.org/occurrence/download/0151470-230224095556074',
-  folder = 'c:/dataGBIF/Achatocarpaceae'
-)
-
-# List downloaded files
-print(downloaded_files)
+  # List downloaded files
+  print(downloaded_files)
+}, error = function(e) {
+  message("Download failed: ", e$message)
+  message("This example requires an active internet connection and valid GBIF DOI")
+})
 }
 
 }

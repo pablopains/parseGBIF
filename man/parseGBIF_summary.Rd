@@ -2,7 +2,7 @@
 % Please edit documentation in R/parseGBIF_summary.R
 \name{parseGBIF_summary}
 \alias{parseGBIF_summary}
-\title{Selecting the master digital voucher}
+\title{Generating summary statistics for parseGBIF data}
 \usage{
 parseGBIF_summary(
   parseGBIF_all_data = NA,
@@ -10,53 +10,52 @@ parseGBIF_summary(
   fields_to_merge = c("Ctrl_fieldNotes", "Ctrl_year", "Ctrl_stateProvince",
     "Ctrl_municipality", "Ctrl_locality", "Ctrl_countryCode", "Ctrl_eventDate",
     "Ctrl_habitat", "Ctrl_level0Name", "Ctrl_level1Name", "Ctrl_level2Name",
-    "Ctrl_level3Name")
+    "Ctrl_level3Name"),
+  fields_to_compare = NULL,
+  fields_to_parse = NULL,
+  silence = FALSE
 )
 }
 \arguments{
-\item{parseGBIF_all_data}{...}
+\item{parseGBIF_all_data}{Data frame containing parseGBIF processed data}
 
-\item{file.parseGBIF_all_data}{...}
+\item{file.parseGBIF_all_data}{Character string with path to CSV file containing parseGBIF data}
 
-\item{fields_to_merge}{fields to merge}
+\item{fields_to_merge}{Character vector of field names used for merging collection events}
 
-\item{fields_to_compare}{fields to compare content frequency}
+\item{fields_to_compare}{Character vector of field names to compare content frequency (currently unused)}
 
-\item{fields_to_parse}{all fields}
+\item{fields_to_parse}{Character vector of all field names (currently unused)}
 
-\item{silence}{if TRUE does not display progress messages}
+\item{silence}{Logical, if TRUE does not display progress messages}
 }
 \value{
+A list with four data frames:
 \itemize{
-\item \strong{parseGBIF_general_summary}
-\item \strong{parseGBIF_merge_fields_summary}
-\item \strong{parseGBIF_merge_fields_summary_useable_data}
-\item \strong{parseGBIF_merge_fields_summary_unusable_data}
+\item \code{parseGBIF_general_summary}: General summary statistics
+\item \code{parseGBIF_merge_fields_summary}: Summary of field merging operations
+\item \code{parseGBIF_merge_fields_summary_useable_data}: Field merging for usable data only
+\item \code{parseGBIF_merge_fields_summary_unusable_data}: Field merging for unusable data only
 }
 }
 \description{
-...
+Generates comprehensive summary statistics for parseGBIF processed data
 }
 \details{
-...
+This function generates multiple summary statistics for parseGBIF processed data,
+including general counts, taxonomic diversity metrics, data quality assessments,
+and field merging statistics.
 }
 \examples{
 \donttest{
-
-results <- export_data_v2.3(occ_digital_voucher_file = '',
-occ_digital_voucher = occ_digital$all_data,
-merge_unusable_data = TRUE,
-silence = FALSE)
-
+results <- parseGBIF_summary(parseGBIF_all_data = your_data)
 names(results)
-
-head(results$occ_all)
-colnames(results$occ_all)
-
+head(results$parseGBIF_general_summary)
 }
+
 }
 \seealso{
-\code{\link[ParsGBIF]{batch_checkName_wcvp}}, \code{\link[ParsGBIF]{extract_gbif_issue}}
+\code{\link[parseGBIF]{batch_checkName_wcvp}}, \code{\link[parseGBIF]{extract_gbif_issue}}
 }
 \author{
 Pablo Hendrigo Alves de Melo,

@@ -3,66 +3,84 @@
 \encoding{UTF-8}
 \name{generate_collection_event_key}
 \alias{generate_collection_event_key}
-\title{Generating the collection event key}
+\title{Generate Collection Event Key for Duplicate Grouping}
 \usage{
 generate_collection_event_key(
   occ = NA,
-  collectorDictionary_checked_file = NA,
-  collectorDictionary_checked = NA,
-  collectorDictionary_file = "",
+  collectorDictionary_checked_file = NULL,
+  collectorDictionary_checked = NULL,
+  collectorDictionary_file = NULL,
+  collectorDictionary = NULL,
   silence = TRUE
 )
 }
 \arguments{
-\item{occ}{GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')}
+\item{occ}{Data frame. GBIF occurrence table with selected columns as returned by
+\code{select_gbif_fields(columns = 'standard')}.}
 
-\item{collectorDictionary_checked_file}{Verified collector dictionary file - point to a file on your local disk (use file or data frame)}
+\item{collectorDictionary_checked_file}{Character. Path to verified collector dictionary file.}
 
-\item{collectorDictionary_checked}{Verified collector dictionary data frame (use file or data frame)}
+\item{collectorDictionary_checked}{Data frame. Verified collector dictionary data.}
 
-\item{collectorDictionary_file}{Collector dictionary file - point to a file on your local disk. if empty, will load the default collector dictionary from the package at https://github.com/pablopains/parseGBIF/tree/main/collectorDictionary}
+\item{collectorDictionary_file}{Character. Path to base collector dictionary file. If empty, uses the default
+dictionary from the parseGBIF GitHub repository.}
 
-\item{silence}{if TRUE does not display progress messages}
+\item{collectorDictionary}{Data frame. Base collector dictionary data.}
+
+\item{silence}{Logical. If \code{TRUE}, suppresses progress messages. Default is \code{TRUE}.}
 }
 \value{
-list with three data frames:
-occ_collectorsDictionary, with update result fields only,
-summary and
-CollectorsDictionary_add, with new collectors that can be added to the
-collector dictionary that can be reused in the future.
+A list with three components:
+\itemize{
+\item \code{occ_collectorsDictionary}: Occurrence data with generated keys and standardized fields
+\item \code{summary}: Summary of record counts per collection event key
+\item \code{collectorsDictionary_add}: New collectors identified for dictionary updates
+}
 }
 \description{
-This generates a key to identify the physical and digital duplicates, of a given collection event.
-It combines the primary collector's surname, the collector's number and the botanical family, a key is created
-(family + recordByStandardized + recordNumber_Standard) that allows grouping the duplicates of the same unique
-collection event.
-
-It also identifiesnew collectors to be added to the collector dictionary and that can be reused in the future.
-
-Include recordedByStandardized field with verified main collector's last name.
-Include recordNumber_Standard field with only numbers from recordNumber.
-Create the collection event key to group duplicates in the key_family_recordedBy_recordNumber field,
-composed of the fields: family + recordedByStandardized + recordNumber_Standard.
+Generates a unique key to identify physical and digital duplicates of collection events.
+Combines the primary collector's surname, collector number, and botanical family to create
+a standardized key (family + recordedByStandardized + recordNumber_Standard) that enables
+grouping duplicates from the same unique collection event.
 }
 \details{
-Fields created for each incident record:
-nameRecordedBy_Standard,
-recordNumber_Standard,
-key_family_recordedBy_recordNumber,
-key_year_recordedBy_recordNumber
+\subsection{Fields Created:}{
+\itemize{
+\item \code{Ctrl_nameRecordedBy_Standard}: Standardized collector surname
+\item \code{Ctrl_recordNumber_Standard}: Numeric-only collector number
+\item \code{Ctrl_key_family_recordedBy_recordNumber}: Primary collection event key
+\item \code{Ctrl_key_year_recordedBy_recordNumber}: Alternative key with year
+}
+}
+
+\subsection{Process:}{
+\enumerate{
+\item Loads and merges collector dictionaries
+\item Standardizes collector names using verified dictionary
+\item Extracts numeric components from collector numbers
+\item Generates unique keys for collection event grouping
+\item Identifies new collectors for dictionary updates
+}
+}
 }
 \examples{
 \donttest{
-collectorsDictionaryFromDataset <- prepare_lastNameRecordedBy(occ=occ,
-                                                              collectorDictionary_checked_file='collectorDictionary_checked.csv')
+# Generate collection event keys
+result <- generate_collection_event_key(
+  occ = occ_data,
+  collectorDictionary_checked_file = 'collectorDictionary_checked.csv'
+)
 
-names(collectorsDictionaryFromDataset)
-
+# View results
+names(result)
+head(result$occ_collectorsDictionary)
+head(result$summary)
 }
 
 }
 \seealso{
-\code{\link[parseGBIF]{collectors_get_name}}, \code{\link[parseGBIF]{prepare_collectorsDictionary}}
+\code{\link[=collectors_get_name]{collectors_get_name()}} for extracting collector names from recordedBy fields,
+\code{\link[=collectors_prepare_dictionary]{collectors_prepare_dictionary()}} for creating collector dictionaries
 }
 \author{
 Pablo Hendrigo Alves de Melo,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_parseGBIF_output.R
 \name{get_parseGBIF_output}
 \alias{get_parseGBIF_output}
-\title{Get parseGBIF Output Data}
+\title{Load and Process parseGBIF Output Data}
 \usage{
 get_parseGBIF_output(
   path_file,
@@ -33,53 +33,61 @@ get_parseGBIF_output(
 \arguments{
 \item{path_file}{Character. Directory path where the parseGBIF output file is located.}
 
-\item{name_file}{Character. Name of the parseGBIF output file. Default is "parseGBIF_5_occ_all_data.csv".}
+\item{name_file}{Character. Name of the parseGBIF output file.
+Default is "parseGBIF_5_occ_all_data.csv".}
 
-\item{data_sel}{Character vector. Types of data to include: c('useable', 'unusable', 'duplicate').
+\item{data_sel}{Character vector. Types of data to include. Options: 'useable', 'unusable', 'duplicate'.
 Default includes all three categories.}
 
 \item{dwc_col}{Character vector. Darwin Core columns to include in the output.
-Default includes core Darwin Core fields.}
+Default includes core identification and geographic fields.}
 
-\item{parseGBIF_col}{Character vector. parseGBIF-specific columns to include in the output.
-Default includes key parseGBIF processing columns.}
+\item{parseGBIF_col}{Character vector. parseGBIF-specific processing columns to include.
+Default includes quality assessment and taxonomic resolution fields.}
 }
 \value{
-Returns a list with three data frames:
+A list with three data frames:
 \itemize{
-\item \code{useable}: Records classified as usable (identified specimens)
-\item \code{unusable}: Records classified as unusable (unidentified specimens)
-\item \code{duplicate}: Records classified as duplicates
+\item \code{useable}: Records with taxonomic identification and valid coordinates
+\item \code{unusable}: Records without identification or invalid coordinates
+\item \code{duplicate}: Duplicate records of collection events
 }
 }
 \description{
-Loads and processes parseGBIF output files, filtering and organizing occurrence data
-into usable, unusable, and duplicate categories.
+Loads and processes parseGBIF output files, organizing occurrence data into
+usable, unusable, and duplicate categories based on quality assessment results.
+Extracts taxonomic information and standardizes data structure for analysis.
 }
 \details{
-This function reads parseGBIF output files, selects specified columns,
-extracts genus and family information, and organizes the data into
-three categories based on the parseGBIF_dataset_result field.
+\subsection{Processing Steps:}{
+\enumerate{
+\item Reads UTF-8 encoded parseGBIF output CSV files
+\item Selects specified Darwin Core and parseGBIF columns
+\item Extracts genus from scientific names based on identification status
+\item Extracts family from collection event key
+\item Filters records by specified data categories
+\item Organizes results into three quality categories
+}
+}
 
-The function handles:
+\subsection{Column Handling:}{
 \itemize{
-\item Reading UTF-8 encoded CSV files
-\item Column selection based on Darwin Core and parseGBIF specifications
-\item Genus extraction from scientific names
-\item Family extraction from the composite key field
-\item Data filtering based on quality assessment results
+\item Darwin Core fields: Core biodiversity data standards
+\item parseGBIF fields: Quality assessment and processing metadata
+\item Derived fields: Genus and family extracted from existing data
+}
 }
 }
 \note{
 \itemize{
-\item Requires parseGBIF output files in CSV format
-\item Assumes specific column names from parseGBIF processing
-\item Handles large files through iterative reading
-\item Returns data organized by quality assessment categories
+\item Requires parseGBIF output files in CSV format with specific column structure
+\item Uses cross-platform file path handling
+\item Assumes specific column naming conventions from parseGBIF processing
+\item Returns data organized by quality assessment categories for easy analysis
 }
 }
 \examples{
-\dontrun{
+\donttest{
 # Load parseGBIF output data
 occ_data <- get_parseGBIF_output(
   path_file = "path/to/parseGBIF/output",
@@ -91,8 +99,8 @@ usable_records <- occ_data$useable
 unusable_records <- occ_data$unusable
 duplicate_records <- occ_data$duplicate
 
-# View structure of the data
-str(occ_data)
+# Check record counts by category
+sapply(occ_data, nrow)
 }
 
 }

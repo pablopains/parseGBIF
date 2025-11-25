@@ -1,103 +1,80 @@
-#' @title Export of results
+#' @title Export Parsed GBIF Data Results
 #' @name export_data
 #'
-#' @description For each unique collection event key, complete or incomplete,
-#' outputs will be created which combine information from duplicate records and generate a
-#' single unique collection event record to replace them.
-#' The main output fields relating to taxonomic identification and geographic coordinates:
-#' * parseGBIF_sample_taxon_name = scientific name chosen as taxonomic identification for unique collection event
-#' * parseGBIF_number_taxon_names = number of scientific names found in duplicates of unique collection event
-#' * parseGBIF_sample_taxon_name_status = status of choice of 'identified', 'divergent identifications', 'unidentified'
-#' * parseGBIF_unidentified_sample = if unique collection event has taxonomic identification
-#' * parseGBIF_decimalLatitude = latitude in decimal degrees
-#' * parseGBIF_decimalLongitude = longitude in decimal degrees
-#' * parseGBIF_useful_for_spatial_analysis = whether the coordinates are useful for spatial analysis.
-#' __How is the taxon binomial attributed to the unique collection event selected?__
-#' 1) Where the unique collection event key is complete:
-#' The accepted TAXON_NAME selected is that which is most frequently applied to the duplicate vouchers at or below the rank of species.
-#' Where two named are applied with equal frequency then a mechanical approach, using alphabetical order, is applied, the first listed TAXON_NAME being chosen.
-#' Where there is no identification, at or below the rank of species, then the unique collection event, the unique collection event is indicated as unidentified.
-#' 2) Where the unique collection event key is incomplete:
-#' Where the unique collection event key is incomplete, then each record is treated as a unique collection event. If there is no identification, at or below the rank of species, then the unique collection event is classified as unidentified.
-#' __Geospatial information __
-#' If the master voucher does not have geographic coordinates, we will seek coordinates from the duplicate records associated with it.
-#' Finally, the records are separated into three sets of data:
-#' __useable_data__ - Where unique collection event with taxonomic identification and geographic coordinates are complete. This represents the useable dataset.
-#' __unusable_data__  - Where unique collection event without taxonomic identification and/or geographic coordinates.
-#' __duplicates__ The duplicates of unique collection events complete / incomplete
+#' @description
+#' Processes and exports results from parsed GBIF occurrence data, merging information
+#' from duplicate records to create unique collection event records. For each unique
+#' collection event key (complete or incomplete), this function combines information
+#' from duplicate records and generates a single unique collection event record.
 #'
-#' With this, it is possible to perform:
-#' Merge information between fields of duplicates of a unique collection event to create a synthetic record for each unique collection event,
-#' Compare the frequency of content in fields
-#' Generate a work package summary
+#' @param occ_digital_voucher_file
+#' Character. Path to CSV file result from `select_digital_voucher()$occ_digital_voucher`.
 #'
-#' For each complete unique collection event key, data fields that are empty in the digital voucher record will be populated with data from the respective duplicates.
-#' During content merging, we indicate fields associated with the description, location, and data of the unique collection event.
-#' By default, fields_to_merge parameter of export_data function contains:
-#' * Ctrl_fieldNotes
-#' * Ctrl_year
-#' * Ctrl_stateProvince
-#' * Ctrl_municipality
-#' * Ctrl_locality
-#' * Ctrl_countryCode
-#' * Ctrl_eventDate
-#' * Ctrl_habitat
-#' * Ctrl_level0Name
-#' * Ctrl_level1Name
-#' * Ctrl_level2Name
-#' * Ctrl_level3Name
+#' @param occ_digital_voucher
+#' Data frame. Result from `select_digital_voucher()$occ_digital_voucher`.
 #'
-#' @param occ_digital_voucher_file CSV fila result of function select_digital_voucher()$occ_digital_voucher
-#' @param occ_digital_voucher data frame result of function select_digital_voucher()$occ_digital_voucher
-#' @param merge_unusable_data include records unique collection events incomplete in merge processing
-#' @param fields_to_merge fields to merge
-#' @param fields_to_compare fields to compare content frequency
-#' @param fields_to_parse all fields
-#' @param silence if TRUE does not display progress messages
+#' @param merge_unusable_data
+#' Logical. If `TRUE`, includes incomplete unique collection events in merge processing.
+#' Default is `FALSE`.
 #'
-#' @details Each data frame should be used as needed
+#' @param fields_to_merge
+#' Character vector. Fields to merge from duplicates. Default includes:
+#' `Ctrl_fieldNotes`, `Ctrl_year`, `Ctrl_stateProvince`, `Ctrl_municipality`,
+#' `Ctrl_locality`, `Ctrl_countryCode`, `Ctrl_eventDate`, `Ctrl_habitat`,
+#' `Ctrl_level0Name`, `Ctrl_level1Name`, `Ctrl_level2Name`, `Ctrl_level3Name`.
 #'
-#' @return list with 10 data frames
-#' * __all_data__ All records processed, merged Unique collection events complete / incomplete and their duplicates
-#' * __useable_data_merge__ Merged Unique collection events complete
-#' * __useable_data_raw__ Raw Unique collection events complete
-#' * __duplicates__ Duplicates of unique collection events complete / incomplete
-#' * __unusable_data_merge__ Merged Unique collection events incomplete,
-#' It is NA if merge_unusable_data is FALSE.
-#' * __unusable_data_raw__ Raw Unique collection events incomplete
-#' * __parseGBIF_general_summary__
-#' * __parseGBIF_merge_fields_summary__
-#' * __parseGBIF_merge_fields_summary_useable_data__
-#' * __parseGBIF_merge_fields_summary_unusable_data__ It is NA if merge_unusable_data is FALSE
+#' @param fields_to_compare
+#' Character vector. Fields to compare content frequency across duplicates.
 #'
-#' @author Pablo Hendrigo Alves de Melo,
-#'         Nadia Bystriakova &
-#'         Alexandre Monro
+#' @param fields_to_parse
+#' Character vector. All fields to include in output.
 #'
-#' @seealso \code{\link[ParsGBIF]{batch_checkName_wcvp}}, \code{\link[ParsGBIF]{extract_gbif_issue}}
+#' @param silence
+#' Logical. If `TRUE`, does not display progress messages. Default is `TRUE`.
 #'
-#' @import dplyr
-#' @import stringr
+#' @details
+#' ## Taxonomic Identification Selection:
+#' For complete unique collection event keys, the accepted taxon name is selected as:
+#' 1. The most frequently applied name at or below species rank among duplicates
+#' 2. If equal frequency, uses alphabetical order
+#' 3. If no species-level identification, marked as unidentified
 #'
-#' @examples
-#' \donttest{
-#' help(export_data)
+#' ## Geospatial Information:
+#' If the master voucher lacks coordinates, coordinates are sought from duplicate records.
 #'
-#' results <- export_data(occ_digital_voucher_file = file.occ_digital_voucher,
-#'                        merge_unusable_data = TRUE)
+#' ## Output Datasets:
+#' - **useable_data**: Unique collection events with taxonomic identification and coordinates
+#' - **unusable_data**: Unique collection events without identification and/or coordinates
+#' - **duplicates**: All duplicate records of unique collection events
 #'
-#' names(results)
+#' ## Field Merging:
+#' For complete unique collection events, empty fields in the digital voucher record
+#' are populated with data from duplicates during content merging.
 #'
-#' results$parseGBIF_general_summary
-#' results$parseGBIF_merge_fields_summary
-#' results$parseGBIF_merge_fields_summary_complete
-
-#' NROW(results$all_data)
-#' NROW(results$unique_collection_event_complete_merge)
-#' NROW(results$unique_collection_event_incomplete_raw)
-#' NROW(results$duplicates)
+#' @return
+#' A list with 6 data frames:
+#' - `all_data`: All processed records (merged unique collection events and duplicates)
+#' - `useable_data_merge`: Merged complete unique collection events
+#' - `useable_data_raw`: Raw complete unique collection events
+#' - `duplicates`: Duplicates of unique collection events
+#' - `unusable_data_merge`: Merged incomplete unique collection events (NA if merge_unusable_data=FALSE)
+#' - `unusable_data_raw`: Raw incomplete unique collection events
 #'
-#' }
+#' @author
+#' Pablo Hendrigo Alves de Melo,
+#' Nadia Bystriakova &
+#' Alexandre Monro
+#'
+#' @seealso
+#' [`select_digital_voucher()`] for selecting digital vouchers,
+#' [`batch_checkName_wcvp()`] for taxonomic name checking,
+#' [`extract_gbif_issue()`] for GBIF data quality issues
+#'
+#' @importFrom dplyr filter select mutate arrange add_row
+#' @importFrom readr read_csv locale
+#' @importFrom jsonlite fromJSON
+#' @importFrom jsonify to_json
+#' @importFrom utils rbind
 #' @export
 export_data <- function(occ_digital_voucher_file = '',
                              occ_digital_voucher = NA,
@@ -132,7 +109,7 @@ export_data <- function(occ_digital_voucher_file = '',
                                                    "wcvp_family",
                                                    "wcvp_taxon_name",
                                                    "wcvp_taxon_authors",
-                                                   "wcvp_reviewed",
+                                                   # "wcvp_reviewed",
                                                    "wcvp_searchNotes"),
 
                              fields_to_parse = c('Ctrl_gbifID',
@@ -158,6 +135,10 @@ export_data <- function(occ_digital_voucher_file = '',
                                                  'Ctrl_municipality',
                                                  'Ctrl_county',
                                                  'Ctrl_locality',
+
+                                                 # 'Ctrl_verbatimLocality',
+                                                 # 'Ctrl_locationRemarks',
+
                                                  'Ctrl_issue',
 
                                                  'Ctrl_level0Name',
@@ -167,6 +148,8 @@ export_data <- function(occ_digital_voucher_file = '',
 
                                                  'Ctrl_identifiedBy',
                                                  'Ctrl_dateIdentified',
+                                                 # 'Ctrl_identificationQualifier',
+                                                 # 'Ctrl_family',
                                                  'Ctrl_scientificName',
                                                  'Ctrl_taxonRank',
                                                  'Ctrl_decimalLatitude',
@@ -186,7 +169,7 @@ export_data <- function(occ_digital_voucher_file = '',
                                                  "wcvp_family",
                                                  "wcvp_taxon_name",
                                                  "wcvp_taxon_authors",
-                                                 "wcvp_reviewed",
+                                                 # "wcvp_reviewed",
                                                  "wcvp_searchedName",
                                                  "wcvp_searchNotes",
 
@@ -227,26 +210,23 @@ export_data <- function(occ_digital_voucher_file = '',
     occ_digital_voucher_file <- ''
   }
 
-  if(occ_digital_voucher_file !=''  )
-  {
-    if(!file.exists(occ_digital_voucher_file))
-    {
+  if (occ_digital_voucher_file != '') {
+    if (!file.exists(occ_digital_voucher_file)) {
       stop("Invalid occurrence file!")
     }
 
-    occ_tmp <- readr::read_csv(occ_digital_voucher_file,
-                               locale = readr::locale(encoding = "UTF-8"),
-                               show_col_types = FALSE) %>% as.data.frame()
-  }else
-  {
-
-    if (NROW(occ_digital_voucher)==0)
-    {
+    occ_tmp <- readr::read_csv(
+      occ_digital_voucher_file,
+      locale = readr::locale(encoding = "UTF-8"),
+      show_col_types = FALSE
+    ) %>% as.data.frame()
+  } else {
+    if (NROW(occ_digital_voucher) == 0) {
       stop("Empty occurrence data frame!")
     }
 
     occ_tmp <- occ_digital_voucher %>% as.data.frame()
-    rm(occ_digital_voucher)
+    # REMOVER: rm(occ_digital_voucher) - não é necessário e pode causar problemas
   }
 
 
@@ -520,9 +500,14 @@ export_data <- function(occ_digital_voucher_file = '',
 
             fromJSON_flag <- FALSE
 
-            try({
+            tryCatch({
               x_test <- jsonlite::fromJSON(x_data_col_dup_ix)
-              fromJSON_flag <- TRUE}, silent = TRUE)
+              fromJSON_flag <- TRUE
+            }, error = function(e) {
+              fromJSON_flag <- FALSE
+            }, warning = function(w) {
+              fromJSON_flag <- FALSE
+            })
 
 
             if(fromJSON_flag == FALSE)

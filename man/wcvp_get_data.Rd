@@ -27,7 +27,11 @@ wcvp_get_data(
 \item{load_rda_data}{Load the WCVP name database from the rda file distributed with the package. To ensure updates, it is recommended to reinstall the package frequently.}
 }
 \value{
-list with two data frames: wcvp_names and wcvp_distribution
+list with two data frames:
+\itemize{
+\item \code{wcvp_names}: taxonomic names database
+\item \code{wcvp_distribution}: geographical distribution data (if load_distribution = TRUE)
+}
 }
 \description{
 Download World Checklist of Vascular Plants (WCVP) database

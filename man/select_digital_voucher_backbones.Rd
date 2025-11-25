@@ -109,7 +109,7 @@ processing, allowing flexibility in taxonomic reference systems.
 # Load required data
 data(occ)
 data(res_gbif_issue)
-data(res_checkName_wcvp) 
+data(res_checkName_wcvp)
 data(res_checkName_ffb)
 data(res_collectorsDictionary)
 data(EnumOccurrenceIssue)
@@ -124,7 +124,7 @@ res_digital_voucher_wcvp <- select_digital_voucher_backbones(
   backbone = 'WCVP'
 )
 
-# Select digital voucher using FFB backbone  
+# Select digital voucher using FFB backbone
 res_digital_voucher_ffb <- select_digital_voucher_backbones(
   occ_tmp = occ,
   occ_gbif_issue = res_gbif_issue$occ_gbif_issue,

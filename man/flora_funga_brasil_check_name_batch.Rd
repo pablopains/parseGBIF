@@ -2,7 +2,7 @@
 % Please edit documentation in R/flora_funga_brasil_check_name_batch.R
 \name{flora_funga_brasil_check_name_batch}
 \alias{flora_funga_brasil_check_name_batch}
-\title{In batch, use the WCVP database to check accepted names and update synonyms}
+\title{Batch Check Species Names Against Flora e Funga do Brazil Database}
 \usage{
 flora_funga_brasil_check_name_batch(
   occ = NA,
@@ -13,70 +13,84 @@ flora_funga_brasil_check_name_batch(
 )
 }
 \arguments{
-\item{occ}{GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')}
+\item{occ}{Data frame. GBIF occurrence table with selected columns as returned by
+\code{select_gbif_fields(columns = 'standard')}.}
 
-\item{silence}{if TRUE does not display progress messages}
+\item{field_search}{Character. The column name in \code{occ} containing scientific names to check.
+Default is 'Ctrl_scientificName'.}
 
-\item{wcvp_names}{get data frame in parseGBIF::wcvp_get_data(read_only_to_memory = TRUE)$wcvp_names
-or configure function to save a copy on local disk to optimize loading, see details in help(wcvp_get_data)}
+\item{flora_funga_brasil}{Data frame. The Flora e Funga do Brazil database to search against.}
 
-\item{if_author_fails_try_without_combinations}{option for partial verification of the authorship of the species.
-Remove the authors of combinations, in parentheses.}
+\item{silence}{Logical. If \code{TRUE}, suppresses progress messages. Default is \code{TRUE}.}
 
-\item{wcvp_selected_fields}{WCVP fields selected as return, 'standard' basic columns, 'all' all available columns.
-The default is 'standard'}
+\item{join_result}{Logical. If \code{TRUE}, returns the full occurrence data with Flora e Funga do Brazil
+columns appended. If \code{FALSE} (default), returns only the Flora e Funga do Brazil columns.}
 }
 \value{
-list with two data frames: summary, species list and occ_wcvp_check_name, with WCVP fields
+If \code{join_result = FALSE}: Data frame containing only Flora e Funga do Brazil columns
+If \code{join_result = TRUE}: Original occurrence data with Flora e Funga do Brazil columns appended
 }
 \description{
-Species’ names can be checked against WCVP database one by one, or in a batch mode.
-To verify individual names, the function wcvp_check_name is used.
+Checks species names in batch mode against the Flora e Funga do Brazil database
+for taxonomic validation and resolution. Processes all unique scientific names
+in the occurrence data and returns taxonomic information with verification metrics.
 }
 \details{
-See help(checkName_wcvp)
+\subsection{Processing Workflow:}{
+\enumerate{
+\item Extracts unique scientific names from the specified field
+\item Processes each name using \code{flora_funga_brasil_check_name()}
+\item Updates occurrence records with taxonomic information
+\item Handles connection errors with retry logic
+\item Returns standardized taxonomic data
+}
+}
+
+\subsection{Output Columns:}{
+
+All Flora e Funga do Brazil columns are prefixed with 'fb2020_' and include:
 \itemize{
-\item \href{http://sftp.kew.org/pub/data-repositories/WCVP/}{about WCVP database}
-\item \href{https://powo.science.kew.org//}{World Checklist of Vascular Plants}
-\item \href{http://sftp.kew.org/pub/data-repositories/WCVP/}{WCVP database}
-\item \href{https://powo.science.kew.org/about-wcvp}{(about WCVP)}
+\item Taxonomic identifiers and status
+\item Scientific names and authorship
+\item Classification hierarchy
+\item Verification notes and search results
+}
 }
 }
 \examples{
-# These examples take >10 minutes to run and require 'parseGBIF::wcvp_get_data()'
 \donttest{
-
 library(parseGBIF)
 
-help(wcvp_check_name_batch)
-
+# Load sample occurrence data
 occ_file <- 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt'
 
-occ <- prepare_gbif_occurrence_data(gbif_occurrece_file = occ_file,
-                                    columns = 'standard')
+occ <- prepare_gbif_occurrence_data(
+  gbif_occurrece_file = occ_file,
+  columns = 'standard'
+)
 
-# wcvp_names <- wcvp_get_data(read_only_to_memory = TRUE)$wcvp_names
-data(wcvp_names_Achatocarpaceae)
+# Load Flora e Funga do Brazil database
+flora_funga_brasil <- flora_funga_brasil_get_data(
+  path_results = tempdir(),
+  update = FALSE
+)
 
-head(wcvp_names)
+# Batch check names
+results <- flora_funga_brasil_check_name_batch(
+  occ = occ,
+  flora_funga_brasil = flora_funga_brasil,
+  silence = FALSE
+)
 
-res_wcvp_check_name_batch <- wcvp_check_name_batch(occ = occ,
-                                                 wcvp_names =  wcvp_names,
-                                                 if_author_fails_try_without_combinations = TRUE,
-                                                 wcvp_selected_fields = 'standard',
-                                                 show_process = TRUE)
-
-names(res_wcvp_check_name_batch)
-
-head(res_wcvp_check_name_batch$summary)
-
-head(res_wcvp_check_name_batch$occ_wcvp_check_name)
-
+# View results
+head(results)
 }
 
 }
 \seealso{
-\code{\link[parseGBIF]{wcvp_get_data}}, \code{\link[parseGBIF]{wcvp_check_name}}
+\code{\link[=flora_funga_brasil_get_data]{flora_funga_brasil_get_data()}} for downloading the database,
+\code{\link[=flora_funga_brasil_check_name]{flora_funga_brasil_check_name()}} for individual name checking,
+\code{\link[=select_gbif_fields]{select_gbif_fields()}} for preparing occurrence data
 }
 \author{
 Pablo Hendrigo Alves de Melo,

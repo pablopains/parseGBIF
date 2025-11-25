@@ -12,35 +12,50 @@ collectors_get_name(
 )
 }
 \arguments{
-\item{x}{Character string. The recordedBy field content.}
+\item{x}{Character string. The recordedBy field content from GBIF occurrence data.}
 
-\item{surname_selection_type}{Character. Allows you to select two types of results for the main collector's last name:
+\item{surname_selection_type}{Character. Method for selecting the main collector's surname:
 \itemize{
-\item \code{"largest_string"}: word with the largest number of characters (default)
-\item \code{"last_name"}: literally the last name of the main collector, with more than two characters.
+\item \code{"largest_string"}: Selects the word with the largest number of characters (default)
+\item \code{"last_name"}: Selects the last valid name component with more than two characters
 }}
 
-\item{max_words_name}{Integer. Maximum words in the name. Default is 6.}
+\item{max_words_name}{Integer. Maximum number of words to consider in a name. Default is 6.}
 
-\item{maximum_characters_in_name}{Integer. Maximum characters in name. Default is 3.}
+\item{maximum_characters_in_name}{Integer. Minimum character length for valid surnames. Default is 3.}
 }
 \value{
-Character string. Last name of the main collector, or:
+Character string. Standardized surname of the main collector, or:
 \itemize{
-\item \code{"UNKNOWN-COLLECTOR"} for empty or invalid inputs
+\item \code{"UNKNOWN-COLLECTOR"} for empty, invalid, or unrecognizable inputs
 \item \code{NA} if extracted name doesn't meet minimum character requirements
 }
 }
 \description{
-Get the last name of the main collector in recordedBy field
+Extracts and standardizes the main collector's surname from the recordedBy field in GBIF data.
+Handles various formats, special characters, abbreviations, and multiple collector scenarios.
 }
 \details{
-Returns the last name of the main collector extracted from the recordedBy field.
-The function processes the recordedBy field to identify and standardize the main collector's surname,
-handling various formats, special characters, and common abbreviations.
+\subsection{Processing Steps:}{
+\enumerate{
+\item Cleans and standardizes input text (removes special characters, abbreviations)
+\item Handles multiple collectors (uses first collector before "&", "AND", ";")
+\item Converts diacritics and special characters to ASCII equivalents
+\item Applies selection method to extract main surname
+\item Validates extracted name against exclusion list and minimum length
+}
+}
+
+\subsection{Common Abbreviations Handled:}{
+\itemize{
+\item Team/expedition references: "TEAM", "EXPED", "STAFF", "CLUB"
+\item Academic references: "UNIVERSITY", "DEPARTMENT", "HERBARIUM"
+\item Relationship suffixes: "JR", "FILHO", "NETO", "SOBRINHO"
+\item Connectors: "ET", "AND", "WITH", "FROM"
+}
+}
 }
 \examples{
-\donttest{
 # Basic usage
 collectors_get_name('Melo, P.H.A & Monro, A.')
 collectors_get_name('Monro, A. & Melo, P.H.A')
@@ -53,12 +68,15 @@ collectors_get_name('Smith-Jones, John', surname_selection_type = 'last_name')
 collectors_get_name(NA) # Returns "UNKNOWN-COLLECTOR"
 collectors_get_name('')  # Returns "UNKNOWN-COLLECTOR"
 collectors_get_name('et al.') # Returns "UNKNOWN-COLLECTOR"
-}
+
+# Special characters and diacritics
+collectors_get_name('Müller, Hans')
+collectors_get_name('Silva Neto, João')
+collectors_get_name('O''Brien, Patrick')
 
 }
 \seealso{
-\code{\link[=collectors_prepare_dictionary]{collectors_prepare_dictionary()}} for creating collector dictionaries,
-\code{\link[=collectors_update_dictionary]{collectors_update_dictionary()}} for updating existing dictionaries
+\code{\link[=collectors_prepare_dictionary]{collectors_prepare_dictionary()}} for creating collector dictionaries
 }
 \author{
 Pablo Hendrigo Alves de Melo,

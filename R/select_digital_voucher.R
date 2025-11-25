@@ -2,7 +2,7 @@
 #' @name select_digital_voucher
 #'
 #' @description To group duplicates and choose the digital voucher:
-#' Unique collection events can result in many ‘duplicate’ GBIF records. We designate one of these ‘duplicate’ records
+#' Unique collection events can result in many 'duplicate' GBIF records. We designate one of these 'duplicate' records
 #' as the master digital voucher, to which data from other duplicate vouchers can be merged (see export_data):
 #'
 #' __Where the collection event key for grouping duplicates is complete__, then duplicates can be grouped / parsed.
@@ -90,6 +90,10 @@
 #' colnames(res_digital_voucher_and_sample_identification$occ_digital_voucher)
 #'
 #' }
+#'
+#' @importFrom dplyr mutate filter select arrange distinct_all left_join
+#' @importFrom stringr str_sub str_count str_locate
+#' @importFrom stats na.omit
 #' @export
 select_digital_voucher <-  function(occ = NA,
                                     occ_gbif_issue = NA,
@@ -99,8 +103,6 @@ select_digital_voucher <-  function(occ = NA,
                                     silence = TRUE)
 {
   {
-  require(dplyr)
-  require(readr)
     if (is.na(enumOccurrenceIssue))
     {
       data(EnumOccurrenceIssue)

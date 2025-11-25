@@ -1,47 +1,80 @@
-#' @title Checking coordinates, centroids, artificial points and others
+#' @title Coordinate Quality Assessment and Validation
 #' @name parse_coordinates
 #'
-#' @description Checking coordinates, centroids, artificial points, also makes use of basic functions of CoordinateCleaner and other packages
+#' @description
+#' Performs comprehensive coordinate quality assessment using multiple validation
+#' methods including CoordinateCleaner, BDC, and centroid detection. Identifies
+#' problematic coordinates such as centroids, sea points, urban areas, and more.
 #'
-#' @param occ GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')
-#' @param iso2_field_name indicates the name of the field with ISO2 code of the countries
-#' @param file_centroids 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataRaw/parseGBIF_GADM_centroids.CSV'
-#' @param centroid_round point_11_1_km, point_1_1_km, point_110m or point_11m
-#' @details Adds the following fields, result of the coordinate checking process:
-#' parseGBIF_GADM_centroids,
-#' parseGBIF_GADM_centroids_level,
-#' parseGBIF_coordinate_status,
-#' .coordinates_outOfRange, .val,.zer,.sea,.equ,.cen,.cap,.urb,.con,.inst,.dup
+#' @param occ
+#' Data frame. GBIF occurrence data with coordinate fields.
+#'
+#' @param file_occ
+#' Character. Alternative file path to load occurrence data if `occ` is not provided.
+#'
+#' @param iso2_field_name
+#' Character. Name of the field containing ISO2 country codes.
+#' Default is 'Ctrl_countryCode'.
+#'
+#' @param file_centroids
+#' Character. URL or path to centroids data file.
+#' Default uses parseGBIF GitHub repository.
+#'
+#' @param centroid_round
+#' Character. Precision level for centroid detection.
+#' Options: 'point_11_1_km', 'point_1_1_km', 'point_110m', 'point_11m'.
+#' Default is 'point_110m'.
+#'
+#' @details
+#' ## Validation Methods:
+#' - **CoordinateCleaner**: Validates coordinates, detects zeros, sea points, etc.
+#' - **BDC (Biodiversity Data Cleaning)**: Checks for coordinates out of range
+#' - **Centroid Detection**: Identifies coordinates matching administrative centroids
+#' - **Multiple Precision Levels**: Validates at different spatial resolutions
+#'
+#' ## Quality Flags Added:
+#' - `.coordinates_outOfRange`: Coordinates outside valid range
+#' - `.val`: Valid coordinate test
+#' - `.zer`: Zero coordinate test
+#' - `.sea`: Sea coordinate test
+#' - `.equ`: Equator coordinate test
+#' - `.cen`: Country centroid test
+#' - `.cap`: Capital centroid test
+#' - `.urb`: Urban area test
+#' - `.inst`: Institution coordinate test
+#' - `.dup`: Duplicate coordinate test
+#' - `parseGBIF_coordinate_status`: Overall quality status
 #'
 #' @return
-#'  list with two data frames, occ, with the original data set plus two columns, parseGBIF_countryCode_ISO3 and
-#'  parseGBIF_countryName_en and countrycodelist, with the list of countries found with all the columns of countrycode::codelist
+#' Returns the input occurrence data with additional coordinate quality assessment
+#' columns including validation flags and centroid detection results.
 #'
-#' @author Pablo Hendrigo Alves de Melo,
-#'         Nadia Bystriakova &
-#'         Alexandre Monro
+#' @author
+#' Pablo Hendrigo Alves de Melo,
+#' Nadia Bystriakova &
+#' Alexandre Monro
 #'
-#' @seealso \code{\link[parseGBIF]{prepare_gbif_occurrence_data}}, \code{\link[parseGBIF]{download_gbif_data_from_doi}}
+#' @seealso
+#' [`prepare_gbif_occurrence_data()`] for preparing GBIF occurrence data,
+#' [`get_centroids()`] for loading centroid data
 #'
 #' @examples
 #' \donttest{
-#' help(standardize_country_from_iso2)
+#' # Perform coordinate validation
+#' occ_validated <- parse_coordinates(
+#'   occ = occ_data,
+#'   centroid_round = 'point_110m'
+#' )
 #'
-#' occ <- prepare_gbif_occurrence_data(gbif_occurrece_file =  'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt',
-#'                                     columns = 'standard')
-#' x <- standardize_country_from_iso2(occ = occ,
-#'                                      iso2_field_name = 'Ctrl_countryCode',
-#'                                      return_fields = c('iso3c','country.name.en'))
-#' colnames(x$occ)
-#' head(x$countrycodelist)
+#' # View validation results
+#' colnames(occ_validated)
+#' table(occ_validated$parseGBIF_coordinate_status)
 #' }
-#' @import bdc
-#' @import dplyr
-#' @import plyr
-#' @import terra
-#' @import CoordinateCleaner
-#' @import sf
-#' @import readr
+#'
+#' @importFrom dplyr select rename mutate filter left_join
+#' @importFrom readr read_csv
+#' @importFrom CoordinateCleaner cc_val cc_zero cc_sea cc_equ cc_cen cc_cap cc_urb cc_inst cc_dupl
+#' @importFrom bdc bdc_coordinates_outOfRange
 #' @export
 parse_coordinates <- function(occ = NA,
                              file_occ = NA,

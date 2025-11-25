@@ -1,61 +1,87 @@
-#' @title Generating the collection event key
+#' @title Generate Collection Event Key for Duplicate Grouping
 #' @name generate_collection_event_key
 #'
-#' @description This generates a key to identify the physical and digital duplicates, of a given collection event.
-#' It combines the primary collector's surname, the collector's number and the botanical family, a key is created
-#' (family + recordByStandardized + recordNumber_Standard) that allows grouping the duplicates of the same unique
-#' collection event.
+#' @description
+#' Generates a unique key to identify physical and digital duplicates of collection events.
+#' Combines the primary collector's surname, collector number, and botanical family to create
+#' a standardized key (family + recordedByStandardized + recordNumber_Standard) that enables
+#' grouping duplicates from the same unique collection event.
 #'
-#' It also identifiesnew collectors to be added to the collector dictionary and that can be reused in the future.
+#' @param occ
+#' Data frame. GBIF occurrence table with selected columns as returned by
+#' `select_gbif_fields(columns = 'standard')`.
 #'
-#' Include recordedByStandardized field with verified main collector's last name.
-#' Include recordNumber_Standard field with only numbers from recordNumber.
-#' Create the collection event key to group duplicates in the key_family_recordedBy_recordNumber field,
-#' composed of the fields: family + recordedByStandardized + recordNumber_Standard.
+#' @param collectorDictionary_checked_file
+#' Character. Path to verified collector dictionary file.
 #'
-#' @param occ GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')
-#' @param collectorDictionary_checked_file Verified collector dictionary file - point to a file on your local disk (use file or data frame)
-#' @param collectorDictionary_checked Verified collector dictionary data frame (use file or data frame)
-#' @param collectorDictionary_file Collector dictionary file - point to a file on your local disk. if empty, will load the default collector dictionary from the package at https://github.com/pablopains/parseGBIF/tree/main/collectorDictionary
-#' @param silence if TRUE does not display progress messages
+#' @param collectorDictionary_checked
+#' Data frame. Verified collector dictionary data.
 #'
-#' @details Fields created for each incident record:
-#' nameRecordedBy_Standard,
-#' recordNumber_Standard,
-#' key_family_recordedBy_recordNumber,
-#' key_year_recordedBy_recordNumber
+#' @param collectorDictionary_file
+#' Character. Path to base collector dictionary file. If empty, uses the default
+#' dictionary from the parseGBIF GitHub repository.
 #'
-#' @return list with three data frames:
-#' occ_collectorsDictionary, with update result fields only,
-#' summary and
-#' CollectorsDictionary_add, with new collectors that can be added to the
-#' collector dictionary that can be reused in the future.
+#' @param collectorDictionary
+#' Data frame. Base collector dictionary data.
 #'
-#' @author Pablo Hendrigo Alves de Melo,
-#'         Nadia Bystriakova &
-#'         Alexandre Monro
+#' @param silence
+#' Logical. If `TRUE`, suppresses progress messages. Default is `TRUE`.
+#'
+#' @details
+#' ## Fields Created:
+#' - `Ctrl_nameRecordedBy_Standard`: Standardized collector surname
+#' - `Ctrl_recordNumber_Standard`: Numeric-only collector number
+#' - `Ctrl_key_family_recordedBy_recordNumber`: Primary collection event key
+#' - `Ctrl_key_year_recordedBy_recordNumber`: Alternative key with year
+#'
+#' ## Process:
+#' 1. Loads and merges collector dictionaries
+#' 2. Standardizes collector names using verified dictionary
+#' 3. Extracts numeric components from collector numbers
+#' 4. Generates unique keys for collection event grouping
+#' 5. Identifies new collectors for dictionary updates
+#'
+#' @return
+#' A list with three components:
+#' - `occ_collectorsDictionary`: Occurrence data with generated keys and standardized fields
+#' - `summary`: Summary of record counts per collection event key
+#' - `collectorsDictionary_add`: New collectors identified for dictionary updates
+#'
+#' @author
+#' Pablo Hendrigo Alves de Melo,
+#' Nadia Bystriakova &
+#' Alexandre Monro
 #'
 #' @encoding UTF-8
 #'
-#' @seealso \code{\link[parseGBIF]{collectors_get_name}}, \code{\link[parseGBIF]{prepare_collectorsDictionary}}
+#' @seealso
+#' [`collectors_get_name()`] for extracting collector names from recordedBy fields,
+#' [`collectors_prepare_dictionary()`] for creating collector dictionaries
 #'
 #' @examples
 #' \donttest{
-#' collectorsDictionaryFromDataset <- prepare_lastNameRecordedBy(occ=occ,
-#'                                                               collectorDictionary_checked_file='collectorDictionary_checked.csv')
+#' # Generate collection event keys
+#' result <- generate_collection_event_key(
+#'   occ = occ_data,
+#'   collectorDictionary_checked_file = 'collectorDictionary_checked.csv'
+#' )
 #'
-#' names(collectorsDictionaryFromDataset)
-#'
+#' # View results
+#' names(result)
+#' head(result$occ_collectorsDictionary)
+#' head(result$summary)
 #' }
 #'
-#' @import stringr
-#' @import dplyr
-#'
+#' @importFrom dplyr select mutate filter count arrange anti_join
+#' @importFrom readr read_csv
+#' @importFrom stringr str_replace_all str_trim
+#' @importFrom data.table as.data.table
 #' @export
 generate_collection_event_key <- function(occ=NA,
-                                      collectorDictionary_checked_file = NA,
-                                      collectorDictionary_checked = NA,
-                                      collectorDictionary_file = '',
+                                      collectorDictionary_checked_file = NULL,
+                                      collectorDictionary_checked = NULL,
+                                      collectorDictionary_file = NULL,
+                                      collectorDictionary = NULL,
                                       silence = TRUE)
 {
 
@@ -70,34 +96,38 @@ generate_collection_event_key <- function(occ=NA,
   #                                        locale = readr::locale(encoding = "UTF-8"),
   #                                        show_col_types = FALSE)
 
-  if (collectorDictionary_file=='')
+  if (!is.null(collectorDictionary_file))
   {
 
-    collectorDictionary <- rbind(readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_1.csv',
-                                                 locale = readr::locale(encoding = 'UTF-8'),
-                                                 show_col_types = FALSE),
-                                 readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_2.csv',
-                                                 locale = readr::locale(encoding = 'UTF-8'),
-                                                 show_col_types = FALSE))
+    if (is.null(collectorDictionary))
+    {
+      collectorDictionary <- rbind(readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_1.csv',
+                                                   locale = readr::locale(encoding = 'UTF-8'),
+                                                   show_col_types = FALSE),
+                                   readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_2.csv',
+                                                   locale = readr::locale(encoding = 'UTF-8'),
+                                                   show_col_types = FALSE))
+    }
   }
 
 
   if(NROW(collectorDictionary)==0 | any(colnames(collectorDictionary) %in% c('Ctrl_nameRecordedBy_Standard',
-                                                                             'Ctrl_recordedBy',
-                                                                             'Ctrl_notes',
-                                                                             'collectorDictionary',
-                                                                             'Ctrl_update',
-                                                                             'collectorName',
-                                                                             'Ctrl_fullName',
-                                                                             'Ctrl_fullNameII',
-                                                                             'CVStarrVirtualHerbarium_PersonDetails'))==FALSE)
+                                                                             'Ctrl_recordedBy'
+                                                                             # 'Ctrl_notes',
+                                                                             # 'collectorDictionary',
+                                                                             # 'Ctrl_update',
+                                                                             # 'collectorName',
+                                                                             # 'Ctrl_fullName',
+                                                                             # 'Ctrl_fullNameII',
+                                                                             # 'CVStarrVirtualHerbarium_PersonDetails'
+                                                                             ))==FALSE)
   {
     stop("Empty Collector's Dictionary!")
   }
 
   collectorDictionary <- collectorDictionary %>%
-    dplyr::mutate(Ctrl_recordedBy = Ctrl_recordedBy %>% toupper()) %>%
-    data.frame()
+    # dplyr::mutate(Ctrl_recordedBy = Ctrl_recordedBy %>% toupper()) %>%
+    data.table::as.data.table()
 
 
   if(! silence == TRUE)
@@ -105,7 +135,7 @@ generate_collection_event_key <- function(occ=NA,
     print('Loading collectorDictionary checked...')
   }
 
-  if( !is.na(collectorDictionary_checked_file) )
+  if( !is.null(collectorDictionary_checked_file) )
   {
     collectorDictionary_checked <- readr::read_csv(collectorDictionary_checked_file,
                                                    locale = readr::locale(encoding = "UTF-8"),
@@ -114,23 +144,24 @@ generate_collection_event_key <- function(occ=NA,
 
 
   if(NROW(collectorDictionary_checked)==0 | any(colnames(collectorDictionary_checked) %in% c('Ctrl_nameRecordedBy_Standard',
-                                                                             'Ctrl_recordedBy',
-                                                                             'Ctrl_notes',
-                                                                             'collectorDictionary',
-                                                                             'Ctrl_update',
-                                                                             'collectorName',
-                                                                             'Ctrl_fullName',
-                                                                             'Ctrl_fullNameII',
-                                                                             'CVStarrVirtualHerbarium_PersonDetails'))==FALSE)
+                                                                             'Ctrl_recordedBy'
+                                                                             # 'Ctrl_notes',
+                                                                             # 'collectorDictionary',
+                                                                             # 'Ctrl_update',
+                                                                             # 'collectorName',
+                                                                             # 'Ctrl_fullName',
+                                                                             # 'Ctrl_fullNameII',
+                                                                             # 'CVStarrVirtualHerbarium_PersonDetails'
+                                                                             ))==FALSE)
   {
     stop("Empty Collector's Dictionary checked!")
   }
 
 
   collectorDictionary_checked <- collectorDictionary_checked %>%
-    dplyr::mutate(Ctrl_recordedBy = Ctrl_recordedBy %>% toupper(),
-                  Ctrl_nameRecordedBy_Standard = Ctrl_nameRecordedBy_Standard %>% toupper()) %>%
-    data.frame()
+    # dplyr::mutate(Ctrl_recordedBy = Ctrl_recordedBy %>% toupper(),
+    #               Ctrl_nameRecordedBy_Standard = Ctrl_nameRecordedBy_Standard %>% toupper()) %>%
+    data.table::as.data.table()
 
 
   if(NROW(occ)==0)
@@ -145,11 +176,11 @@ generate_collection_event_key <- function(occ=NA,
       dplyr::rename(Ctrl_nameRecordedBy_Standard_CNCFlora = Ctrl_nameRecordedBy_Standard) %>%
       dplyr::select(Ctrl_recordedBy, Ctrl_nameRecordedBy_Standard_CNCFlora)
 
-   collectorDictionary_checked$Ctrl_recordedBy <- collectorDictionary_checked$Ctrl_recordedBy %>%
-      toupper() %>% as.character()
-
-   collectorDictionary$Ctrl_recordedBy <- collectorDictionary$Ctrl_recordedBy %>%
-      toupper() %>% as.character()
+   # # collectorDictionary_checked$Ctrl_recordedBy <- collectorDictionary_checked$Ctrl_recordedBy %>%
+   # #    toupper() %>% as.character()
+   #
+   # collectorDictionary$Ctrl_recordedBy <- collectorDictionary$Ctrl_recordedBy %>%
+   #    toupper() %>% as.character()
 
    collectorDictionary_checked_new <- anti_join(collectorDictionary_checked,
                                        collectorDictionary,
@@ -165,7 +196,7 @@ generate_collection_event_key <- function(occ=NA,
       dplyr::mutate(Ctrl_nameRecordedBy_Standard='')
 
    recordedBy_unique <- occ$Ctrl_recordedBy %>% unique() %>%  as.factor()
-   recordedBy_unique <- recordedBy_unique %>% toupper()
+   # recordedBy_unique <- recordedBy_unique %>% toupper()
    # NROW(recordedBy_unique)
 
    if(! silence == TRUE)
@@ -199,7 +230,7 @@ generate_collection_event_key <- function(occ=NA,
       if(! silence == TRUE)
       {
         # print(paste0(ri, ' de ', rt, ' - ', r,' : ',num_records, ' registros' ))
-        if(s%%1000==0){print(paste0(s, ' de ',rt))}
+        if(s%%10==0){print(paste0(s, ' de ',rt))}
 
       }
 

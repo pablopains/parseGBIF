@@ -1,15 +1,27 @@
 Package: parseGBIF
 Type: Package
 Title: A new R package to parse plant species occurrence records into unique collection events efficiently reduces data redundancy
-Version: 2.0.0
-Date: 2023-06-04
-Authors@R: c(person("Pablo", "Melo", email = "pablopains@yahoo.com.br", role = c("aut", "cre"), comment = c(ORCID = "0000-0003-3004-2984")),
-	    person("Nadia", "Bystriakova", email = "n_bystriakova@yahoo.com", role = c("aut"), comment = c(ORCID = "0000-0002-6909-5533")),
-	    person("Alexandre", "Monro", email = "a.monro@kew.org", role = c("aut"), comment = c(ORCID = "0000-0003-4013-3804")))
+Version: 2.1.0
+Date: 2025-11-25
+Authors@R: c(
+    person("Pablo", "Melo", email = "pablopains@yahoo.com.br", role = c("aut", "cre"), 
+           comment = c(ORCID = "0000-0003-3004-2984")),
+    person("Nadia", "Bystriakova", email = "n_bystriakova@yahoo.com", role = c("aut"), 
+           comment = c(ORCID = "0000-0002-6909-5533")),
+    person("Alexandre", "Monro", email = "a.monro@kew.org", role = c("aut"), 
+           comment = c(ORCID = "0000-0003-4013-3804")))
 Maintainer: Pablo Melo <pablopains@yahoo.com.br>
-Description: The ParseGBIF workflow is designed to parse duplicate GBIF species occurrence records into unique collection events (gatherings) and to optimise the quality of the spatial data associated with them. 
-      ParseGBIF provides tools to verify and standardize species scientific names according to the World Checklist of Vascular Plants taxonomic backbone, and to parse duplicate records into unique ‘collection events’, 
-      in the process compiling the most informative spatial data, where more than one duplicate is available, and providing crude estimates of taxonomic and spatial data quality.
+Description: 
+    The ParseGBIF workflow is designed to parse duplicate GBIF species occurrence 
+    records into unique collection events (gatherings) and to optimise the quality 
+    of the spatial data associated with them. ParseGBIF provides tools to verify 
+    and standardize species scientific names according to the World Checklist of 
+    Vascular Plants taxonomic backbone, and to parse duplicate records into unique 
+    'collection events', in the process compiling the most informative spatial data, 
+    where more than one duplicate is available, and providing crude estimates of 
+    taxonomic and spatial data quality. The package includes functions for data 
+    preparation, quality assessment, taxonomic name checking, and visualization 
+    through an interactive Shiny application.
 License: GPL (>= 2) | file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -17,34 +29,43 @@ LazyDataCompression: xz
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
-    shiny,
-    shinydashboard,
-    rnaturalearth,
-    rnaturalearthdata,
-    DT,
-    rhandsontable,
     bdc,
+    CoordinateCleaner,
     countrycode,
+    data.table,
     dplyr,
-    readr,
-    stringr,
-    textclean,
-    rvest,
-    lubridate,
+    DT,
+    geodata,
+    geosphere,
+    httr,
+    jsonify,
     jsonlite,
-    sqldf,
-    downloader,
+    leaflet,
+    lubridate,
+    magrittr,
+    purrr,
+    raster,
+    readr,
+    rhandsontable,
+    rnaturalearth,
+    rscopus,
+    sf,
+    shiny,
+    shinyFiles,
+    shinydashboard,
+    shinyWidgets,
+    stats,
+    stringr,
+    tibble,
+    tidyr,
     tidyselect,
     utils,
-    raster,
-    geodata,
-    terra,
-    CoordinateCleaner,
-    sf,
-    leaflet,
-    purrr,
-    shinyWidgets
-Remotes: 
-    github::pablopains/parseGBIF
+    xml2
+Suggests: 
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
 Depends: 
-    R (>= 3.5.0)
+    R (>= 4.0.0)
+URL: https://github.com/pablopains/parseGBIF
+BugReports: https://github.com/pablopains/parseGBIF/issues

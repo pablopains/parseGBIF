@@ -33,7 +33,7 @@ occ_results, only result fields.
 }
 \description{
 To group duplicates and choose the digital voucher:
-Unique collection events can result in many ‘duplicate’ GBIF records. We designate one of these ‘duplicate’ records
+Unique collection events can result in many 'duplicate' GBIF records. We designate one of these 'duplicate' records
 as the master digital voucher, to which data from other duplicate vouchers can be merged (see export_data):
 
 \strong{Where the collection event key for grouping duplicates is complete}, then duplicates can be grouped / parsed.
@@ -107,6 +107,7 @@ head(res_digital_voucher_and_sample_identification$occ_digital_voucher)
 colnames(res_digital_voucher_and_sample_identification$occ_digital_voucher)
 
 }
+
 }
 \seealso{
 \code{\link[ParsGBIF]{batch_checkName_wcvp}}, \code{\link[ParsGBIF]{extract_gbif_issue}}

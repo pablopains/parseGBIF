@@ -2,40 +2,67 @@
 % Please edit documentation in R/get_centroids.R
 \name{get_centroids}
 \alias{get_centroids}
-\title{Load or generate table with centroids}
+\title{Load or Generate Geographic Centroids Table}
 \usage{
 get_centroids(
   file_centroids =
-    "https://github.com/pablopains/parseGBIF/blob/main/dataRaw/parseGBIF_GADM_centroids.CSV"
+    "https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataRaw/parseGBIF_GADM_centroids.CSV"
 )
 }
 \arguments{
-\item{file_centroids}{centroids file, default 'https://github.com/pablopains/parseGBIF/blob/main/dataRaw/parseGBIF_GADM_centroids.CSV'
-if not provided (NA), the table will be generated and loaded only into memory.}
+\item{file_centroids}{Character. Path to centroids CSV file. Default uses the parseGBIF GitHub repository.
+If \code{NA}, generates centroids table in memory only.}
 }
 \value{
-Table with centroids for levels 0, 1 and 2
+A data frame with centroids containing:
+\itemize{
+\item \code{countryCode_ISO3}: ISO3 country code
+\item \code{level}: Administrative level (0=country, 1=state, 2=municipality)
+\item \code{lon}: Longitude of centroid
+\item \code{lat}: Latitude of centroid
+}
 }
 \description{
-load or generate table with centroids for levels 0, 1 and 2,
-countries, states and municipalities, in the world
+Loads or generates a table with geographic centroids for administrative levels
+0 (countries), 1 (states/provinces), and 2 (municipalities) worldwide.
+Uses GADM data to calculate centroids for political boundaries.
 }
 \details{
-Returns the table with centroids
+\subsection{Data Sources:}{
+\itemize{
+\item Uses GADM (Global Administrative Areas) database for boundary data
+\item Calculates centroids using largest polygon method
+\item Supports countries worldwide with ISO3 country codes
+}
+}
+
+\subsection{Processing:}{
+\enumerate{
+\item Loads existing centroids file if available
+\item If not available, generates centroids from GADM data
+\item Calculates centroids for countries, states, and municipalities
+\item Saves to file if path provided and file doesn't exist
+}
+}
 }
 \examples{
 \donttest{
-help(standardize_country_from_iso2)
-
+# Load centroids table
 centroids <- get_centroids()
 
+# View structure
 colnames(centroids)
 head(centroids)
+
+# Filter by administrative level
+country_centroids <- centroids[centroids$level == 0, ]
+state_centroids <- centroids[centroids$level == 1, ]
 }
 
 }
 \seealso{
-\code{\link[parseGBIF]{prepare_gbif_occurrence_data}}, \code{\link[parseGBIF]{download_gbif_data_from_doi}}
+\code{\link[=prepare_gbif_occurrence_data]{prepare_gbif_occurrence_data()}} for preparing GBIF occurrence data,
+\code{\link[=standardize_country_from_iso2]{standardize_country_from_iso2()}} for country code standardization
 }
 \author{
 Pablo Hendrigo Alves de Melo,

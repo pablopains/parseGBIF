@@ -5,12 +5,14 @@
 #'
 #' @param occ GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')
 #' @param iso2_field_name indicates the name of the field with ISO2 code of the countries
+#' @param silence if TRUE does not display progress messages
 #'
-#' @details Returns the last name
+#' @details Converts ISO2 country codes to ISO3 codes and English country names using the countrycode package.
 #'
 #' @return
-#'  List whith tow data frames, occ, with the original data set plus two columns, parseGBIF_countryCode_ISO3 and
-#'  parseGBIF_countryName_en and countrylist, with the list of countries found with all the columns of countrycode::codelist)
+#' List with two data frames:
+#' - `occ`: the original data set plus two columns, `parseGBIF_countryCode_ISO3` and `parseGBIF_countryName_en`
+#' - `countrylist`: list of countries found with all columns from `countrycode::codelist`
 #'
 #' @author Pablo Hendrigo Alves de Melo,
 #'         Nadia Bystriakova &
@@ -22,16 +24,22 @@
 #' \donttest{
 #' help(standardize_country_from_iso2)
 #'
-#' occ <- prepare_gbif_occurrence_data(gbif_occurrece_file =  'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt',
-#'                                     columns = 'standard')
-#' x <- standardize_country_from_iso2(occ = occ,
-#'                                      iso2_field_name = 'Ctrl_countryCode',
-#'                                      return_fields = c('iso3c','country.name.en'))
+#' occ <- prepare_gbif_occurrence_data(
+#'   gbif_occurrece_file = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt',
+#'   columns = 'standard'
+#' )
+#'
+#' x <- standardize_country_from_iso2(
+#'   occ = occ,
+#'   iso2_field_name = 'Ctrl_countryCode'
+#' )
+#'
 #' colnames(x$occ)
-#' head(x$countrycodelist)
+#' head(x$countrylist)
 #' }
 #'
-#' @import countrycode
+#' @importFrom countrycode codelist
+#' @importFrom stats na.omit
 #' @export
 standardize_country_from_iso2 <- function(occ,
                                           iso2_field_name = 'Ctrl_countryCode',

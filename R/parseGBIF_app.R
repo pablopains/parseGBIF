@@ -4,10 +4,10 @@
 #' @description parseGBIF App
 #' @return CSV files
 #' @author Pablo Hendrigo Alves de Melo,
-#        Nadia Bystriakova &
-#        Alexandre Monro
+#'        Nadia Bystriakova &
+#'        Alexandre Monro
 #'
-#' @seealso \code{\link[ParsGBIF]{batch_checkName_wcvp}}, \code{\link[ParsGBIF]{extract_gbif_issue}}
+#' @seealso \code{\link[parseGBIF]{batch_checkName_wcvp}}, \code{\link[parseGBIF]{extract_gbif_issue}}
 #'
 #' @examples
 #' \donttest{
@@ -15,35 +15,40 @@
 #' }
 #' @import leaflet
 #' @import shiny
-#' @import rnaturalearth
-#' @import dplyr
-#' @import readr
 #' @import shinydashboard
 #' @import DT
 #' @import rhandsontable
 #' @import shinyWidgets
 #' @import shinyFiles
-#' @import stringr
-#' @import rscopus
-#' @import jsonify
-#'
 #' @export
 parseGBIF_app <- function()
 {
-  require(jsonify)
-  require(leaflet)
-  require(shiny)
-  require(rnaturalearth)
-  require(dplyr)
-  require(readr)
-  require(shinydashboard)
-  require(DT)
-  require(rhandsontable)
-  require(shinyWidgets)
-  require(shinyFiles)
-  require(stringr)
-  require(parseGBIF)
-  require(rscopus)
+  # Verifica e instala pacotes ausentes se necessário
+  required_packages <- c("jsonify", "leaflet", "shiny", "rnaturalearth", "dplyr",
+                         "readr", "shinydashboard", "DT", "rhandsontable",
+                         "shinyWidgets", "shinyFiles", "stringr", "rscopus")
+
+  for(pkg in required_packages) {
+    if(!requireNamespace(pkg, quietly = TRUE)) {
+      stop("Package '", pkg, "' is required but not installed.")
+    }
+  }
+
+  # Carrega os pacotes
+  library(jsonify)
+  library(leaflet)
+  library(shiny)
+  library(rnaturalearth)
+  library(dplyr)
+  library(readr)
+  library(shinydashboard)
+  library(DT)
+  library(rhandsontable)
+  library(shinyWidgets)
+  library(shinyFiles)
+  library(stringr)
+  library(parseGBIF)
+  library(rscopus)
 
 
   {

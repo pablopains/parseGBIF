@@ -1,103 +1,63 @@
-#' @title Export of results Cluster - divides the work into 24 steps to reduce the total processing time
+#' @title Export Parsed GBIF Data Results with Parallel Processing
 #' @name export_data_cluster
 #'
-#' @description divides the work into 24 steps to reduce the total processing time
-#' For each unique collection event key, complete or incomplete,
-#' outputs will be created which combine information from duplicate records and generate a
-#' single unique collection event record to replace them.
-#' The main output fields relating to taxonomic identification and geographic coordinates:
-#' * parseGBIF_sample_taxon_name = scientific name chosen as taxonomic identification for unique collection event
-#' * parseGBIF_number_taxon_names = number of scientific names found in duplicates of unique collection event
-#' * parseGBIF_sample_taxon_name_status = status of choice of 'identified', 'divergent identifications', 'unidentified'
-#' * parseGBIF_unidentified_sample = if unique collection event has taxonomic identification
-#' * parseGBIF_decimalLatitude = latitude in decimal degrees
-#' * parseGBIF_decimalLongitude = longitude in decimal degrees
-#' * parseGBIF_useful_for_spatial_analysis = whether the coordinates are useful for spatial analysis.
-#' __How is the taxon binomial attributed to the unique collection event selected?__
-#' 1) Where the unique collection event key is complete:
-#' The accepted TAXON_NAME selected is that which is most frequently applied to the duplicate vouchers at or below the rank of species.
-#' Where two named are applied with equal frequency then a mechanical approach, using alphabetical order, is applied, the first listed TAXON_NAME being chosen.
-#' Where there is no identification, at or below the rank of species, then the unique collection event, the unique collection event is indicated as unidentified.
-#' 2) Where the unique collection event key is incomplete:
-#' Where the unique collection event key is incomplete, then each record is treated as a unique collection event. If there is no identification, at or below the rank of species, then the unique collection event is classified as unidentified.
-#' __Geospatial information __
-#' If the master voucher does not have geographic coordinates, we will seek coordinates from the duplicate records associated with it.
-#' Finally, the records are separated into three sets of data:
-#' __useable_data__ - Where unique collection event with taxonomic identification and geographic coordinates are complete. This represents the useable dataset.
-#' __unusable_data__  - Where unique collection event without taxonomic identification and/or geographic coordinates.
-#' __duplicates__ The duplicates of unique collection events complete / incomplete
+#' @description
+#' Processes and exports results from parsed GBIF occurrence data by dividing the work
+#' into multiple parallel steps to reduce total processing time for large datasets.
+#' This function splits the data into 24 partitions and processes each separately
+#' using the `export_data()` function, then combines the results.
 #'
-#' With this, it is possible to perform:
-#' Merge information between fields of duplicates of a unique collection event to create a synthetic record for each unique collection event,
-#' Compare the frequency of content in fields
-#' Generate a work package summary
+#' @param occ_digital_voucher_file
+#' Character. Path to CSV file result from `select_digital_voucher()$occ_digital_voucher`.
 #'
-#' For each complete unique collection event key, data fields that are empty in the digital voucher record will be populated with data from the respective duplicates.
-#' During content merging, we indicate fields associated with the description, location, and data of the unique collection event.
-#' By default, fields_to_merge parameter of export_data function contains:
-#' * Ctrl_fieldNotes
-#' * Ctrl_year
-#' * Ctrl_stateProvince
-#' * Ctrl_municipality
-#' * Ctrl_locality
-#' * Ctrl_countryCode
-#' * Ctrl_eventDate
-#' * Ctrl_habitat
-#' * Ctrl_level0Name
-#' * Ctrl_level1Name
-#' * Ctrl_level2Name
-#' * Ctrl_level3Name
+#' @param occ_digital_voucher
+#' Data frame. Result from `select_digital_voucher()$occ_digital_voucher`.
 #'
-#' @param occ_digital_voucher_file CSV fila result of function select_digital_voucher()$occ_digital_voucher
-#' @param occ_digital_voucher data frame result of function select_digital_voucher()$occ_digital_voucher
-#' @param n_minimo minimum number of records to split processing
+#' @param merge_unusable_data
+#' Logical. If `TRUE`, includes incomplete unique collection events in merge processing.
+#' Default is `TRUE`.
 #'
-#' @details Each data frame should be used as needed
+#' @param n_minimo
+#' Integer. Minimum number of records to trigger parallel processing. If the dataset
+#' has fewer records than this threshold, processing is done in a single batch.
+#' Default is 10000.
 #'
-#' @return list with 10 data frames
-#' * __all_data__ All records processed, merged Unique collection events complete / incomplete and their duplicates
-#' * __useable_data_merge__ Merged Unique collection events complete
-#' * __useable_data_raw__ Raw Unique collection events complete
-#' * __duplicates__ Duplicates of unique collection events complete / incomplete
-#' * __unusable_data_merge__ Merged Unique collection events incomplete,
-#' It is NA if merge_unusable_data is FALSE.
-#' * __unusable_data_raw__ Raw Unique collection events incomplete
-#' * __parseGBIF_general_summary__
-#' * __parseGBIF_merge_fields_summary__
-#' * __parseGBIF_merge_fields_summary_useable_data__
-#' * __parseGBIF_merge_fields_summary_unusable_data__ It is NA if merge_unusable_data is FALSE
+#' @details
+#' ## Parallel Processing:
+#' For datasets larger than `n_minimo` records, the function:
+#' 1. Divides unique collection event keys into 24 equal partitions
+#' 2. Processes each partition separately using `export_data()`
+#' 3. Combines results from all partitions
+#' 4. Returns the combined dataset
 #'
-#' @author Pablo Hendrigo Alves de Melo,
-#'         Nadia Bystriakova &
-#'         Alexandre Monro
+#' For smaller datasets, processing is done in a single batch for efficiency.
 #'
-#' @seealso \code{\link[ParsGBIF]{batch_checkName_wcvp}}, \code{\link[ParsGBIF]{extract_gbif_issue}}
+#' ## Output:
+#' Returns the same data structure as `export_data()` but processed in parallel
+#' for improved performance on large datasets.
 #'
-#' @import dplyr
-#' @import stringr
+#' @return
+#' Data frame. Combined results from all partitions containing:
+#' - All processed records (merged unique collection events and duplicates)
+#' - Standardized taxonomic identifications and geographic coordinates
+#' - Merged field information from duplicate records
 #'
-#' @examples
-#' \donttest{
-#' help(export_data)
+#' @author
+#' Pablo Hendrigo Alves de Melo,
+#' Nadia Bystriakova &
+#' Alexandre Monro
 #'
-#' results <- export_data(occ_digital_voucher_file = file.occ_digital_voucher,
-#'                        merge_unusable_data = TRUE)
+#' @seealso
+#' [`export_data()`] for the standard sequential processing version,
+#' [`select_digital_voucher()`] for selecting digital vouchers
 #'
-#' names(results)
-#'
-#' results$parseGBIF_general_summary
-#' results$parseGBIF_merge_fields_summary
-#' results$parseGBIF_merge_fields_summary_complete
-
-#' NROW(results$all_data)
-#' NROW(results$unique_collection_event_complete_merge)
-#' NROW(results$unique_collection_event_incomplete_raw)
-#' NROW(results$duplicates)
-#'
-#' }
+#' @importFrom dplyr %>%
+#' @importFrom readr read_csv locale
+#' @importFrom utils rbind
 #' @export
 export_data_cluster <- function(occ_digital_voucher_file = '',
                              occ_digital_voucher = NA,
+                             merge_unusable_data = TRUE,
                              n_minimo=10000)
 {
 
@@ -217,142 +177,142 @@ export_data_cluster <- function(occ_digital_voucher_file = '',
       print('export_data (1/24)')
       export_data1 <- export_data(occ_digital_voucher_file = '',
                                        occ_digital_voucher = occ_digital_voucher[i_k_1==TRUE,],
-                                       merge_unusable_data = TRUE,
+                                       merge_unusable_data = merge_unusable_data,
                                        silence = FALSE)
 
       print('export_data (2/24)')
       export_data2 <- export_data(occ_digital_voucher_file = '',
                                        occ_digital_voucher = occ_digital_voucher[i_k_2==TRUE,],
-                                       merge_unusable_data = TRUE,
+                                       merge_unusable_data = merge_unusable_data,
                                        silence = TRUE)
       print('export_data (3/24)')
       export_data3 <- export_data(occ_digital_voucher_file = '',
                                        occ_digital_voucher = occ_digital_voucher[i_k_3==TRUE,],
-                                       merge_unusable_data = TRUE,
+                                       merge_unusable_data = merge_unusable_data,
                                        silence = TRUE)
       print('export_data (4/24)')
       export_data4 <- export_data(occ_digital_voucher_file = '',
                                        occ_digital_voucher = occ_digital_voucher[i_k_4==TRUE,],
-                                       merge_unusable_data = TRUE,
+                                       merge_unusable_data = merge_unusable_data,
                                        silence = TRUE)
 
       print('export_data (5/24)')
       export_data5 <- export_data(occ_digital_voucher_file = '',
                                        occ_digital_voucher = occ_digital_voucher[i_k_5==TRUE,],
-                                       merge_unusable_data = TRUE,
+                                       merge_unusable_data = merge_unusable_data,
                                        silence = TRUE)
 
       print('export_data (6/24)')
       export_data6 <- export_data(occ_digital_voucher_file = '',
                                        occ_digital_voucher = occ_digital_voucher[i_k_6==TRUE,],
-                                       merge_unusable_data = TRUE,
+                                       merge_unusable_data = merge_unusable_data,
                                        silence = TRUE)
 
       print('export_data (7/24)')
       export_data7 <- export_data(occ_digital_voucher_file = '',
                                        occ_digital_voucher = occ_digital_voucher[i_k_7==TRUE,],
-                                       merge_unusable_data = TRUE,
+                                       merge_unusable_data = merge_unusable_data,
                                        silence = TRUE)
       print('export_data (8/24)')
       export_data8 <- export_data(occ_digital_voucher_file = '',
                                        occ_digital_voucher = occ_digital_voucher[i_k_8==TRUE,],
-                                       merge_unusable_data = TRUE,
+                                       merge_unusable_data = merge_unusable_data,
                                        silence = TRUE)
 
       print('export_data (9/24)')
       export_data9 <- export_data(occ_digital_voucher_file = '',
                                        occ_digital_voucher = occ_digital_voucher[i_k_9==TRUE,],
-                                       merge_unusable_data = TRUE,
+                                       merge_unusable_data = merge_unusable_data,
                                        silence = TRUE)
 
       print('export_data (10/24)')
       export_data10 <- export_data(occ_digital_voucher_file = '',
                                         occ_digital_voucher = occ_digital_voucher[i_k_10==TRUE,],
-                                        merge_unusable_data = TRUE,
+                                        merge_unusable_data = merge_unusable_data,
                                         silence = TRUE)
 
       print('export_data (11/24)')
       export_data11 <- export_data(occ_digital_voucher_file = '',
                                         occ_digital_voucher = occ_digital_voucher[i_k_11==TRUE,],
-                                        merge_unusable_data = TRUE,
+                                        merge_unusable_data = merge_unusable_data,
                                         silence = TRUE)
 
       print('export_data (12/24)')
       export_data12 <- export_data(occ_digital_voucher_file = '',
                                         occ_digital_voucher = occ_digital_voucher[i_k_12==TRUE,],
-                                        merge_unusable_data = TRUE,
+                                        merge_unusable_data = merge_unusable_data,
                                         silence = TRUE)
 
       print('export_data (13/24)')
       export_data13 <- export_data(occ_digital_voucher_file = '',
                                         occ_digital_voucher = occ_digital_voucher[i_k_13==TRUE,],
-                                        merge_unusable_data = TRUE,
+                                        merge_unusable_data = merge_unusable_data,
                                         silence = TRUE)
 
       print('export_data (14/24)')
       export_data14 <- export_data(occ_digital_voucher_file = '',
                                         occ_digital_voucher = occ_digital_voucher[i_k_14==TRUE,],
-                                        merge_unusable_data = TRUE,
+                                        merge_unusable_data = merge_unusable_data,
                                         silence = TRUE)
 
       print('export_data (15/24)')
       export_data15 <- export_data(occ_digital_voucher_file = '',
                                         occ_digital_voucher = occ_digital_voucher[i_k_15==TRUE,],
-                                        merge_unusable_data = TRUE,
+                                        merge_unusable_data = merge_unusable_data,
                                         silence = TRUE)
 
       print('export_data (16/24)')
       export_data16 <- export_data(occ_digital_voucher_file = '',
                                         occ_digital_voucher = occ_digital_voucher[i_k_16==TRUE,],
-                                        merge_unusable_data = TRUE,
+                                        merge_unusable_data = merge_unusable_data,
                                         silence = TRUE)
 
       print('export_data (17/24)')
       export_data17 <- export_data(occ_digital_voucher_file = '',
                                         occ_digital_voucher = occ_digital_voucher[i_k_17==TRUE,],
-                                        merge_unusable_data = TRUE,
+                                        merge_unusable_data = merge_unusable_data,
                                         silence = TRUE)
 
       print('export_data (18/24)')
       export_data18 <- export_data(occ_digital_voucher_file = '',
                                         occ_digital_voucher = occ_digital_voucher[i_k_18==TRUE,],
-                                        merge_unusable_data = TRUE,
+                                        merge_unusable_data = merge_unusable_data,
                                         silence = TRUE)
 
       print('export_data (19/24)')
       export_data19 <- export_data(occ_digital_voucher_file = '',
                                         occ_digital_voucher = occ_digital_voucher[i_k_19==TRUE,],
-                                        merge_unusable_data = TRUE,
+                                        merge_unusable_data = merge_unusable_data,
                                         silence = TRUE)
 
       print('export_data (20/24)')
       export_data20 <- export_data(occ_digital_voucher_file = '',
                                         occ_digital_voucher = occ_digital_voucher[i_k_20==TRUE,],
-                                        merge_unusable_data = TRUE,
+                                        merge_unusable_data = merge_unusable_data,
                                         silence = TRUE)
 
       print('export_data (21/24)')
       export_data21 <- export_data(occ_digital_voucher_file = '',
                                         occ_digital_voucher = occ_digital_voucher[i_k_21==TRUE,],
-                                        merge_unusable_data = TRUE,
+                                        merge_unusable_data = merge_unusable_data,
                                         silence = TRUE)
 
       print('export_data (22/24)')
       export_data22 <- export_data(occ_digital_voucher_file = '',
                                         occ_digital_voucher = occ_digital_voucher[i_k_22==TRUE,],
-                                        merge_unusable_data = TRUE,
+                                        merge_unusable_data = merge_unusable_data,
                                         silence = TRUE)
 
       print('export_data (23/24)')
       export_data23 <- export_data(occ_digital_voucher_file = '',
                                         occ_digital_voucher = occ_digital_voucher[i_k_23==TRUE,],
-                                        merge_unusable_data = TRUE,
+                                        merge_unusable_data = merge_unusable_data,
                                         silence = TRUE)
 
       print('export_data (24/24)')
       export_data24 <- export_data(occ_digital_voucher_file = '',
                                         occ_digital_voucher = occ_digital_voucher[i_k_24==TRUE,],
-                                        merge_unusable_data = TRUE,
+                                        merge_unusable_data = merge_unusable_data,
                                         silence = TRUE)
 
     results <- list(all_data = {})
@@ -398,7 +358,7 @@ export_data_cluster <- function(occ_digital_voucher_file = '',
     print('export_data')
     results <- export_data(occ_digital_voucher_file = '',
                                 occ_digital_voucher = occ_digital_voucher,
-                                merge_unusable_data = TRUE,
+                                merge_unusable_data = merge_unusable_data,
                                 silence = TRUE)
 
 

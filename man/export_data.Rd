@@ -2,7 +2,7 @@
 % Please edit documentation in R/export_data.R
 \name{export_data}
 \alias{export_data}
-\title{Export of results}
+\title{Export Parsed GBIF Data Results}
 \usage{
 export_data(
   occ_digital_voucher_file = "",
@@ -17,7 +17,7 @@ export_data(
     "Ctrl_institutionCode", "Ctrl_collectionCode", "Ctrl_datasetName",
     "Ctrl_datasetName", "Ctrl_language", "wcvp_plant_name_id", "wcvp_taxon_rank",
     "wcvp_taxon_status", "wcvp_family", "wcvp_taxon_name", "wcvp_taxon_authors",
-    "wcvp_reviewed", "wcvp_searchNotes"),
+    "wcvp_searchNotes"),
   fields_to_parse = c("Ctrl_gbifID", "Ctrl_bibliographicCitation", "Ctrl_language",
     "Ctrl_institutionCode", "Ctrl_collectionCode", "Ctrl_datasetName",
     "Ctrl_basisOfRecord", "Ctrl_catalogNumber", "Ctrl_recordNumber", "Ctrl_recordedBy",
@@ -34,128 +34,90 @@ export_data(
     "Ctrl_coordinates_validated_by_gbif_issue", "wcvp_plant_name_id", "wcvp_taxon_rank",
     "wcvp_taxon_status", "wcvp_family", "wcvp_taxon_name", "wcvp_taxon_authors", 
     
-    "wcvp_reviewed", "wcvp_searchedName", "wcvp_searchNotes",
-    "parseGBIF_digital_voucher", "parseGBIF_duplicates", "parseGBIF_num_duplicates",
+    "wcvp_searchedName", "wcvp_searchNotes", "parseGBIF_digital_voucher",
+    "parseGBIF_duplicates", "parseGBIF_num_duplicates",
     "parseGBIF_non_groupable_duplicates", "parseGBIF_duplicates_grouping_status",
     "parseGBIF_unidentified_sample", "parseGBIF_sample_taxon_name",
     "parseGBIF_sample_taxon_name_status", "parseGBIF_number_taxon_names",
     "parseGBIF_useful_for_spatial_analysis", "parseGBIF_decimalLatitude",
     "parseGBIF_decimalLongitude", "parseGBIF_wcvp_plant_name_id",
-    "parseGBIF_wcvp_taxon_rank", 
-     "parseGBIF_wcvp_taxon_status",
+    "parseGBIF_wcvp_taxon_rank", "parseGBIF_wcvp_taxon_status", 
+    
     "parseGBIF_wcvp_family", "parseGBIF_wcvp_taxon_name", "parseGBIF_wcvp_taxon_authors",
     "parseGBIF_wcvp_reviewed", "parseGBIF_dataset_result"),
   silence = TRUE
 )
 }
 \arguments{
-\item{occ_digital_voucher_file}{CSV fila result of function select_digital_voucher()$occ_digital_voucher}
+\item{occ_digital_voucher_file}{Character. Path to CSV file result from \code{select_digital_voucher()$occ_digital_voucher}.}
 
-\item{occ_digital_voucher}{data frame result of function select_digital_voucher()$occ_digital_voucher}
+\item{occ_digital_voucher}{Data frame. Result from \code{select_digital_voucher()$occ_digital_voucher}.}
 
-\item{merge_unusable_data}{include records unique collection events incomplete in merge processing}
+\item{merge_unusable_data}{Logical. If \code{TRUE}, includes incomplete unique collection events in merge processing.
+Default is \code{FALSE}.}
 
-\item{fields_to_merge}{fields to merge}
+\item{fields_to_merge}{Character vector. Fields to merge from duplicates. Default includes:
+\code{Ctrl_fieldNotes}, \code{Ctrl_year}, \code{Ctrl_stateProvince}, \code{Ctrl_municipality},
+\code{Ctrl_locality}, \code{Ctrl_countryCode}, \code{Ctrl_eventDate}, \code{Ctrl_habitat},
+\code{Ctrl_level0Name}, \code{Ctrl_level1Name}, \code{Ctrl_level2Name}, \code{Ctrl_level3Name}.}
 
-\item{fields_to_compare}{fields to compare content frequency}
+\item{fields_to_compare}{Character vector. Fields to compare content frequency across duplicates.}
 
-\item{fields_to_parse}{all fields}
+\item{fields_to_parse}{Character vector. All fields to include in output.}
 
-\item{silence}{if TRUE does not display progress messages}
+\item{silence}{Logical. If \code{TRUE}, does not display progress messages. Default is \code{TRUE}.}
 }
 \value{
-list with 10 data frames
+A list with 6 data frames:
 \itemize{
-\item \strong{all_data} All records processed, merged Unique collection events complete / incomplete and their duplicates
-\item \strong{useable_data_merge} Merged Unique collection events complete
-\item \strong{useable_data_raw} Raw Unique collection events complete
-\item \strong{duplicates} Duplicates of unique collection events complete / incomplete
-\item \strong{unusable_data_merge} Merged Unique collection events incomplete,
-It is NA if merge_unusable_data is FALSE.
-\item \strong{unusable_data_raw} Raw Unique collection events incomplete
-\item \strong{parseGBIF_general_summary}
-\item \strong{parseGBIF_merge_fields_summary}
-\item \strong{parseGBIF_merge_fields_summary_useable_data}
-\item \strong{parseGBIF_merge_fields_summary_unusable_data} It is NA if merge_unusable_data is FALSE
+\item \code{all_data}: All processed records (merged unique collection events and duplicates)
+\item \code{useable_data_merge}: Merged complete unique collection events
+\item \code{useable_data_raw}: Raw complete unique collection events
+\item \code{duplicates}: Duplicates of unique collection events
+\item \code{unusable_data_merge}: Merged incomplete unique collection events (NA if merge_unusable_data=FALSE)
+\item \code{unusable_data_raw}: Raw incomplete unique collection events
 }
 }
 \description{
-For each unique collection event key, complete or incomplete,
-outputs will be created which combine information from duplicate records and generate a
-single unique collection event record to replace them.
-The main output fields relating to taxonomic identification and geographic coordinates:
-\itemize{
-\item parseGBIF_sample_taxon_name = scientific name chosen as taxonomic identification for unique collection event
-\item parseGBIF_number_taxon_names = number of scientific names found in duplicates of unique collection event
-\item parseGBIF_sample_taxon_name_status = status of choice of 'identified', 'divergent identifications', 'unidentified'
-\item parseGBIF_unidentified_sample = if unique collection event has taxonomic identification
-\item parseGBIF_decimalLatitude = latitude in decimal degrees
-\item parseGBIF_decimalLongitude = longitude in decimal degrees
-\item parseGBIF_useful_for_spatial_analysis = whether the coordinates are useful for spatial analysis.
-\strong{How is the taxon binomial attributed to the unique collection event selected?}
-}
-\enumerate{
-\item Where the unique collection event key is complete:
-The accepted TAXON_NAME selected is that which is most frequently applied to the duplicate vouchers at or below the rank of species.
-Where two named are applied with equal frequency then a mechanical approach, using alphabetical order, is applied, the first listed TAXON_NAME being chosen.
-Where there is no identification, at or below the rank of species, then the unique collection event, the unique collection event is indicated as unidentified.
-\item Where the unique collection event key is incomplete:
-Where the unique collection event key is incomplete, then each record is treated as a unique collection event. If there is no identification, at or below the rank of species, then the unique collection event is classified as unidentified.
-__Geospatial information __
-If the master voucher does not have geographic coordinates, we will seek coordinates from the duplicate records associated with it.
-Finally, the records are separated into three sets of data:
-\strong{useable_data} - Where unique collection event with taxonomic identification and geographic coordinates are complete. This represents the useable dataset.
-\strong{unusable_data}  - Where unique collection event without taxonomic identification and/or geographic coordinates.
-\strong{duplicates} The duplicates of unique collection events complete / incomplete
-}
-
-With this, it is possible to perform:
-Merge information between fields of duplicates of a unique collection event to create a synthetic record for each unique collection event,
-Compare the frequency of content in fields
-Generate a work package summary
-
-For each complete unique collection event key, data fields that are empty in the digital voucher record will be populated with data from the respective duplicates.
-During content merging, we indicate fields associated with the description, location, and data of the unique collection event.
-By default, fields_to_merge parameter of export_data function contains:
-\itemize{
-\item Ctrl_fieldNotes
-\item Ctrl_year
-\item Ctrl_stateProvince
-\item Ctrl_municipality
-\item Ctrl_locality
-\item Ctrl_countryCode
-\item Ctrl_eventDate
-\item Ctrl_habitat
-\item Ctrl_level0Name
-\item Ctrl_level1Name
-\item Ctrl_level2Name
-\item Ctrl_level3Name
-}
+Processes and exports results from parsed GBIF occurrence data, merging information
+from duplicate records to create unique collection event records. For each unique
+collection event key (complete or incomplete), this function combines information
+from duplicate records and generates a single unique collection event record.
 }
 \details{
-Each data frame should be used as needed
+\subsection{Taxonomic Identification Selection:}{
+
+For complete unique collection event keys, the accepted taxon name is selected as:
+\enumerate{
+\item The most frequently applied name at or below species rank among duplicates
+\item If equal frequency, uses alphabetical order
+\item If no species-level identification, marked as unidentified
 }
-\examples{
-\donttest{
-help(export_data)
+}
 
-results <- export_data(occ_digital_voucher_file = file.occ_digital_voucher,
-                       merge_unusable_data = TRUE)
+\subsection{Geospatial Information:}{
 
-names(results)
+If the master voucher lacks coordinates, coordinates are sought from duplicate records.
+}
 
-results$parseGBIF_general_summary
-results$parseGBIF_merge_fields_summary
-results$parseGBIF_merge_fields_summary_complete
-NROW(results$all_data)
-NROW(results$unique_collection_event_complete_merge)
-NROW(results$unique_collection_event_incomplete_raw)
-NROW(results$duplicates)
+\subsection{Output Datasets:}{
+\itemize{
+\item \strong{useable_data}: Unique collection events with taxonomic identification and coordinates
+\item \strong{unusable_data}: Unique collection events without identification and/or coordinates
+\item \strong{duplicates}: All duplicate records of unique collection events
+}
+}
 
+\subsection{Field Merging:}{
+
+For complete unique collection events, empty fields in the digital voucher record
+are populated with data from duplicates during content merging.
 }
 }
 \seealso{
-\code{\link[ParsGBIF]{batch_checkName_wcvp}}, \code{\link[ParsGBIF]{extract_gbif_issue}}
+\code{\link[=select_digital_voucher]{select_digital_voucher()}} for selecting digital vouchers,
+\code{\link[=batch_checkName_wcvp]{batch_checkName_wcvp()}} for taxonomic name checking,
+\code{\link[=extract_gbif_issue]{extract_gbif_issue()}} for GBIF data quality issues
 }
 \author{
 Pablo Hendrigo Alves de Melo,

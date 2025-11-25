@@ -1,64 +1,77 @@
-#' @title Extracting GBIF issues
-#'
+#' @title Extract and Tabulate GBIF Data Quality Issues
 #' @name extract_gbif_issue
 #'
-#' @description Extract GBIF validation rules for occurrence records
+#' @description
+#' Extracts and tabulates GBIF validation rules for occurrence records, creating
+#' individual columns for each issue type with TRUE/FALSE flags indicating whether
+#' each issue applies to each record.
 #'
-#' GBIF recognises and documents several issues relating to the data fields for an individual record.
-#' The issue field stores terms that represent an enumeration of GBIF validation rules.
-#' Issues can lead to errors or unexpected data. The issues fields are therefore a valuable source of information
-#' when assessing the quality of a record. In order to help GBIF and the data publishers improve the data,
-#' GBIF flag records with various issues that they have encountered. These issues can be  used as filters applied
-#' to occurrence searches. Not all issues indicate bad data, some flagthe fact that GBIF has altered values during
-#' processing. The values of EnumOccurrenceIssue will be used by the function extract_gbif_issue as a model to tabulate
-#' the GBIF issues of each record, individualizing them, in columns.TRUE or FALSE, flagging whether the issue applies or
-#' not for each record.
+#' @param occ
+#' Data frame. GBIF occurrence table with selected columns as returned by
+#' `select_gbif_fields(columns = 'standard')`. Must contain a `Ctrl_issue` column.
 #'
-#' @param occ GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')
-#' @param enumOccurrenceIssue An enumeration of validation rules for single occurrence records by GBIF file, if NA, will be used, data(EnumOccurrenceIssue)
+#' @param enumOccurrenceIssue
+#' Data frame. An enumeration of validation rules for single occurrence records.
+#' If `NA` (default), uses the built-in `EnumOccurrenceIssue` dataset.
 #'
-#' @details https://gbif.github.io/parsers/apidocs/org/gbif/api/vocabulary/OccurrenceIssue.html
+#' @details
+#' GBIF recognizes and documents several issues relating to data fields for individual records.
+#' The `Ctrl_issue` field stores terms representing an enumeration of GBIF validation rules.
+#' These issues can indicate data quality problems or processing alterations made by GBIF.
 #'
-#' @return list with two data frames: summary, with the frequency of issues in the records
-#' and occ_gbif_issue, with issues in columns with TRUE or FALSE for each record.
+#' This function:
+#' 1. Uses the `EnumOccurrenceIssue` dataset as a reference for known GBIF issues
+#' 2. Creates individual columns for each issue type
+#' 3. Flags each record with TRUE/FALSE for each applicable issue
+#' 4. Provides a summary of issue frequencies across the dataset
 #'
-#' @author Pablo Hendrigo Alves de Melo,
-#'         Nadia Bystriakova &
-#'         Alexandre Monro
+#' Not all issues indicate bad data - some flag that GBIF has altered values during processing.
 #'
-#' @seealso \code{\link[ParsGBIF]{prepare_gbif_occurrence_data}}, \code{\link[ParsGBIF]{select_gbif_fields}}
+#' @return
+#' A list with two data frames:
+#' - `occ_gbif_issue`: Original occurrence data with additional columns for each GBIF issue,
+#'   containing TRUE/FALSE values indicating whether the issue applies to each record
+#' - `summary`: Summary data frame showing the frequency of each issue across all records,
+#'   sorted by most frequent issues first
+#'
+#' @author
+#' Pablo Hendrigo Alves de Melo,
+#' Nadia Bystriakova &
+#' Alexandre Monro
+#'
+#' @seealso
+#' [`prepare_gbif_occurrence_data()`] for preparing GBIF occurrence data,
+#' [`select_gbif_fields()`] for selecting relevant GBIF fields,
+#' [`EnumOccurrenceIssue`] for the GBIF issue enumeration dataset
 #'
 #' @examples
 #' \donttest{
+#' library(parseGBIF)
 #'
-#' library(ParsGBIF)
+#' # Load sample data
+#' occ_file <- 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt'
 #'
-#' help(extract_gbif_issue)
+#' occ <- prepare_gbif_occurrence_data(
+#'   gbif_occurrece_file = occ_file,
+#'   columns = 'standard'
+#' )
 #'
-#' occ_file <- 'https://raw.githubusercontent.com/pablopains/ParsGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt'
-#'
-#' occ <- prepare_gbif_occurrence_data(gbif_occurrece_file = occ_file,
-#'                                     columns = 'standard')
-#'
-#' data(EnumOccurrenceIssue)
-#'
-#' colnames(EnumOccurrenceIssue)
-#'
-#' head(EnumOccurrenceIssue)
-#'
+#' # Extract GBIF issues
 #' occ_gbif_issue <- extract_gbif_issue(occ = occ)
 #'
+#' # View results
 #' names(occ_gbif_issue)
 #'
+#' # Summary of issues
 #' head(occ_gbif_issue$summary)
 #'
+#' # Issue flags for each record
 #' colnames(occ_gbif_issue$occ_gbif_issue)
-#'
 #' head(occ_gbif_issue$occ_gbif_issue)
 #' }
 #'
-#' @import dplyr
-#'
+#' @importFrom dplyr arrange
+#' @importFrom utils data
 #' @export
 extract_gbif_issue <- function(occ = NA,
                                enumOccurrenceIssue = NA)

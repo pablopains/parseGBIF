@@ -2,23 +2,25 @@
 #'
 #' @name wcvp_check_name
 #'
-#' @description Use the [World Checklist of Vascular Plants WCVP](https://powo.science.kew.org//)
+#' @description Use the [World Checklist of Vascular Plants WCVP](https://powo.science.kew.org/)
 #' [database](http://sftp.kew.org/pub/data-repositories/WCVP/) to check accepted names and update synonyms.
 #'
 #' The World Checklist of Vascular Plants (WCVP) database is available from the
 #' [Royal Botanic Gardens, Kew](https://powo.science.kew.org/about-wcvp).
-#' It can be downloaded to a folder of the user’s choice or into memory using the get_wcvp function. The output has 33 columns.
+#' It can be downloaded to a folder of the user's choice or into memory using the get_wcvp function. The output has 33 columns.
 #'
 #' @param searchedName scientific name, with or without author
-#' @param wcvp_names WCVP table, wcvp_names.csv file from http://sftp.kew.org/pub/data-repositories/WCVP/ If NA, automatically load the latest version of the database by the function parseGBIF::wcvp_get_data(read_only_to_memory = TRUE)$wcvp_names.
-#' @param if_author_fails_try_without_combinations option for partial verification of the authorship of the species. Remove the authors of combinations, in parentheses
+#' @param wcvp_names WCVP table, wcvp_names.csv file from http://sftp.kew.org/pub/data-repositories/WCVP/
+#' If NA, automatically load the latest version of the database by the function
+#' parseGBIF::wcvp_get_data(read_only_to_memory = TRUE)$wcvp_names.
+#' @param if_author_fails_try_without_combinations option for partial verification of the authorship
+#' of the species. Remove the authors of combinations, in parentheses
 #'
 #' @details About the World Checklist of Vascular Plants https://powo.science.kew.org/about-wcvp
 #' searchNotes values:
 #'
 #' * Accepted - When only one authorless scientific name is present in the list of TAXON_name with
-#' and TAXON_STATUS equal to "Accepted",
-#' verified_speciesName = 100.
+#' and TAXON_STATUS equal to "Accepted", verified_speciesName = 100.
 #' * Accepted among homonyms - When more than one authorless scientific name is present in the
 #' TAXON_name list, but only one of the homonyms displays TAXON_STATUS equal to "Accepted",
 #' verified_speciesName = number of matches/100.
@@ -29,18 +31,19 @@
 #' authorless scientific name in TAXON_name and author in TAXON_AUTHORS, in these cases
 #' verified_author equal to 0 (zero),
 #' * Not Found: When the authorless scientific name is not present in the TAXON_NAME LIST
-#' * Unplaced: o	When only one authorless scientific name is present in the list of TAXON_name with and TAXON_STATUS = "Unplaced"
+#' * Unplaced: When only one authorless scientific name is present in the list of TAXON_name with and TAXON_STATUS = "Unplaced"
 #' * Updated: When only one authorless scientific name is present in the list of TAXON_name and ACCEPTED_PLANT_NAME_ID
-#' are not empty (and ACCEPTED_PLANT_NAME_ID is different from the ID of the species consulted) taxon_status_of_searchedName, plant_name_id_of_searchedName and taxon_authors_of_searchedName values:
+#' are not empty (and ACCEPTED_PLANT_NAME_ID is different from the ID of the species consulted)
+#' taxon_status_of_searchedName, plant_name_id_of_searchedName and taxon_authors_of_searchedName values:
 #'
-#'    * When searchNotes equals "Updated" – The fields record the information of the scientific name originally consulted.
+#'    * When searchNotes equals "Updated" - The fields record the information of the scientific name originally consulted.
 #'    * When searchNotes equals "Homonyms" - Fields record the information of homonymous synonyms separated by "|".
 #'
 #' * verified_author values:
 #'
-#'    * When value equal to 100 – when there is matched match between authorless scientific name in TAXON_name and author in TAXON_AUTHORS.
-#'    * When value equal to 50 – when there is combined correspondence between authorless scientific name in TAXON_name and author, without (combination), in TAXON_AUTHORS.
-#'    * When value equal to 0 – regardless of the correspondence between authorless scientific name in TAXON_name, author is not present in TAXON_AUTHORS.
+#'    * When value equal to 100 - when there is matched match between authorless scientific name in TAXON_name and author in TAXON_AUTHORS.
+#'    * When value equal to 50 - when there is combined correspondence between authorless scientific name in TAXON_name and author, without (combination), in TAXON_AUTHORS.
+#'    * When value equal to 0 - regardless of the correspondence between authorless scientific name in TAXON_name, author is not present in TAXON_AUTHORS.
 #'
 #' @author Pablo Hendrigo Alves de Melo,
 #'         Nadia Bystriakova &
@@ -48,10 +51,7 @@
 #'
 #' @seealso \code{\link[parseGBIF]{wcvp_check_name_batch}}, \code{\link[parseGBIF]{wcvp_get_data}}
 #'
-#' @return Data frame with WCVP fields
-#'
-#' @import dplyr
-#' @import stringr
+#' @return Data frame with WCVP fields prefixed with 'wcvp_'
 #'
 #' @examples
 #' # These examples take >10 seconds to run and require 'parseGBIF::wcvp_get_data()'
@@ -108,9 +108,8 @@
 #'                if_author_fails_try_without_combinations = TRUE)
 #' }
 #'
-#' @import dplyr
-#' @import stringr
-#'
+#' @importFrom dplyr add_row mutate
+#' @importFrom stringr str_c
 #' @export
 wcvp_check_name <- function(searchedName = 'Hemistylus brasiliensis Wedd.',
                               wcvp_names =  '',

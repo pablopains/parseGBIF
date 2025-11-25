@@ -14,28 +14,38 @@ standardize_country_from_iso2(
 \item{occ}{GBIF occurrence table with selected columns as select_gbif_fields(columns = 'standard')}
 
 \item{iso2_field_name}{indicates the name of the field with ISO2 code of the countries}
+
+\item{silence}{if TRUE does not display progress messages}
 }
 \value{
-List whith tow data frames, occ, with the original data set plus two columns, parseGBIF_countryCode_ISO3 and
-parseGBIF_countryName_en and countrylist, with the list of countries found with all the columns of countrycode::codelist)
+List with two data frames:
+\itemize{
+\item \code{occ}: the original data set plus two columns, \code{parseGBIF_countryCode_ISO3} and \code{parseGBIF_countryName_en}
+\item \code{countrylist}: list of countries found with all columns from \code{countrycode::codelist}
+}
 }
 \description{
 Checks and standardizes country names and codes from iso2
 }
 \details{
-Returns the last name
+Converts ISO2 country codes to ISO3 codes and English country names using the countrycode package.
 }
 \examples{
 \donttest{
 help(standardize_country_from_iso2)
 
-occ <- prepare_gbif_occurrence_data(gbif_occurrece_file =  'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt',
-                                    columns = 'standard')
-x <- standardize_country_from_iso2(occ = occ,
-                                     iso2_field_name = 'Ctrl_countryCode',
-                                     return_fields = c('iso3c','country.name.en'))
+occ <- prepare_gbif_occurrence_data(
+  gbif_occurrece_file = 'https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataGBIF/Achatocarpaceae/occurrence.txt',
+  columns = 'standard'
+)
+
+x <- standardize_country_from_iso2(
+  occ = occ,
+  iso2_field_name = 'Ctrl_countryCode'
+)
+
 colnames(x$occ)
-head(x$countrycodelist)
+head(x$countrylist)
 }
 
 }

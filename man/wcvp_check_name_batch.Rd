@@ -27,17 +27,21 @@ The default is 'standard'}
 \item{silence}{if TRUE does not display progress messages}
 }
 \value{
-list with two data frames: summary, species list and occ_wcvp_check_name, with WCVP fields
+list with two data frames:
+\itemize{
+\item \code{summary}: summary of name checking results
+\item \code{occ_wcvp_check_name}: occurrence data with WCVP fields
+}
 }
 \description{
-Species’ names can be checked against WCVP database one by one, or in a batch mode.
+Species' names can be checked against WCVP database one by one, or in a batch mode.
 To verify individual names, the function wcvp_check_name is used.
 }
 \details{
-See help(checkName_wcvp)
+See help(wcvp_check_name)
 \itemize{
 \item \href{http://sftp.kew.org/pub/data-repositories/WCVP/}{about WCVP database}
-\item \href{https://powo.science.kew.org//}{World Checklist of Vascular Plants}
+\item \href{https://powo.science.kew.org/}{World Checklist of Vascular Plants}
 \item \href{http://sftp.kew.org/pub/data-repositories/WCVP/}{WCVP database}
 \item \href{https://powo.science.kew.org/about-wcvp}{(about WCVP)}
 }
@@ -45,7 +49,6 @@ See help(checkName_wcvp)
 \examples{
 # These examples take >10 minutes to run and require 'parseGBIF::wcvp_get_data()'
 \donttest{
-
 library(parseGBIF)
 
 help(wcvp_check_name_batch)
@@ -64,14 +67,13 @@ res_wcvp_check_name_batch <- wcvp_check_name_batch(occ = occ,
                                                  wcvp_names =  wcvp_names,
                                                  if_author_fails_try_without_combinations = TRUE,
                                                  wcvp_selected_fields = 'standard',
-                                                 show_process = TRUE)
+                                                 silence = TRUE)
 
 names(res_wcvp_check_name_batch)
 
 head(res_wcvp_check_name_batch$summary)
 
 head(res_wcvp_check_name_batch$occ_wcvp_check_name)
-
 }
 
 }

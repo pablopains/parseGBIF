@@ -1,43 +1,41 @@
-#' @title Selecting the master digital voucher
+#' @title Generating summary statistics for parseGBIF data
 #' @name parseGBIF_summary
 #'
-#' @description ...
+#' @description Generates comprehensive summary statistics for parseGBIF processed data
 #'
-#' @param parseGBIF_all_data ...
-#' @param file.parseGBIF_all_data ...
-#' @param fields_to_merge fields to merge
-#' @param fields_to_compare fields to compare content frequency
-#' @param fields_to_parse all fields
-#' @param silence if TRUE does not display progress messages
+#' @param parseGBIF_all_data Data frame containing parseGBIF processed data
+#' @param file.parseGBIF_all_data Character string with path to CSV file containing parseGBIF data
+#' @param fields_to_merge Character vector of field names used for merging collection events
+#' @param fields_to_compare Character vector of field names to compare content frequency (currently unused)
+#' @param fields_to_parse Character vector of all field names (currently unused)
+#' @param silence Logical, if TRUE does not display progress messages
 #'
-#' @details ...
+#' @details This function generates multiple summary statistics for parseGBIF processed data,
+#' including general counts, taxonomic diversity metrics, data quality assessments,
+#' and field merging statistics.
 #'
-#' @return
-#' * __parseGBIF_general_summary__
-#' * __parseGBIF_merge_fields_summary__
-#' * __parseGBIF_merge_fields_summary_useable_data__
-#' * __parseGBIF_merge_fields_summary_unusable_data__
+#' @return A list with four data frames:
+#' * `parseGBIF_general_summary`: General summary statistics
+#' * `parseGBIF_merge_fields_summary`: Summary of field merging operations
+#' * `parseGBIF_merge_fields_summary_useable_data`: Field merging for usable data only
+#' * `parseGBIF_merge_fields_summary_unusable_data`: Field merging for unusable data only
 #'
 #' @author Pablo Hendrigo Alves de Melo,
 #'         Nadia Bystriakova &
 #'         Alexandre Monro
 #'
-#' @seealso \code{\link[ParsGBIF]{batch_checkName_wcvp}}, \code{\link[ParsGBIF]{extract_gbif_issue}}
+#' @seealso \code{\link[parseGBIF]{batch_checkName_wcvp}}, \code{\link[parseGBIF]{extract_gbif_issue}}
 #'
 #' @examples
 #' \donttest{
-#'
-#' results <- export_data_v2.3(occ_digital_voucher_file = '',
-#' occ_digital_voucher = occ_digital$all_data,
-#' merge_unusable_data = TRUE,
-#' silence = FALSE)
-#'
+#' results <- parseGBIF_summary(parseGBIF_all_data = your_data)
 #' names(results)
-#'
-#' head(results$occ_all)
-#' colnames(results$occ_all)
-#'
+#' head(results$parseGBIF_general_summary)
 #' }
+#'
+#' @importFrom dplyr add_row arrange desc filter
+#' @importFrom jsonlite fromJSON
+#' @importFrom readr read_delim locale
 #' @export
 parseGBIF_summary <- function(parseGBIF_all_data = NA,
                               file.parseGBIF_all_data = '',
@@ -52,18 +50,20 @@ parseGBIF_summary <- function(parseGBIF_all_data = NA,
                                                   'Ctrl_level0Name',
                                                   'Ctrl_level1Name',
                                                   'Ctrl_level2Name',
-                                                  'Ctrl_level3Name'))
+                                                  'Ctrl_level3Name'),
+                              fields_to_compare = NULL,
+                              fields_to_parse = NULL,
+                              silence = FALSE)
 {
-
   if(is.na(file.parseGBIF_all_data)){file.parseGBIF_all_data=''}
 
   if(file.parseGBIF_all_data!='')
   {
     # file.parseGBIF_all_data <- paste0(path_data,'\\parseGBIF_all_data\\','parseGBIF_all_data.csv')
     occ_tmp <- readr::read_delim(file = file.parseGBIF_all_data,
-                                             delim = ',',
-                                             locale = readr::locale(encoding = "UTF-8"),
-                                             show_col_types = FALSE) %>% data.frame()
+                                 delim = ',',
+                                 locale = readr::locale(encoding = "UTF-8"),
+                                 show_col_types = FALSE) %>% data.frame()
   }else
   {
     occ_tmp <- parseGBIF_all_data
@@ -224,18 +224,18 @@ parseGBIF_summary <- function(parseGBIF_all_data = NA,
     parseGBIF_general_summary <- add_summary('----------', '----------', '----------',parseGBIF_general_summary); parseGBIF_general_summary
 
     {
-    question <- 'Taxonomic diversity, based on GBIF taxonomy, from GBIF scientificName'
-    ind <-  unique(occ_tmp$Ctrl_scientificName[occ_tmp$Ctrl_taxonRank %in%  c('SPECIES', 'SUBSPECIES', 'VARIETY')])
-    value <- NROW(ind)
-    condition <- "count scientificName where Ctrl_taxonRank = 'SPECIES' OR 'SUBSPECIES' OR 'VARIETY' "
-    parseGBIF_general_summary <- add_summary(question, value, condition, parseGBIF_general_summary); parseGBIF_general_summary
+      question <- 'Taxonomic diversity, based on GBIF taxonomy, from GBIF scientificName'
+      ind <-  unique(occ_tmp$Ctrl_scientificName[occ_tmp$Ctrl_taxonRank %in%  c('SPECIES', 'SUBSPECIES', 'VARIETY')])
+      value <- NROW(ind)
+      condition <- "count scientificName where Ctrl_taxonRank = 'SPECIES' OR 'SUBSPECIES' OR 'VARIETY' "
+      parseGBIF_general_summary <- add_summary(question, value, condition, parseGBIF_general_summary); parseGBIF_general_summary
 
-    question <- 'Taxonomic diversity, based on GBIF taxonomy, from GBIF scientificName / suitable for geospatial analysis'
-    ind <-  unique(occ_tmp$Ctrl_scientificName[occ_tmp$Ctrl_taxonRank %in% c('SPECIES', 'SUBSPECIES', 'VARIETY') &
-                                                 occ_tmp$parseGBIF_useful_for_spatial_analysis==TRUE])
-    value <- NROW(ind)
-    condition <- "count scientificName where (Ctrl_taxonRank = 'SPECIES' OR 'SUBSPECIES' OR 'VARIETY') AND (parseGBIF_useful_for_spatial_analysis = TRUE)"
-    parseGBIF_general_summary <- add_summary(question, value, condition, parseGBIF_general_summary); parseGBIF_general_summary
+      question <- 'Taxonomic diversity, based on GBIF taxonomy, from GBIF scientificName / suitable for geospatial analysis'
+      ind <-  unique(occ_tmp$Ctrl_scientificName[occ_tmp$Ctrl_taxonRank %in% c('SPECIES', 'SUBSPECIES', 'VARIETY') &
+                                                   occ_tmp$parseGBIF_useful_for_spatial_analysis==TRUE])
+      value <- NROW(ind)
+      condition <- "count scientificName where (Ctrl_taxonRank = 'SPECIES' OR 'SUBSPECIES' OR 'VARIETY') AND (parseGBIF_useful_for_spatial_analysis = TRUE)"
+      parseGBIF_general_summary <- add_summary(question, value, condition, parseGBIF_general_summary); parseGBIF_general_summary
     }
 
     {
@@ -288,7 +288,7 @@ parseGBIF_summary <- function(parseGBIF_all_data = NA,
 
     # 3. Data quality map based on GBIF issues and information quality
     freq_data <- table(freq_tmp <- occ_tmp$Ctrl_geospatial_quality,
-                           exclude = NA) %>%
+                       exclude = NA) %>%
       data.frame() %>%
       dplyr::arrange(desc(Freq))
     condition <- 'frequency of selection_score'
@@ -346,7 +346,7 @@ parseGBIF_summary <- function(parseGBIF_all_data = NA,
         parseGBIF_merge_fields_summary_incomplete
       }
 
-  }
+    }
 
   }
 

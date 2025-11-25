@@ -2,68 +2,79 @@
 % Please edit documentation in R/parse_tdwg_distribution.R
 \name{parse_tdwg_distribution}
 \alias{parse_tdwg_distribution}
-\title{Parse TDWG distribution for occurrence points}
+\title{Parse TDWG Distribution for Occurrence Points}
 \usage{
 parse_tdwg_distribution(points, native_range, range_polygons)
 }
 \arguments{
-\item{points}{A data frame containing occurrence records with columns
+\item{points}{Data frame. Occurrence records with coordinate columns:
 \code{parseGBIF_decimalLongitude} and \code{parseGBIF_decimalLatitude}.}
 
-\item{native_range}{A data frame containing the native range information
-with column \code{LEVEL3_COD} for TDWG level 3 codes.}
+\item{native_range}{Data frame. Native range information with TDWG level 3 codes in column \code{LEVEL3_COD}.}
 
-\item{range_polygons}{An sf object containing TDWG polygon data with
-column \code{LEVEL3_COD} for TDWG level 3 codes.}
+\item{range_polygons}{sf object. TDWG polygon data with TDWG level 3 codes in column \code{LEVEL3_COD}.}
 }
 \value{
 The input data frame \code{points} with an additional column:
-\item{native_range}{TDWG level 3 code for points within native range,
-NA for points outside native range}
+\itemize{
+\item \code{native_range}: TDWG level 3 code for points within native range,
+\code{NA} for points outside native range
+}
 }
 \description{
-Identifies which occurrence points fall within the native
-range of a species based on TDWG (World Geographical Scheme for
-Recording Plant Distributions) regions.
+Identifies which occurrence points fall within the native range of a species
+based on TDWG (World Geographical Scheme for Recording Plant Distributions) regions.
+Performs spatial analysis to match occurrence coordinates with native range polygons.
 }
 \details{
-This function performs the following steps:
-\itemize{
-\item{Converts occurrence points to an sf spatial object}
-\item{Filters TDWG polygons to include only the native range}
-\item{Performs spatial join to identify points within native range}
-\item{Returns the original data with an additional column indicating
-native range membership}
+\subsection{Processing Steps:}{
+\enumerate{
+\item Validates input parameters and coordinate data
+\item Converts occurrence points to sf spatial object with WGS84 CRS
+\item Filters TDWG polygons to include only the native range regions
+\item Ensures CRS compatibility between points and polygons
+\item Performs spatial join to identify points within native range
+\item Returns original data with native range membership indicator
+}
 }
 
-The function handles CRS alignment and geometry validation automatically.
+\subsection{Error Handling:}{
+\itemize{
+\item Validates coordinate data and excludes invalid coordinates
+\item Checks for required columns in all input data
+\item Handles geometry validation and repair automatically
+\item Provides informative warnings and progress messages
+}
+}
 }
 \examples{
 \donttest{
-# Load example data
-data(example_occurrences)
-data(tdwg_native_range)
-data(tdwg_polygons)
-
-# Parse TDWG distribution
-result <- parse_tdwg_distribution(
-  points = example_occurrences,
-  native_range = tdwg_native_range,
-  range_polygons = tdwg_polygons
+# Example with simulated data
+# Create sample occurrence points
+points <- data.frame(
+  parseGBIF_decimalLongitude = c(-47.9, -46.6, -45.0),
+  parseGBIF_decimalLatitude = c(-15.8, -23.5, -22.9),
+  species = c("Species_A", "Species_B", "Species_C")
 )
 
-# View results
-head(result[, c("parseGBIF_decimalLongitude", "parseGBIF_decimalLatitude",
-               "native_range")])
+# Create sample native range data
+native_range <- data.frame(LEVEL3_COD = c("BZL", "BZS"))
 
-# Count points by native range
-table(result$native_range, useNA = "always")
+# Note: range_polygons would typically be loaded from TDWG shapefile
+# For this example, we assume range_polygons is available
+
+# Parse TDWG distribution (commented out as range_polygons is required)
+# result <- parse_tdwg_distribution(
+#   points = points,
+#   native_range = native_range,
+#   range_polygons = range_polygons
+# )
 }
 
 }
 \seealso{
-\code{\link[parseGBIF]{preprocess_data}},
-\code{\link[parseGBIF]{prepare_collectionCode}}
+\code{\link[=get_tdwg_distribution]{get_tdwg_distribution()}} for retrieving TDWG distribution data from POWO,
+\code{\link[=parse_coordinates]{parse_coordinates()}} for coordinate validation and quality assessment
 }
 \author{
 Pablo Hendrigo Alves de Melo,

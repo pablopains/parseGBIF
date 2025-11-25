@@ -3,19 +3,23 @@
 #'
 #' @description
 #' Retrieves TDWG (Taxonomic Databases Working Group) distribution data
-#' for a plant species from Plants of the World Online (POWO) API.
+#' for a plant species from Plants of the World Online (POWO) API using
+#' either scientific name or WCVP plant name ID.
 #'
 #' @param searchedName
 #' Character. Scientific name of the plant species to search for.
+#' Either this or `wcvp_plant_name_id` must be provided.
 #'
 #' @param wcvp_plant_name_id
 #' Character. WCVP plant name ID for the species.
+#' Either this or `searchedName` must be provided.
 #'
 #' @param wcvp_names
-#' Data frame. WCVP names data containing taxon information.
+#' Data frame. WCVP names data containing taxon information with columns:
+#' `taxon_name`, `taxon_status`, `plant_name_id`, `ipni_id`.
 #'
 #' @return
-#' Returns a data frame with TDWG distribution information containing:
+#' A data frame with TDWG distribution information containing:
 #' - `LEVEL3_NAM`: TDWG level 3 region name
 #' - `LEVEL3_COD`: TDWG level 3 region code
 #' - `POWO_ID`: IPNI ID of the plant species
@@ -23,18 +27,18 @@
 #'
 #' @details
 #' This function queries the Plants of the World Online (POWO) API to retrieve
-#' TDWG distribution data for a given plant species. It can search by either:
-#' - Scientific name (searchedName)
-#' - WCVP plant name ID (wcvp_plant_name_id)
+#' TDWG distribution data for native ranges of plant species. The function:
 #'
-#' The function requires a WCVP names data frame to resolve IPNI IDs from
-#' either scientific names or WCVP plant name IDs.
+#' 1. Resolves IPNI ID from either scientific name or WCVP plant name ID
+#' 2. Queries POWO API for distribution data
+#' 3. Processes and standardizes the returned distribution information
+#' 4. Handles character encoding and API errors gracefully
 #'
 #' @note
 #' - Requires an internet connection to access POWO API
-#' - Depends on WCVP names data for IPNI ID resolution
-#' - Returns NULL if no matching distribution data is found
-#' - Handles URL encoding and API response parsing
+#' - Only returns native distribution ranges (not introduced ranges)
+#' - Returns NULL for invalid inputs or API errors
+#' - WCVP names data must contain IPNI ID mappings
 #'
 #' @author
 #' Pablo Hendrigo Alves de Melo,
@@ -56,58 +60,120 @@
 #' )
 #'
 #' # View distribution data
-#' head(distribution)
+#' if (!is.null(distribution)) {
+#'   head(distribution)
+#' }
 #' }
 #'
 #' @importFrom httr GET content http_error
 #' @importFrom jsonlite fromJSON
-#' @importFrom dplyr mutate rename
+#' @importFrom dplyr mutate rename recode
 #' @export
 get_tdwg_distribution <- function(searchedName = NA,
-                                    wcvp_plant_name_id = NA,
-                                    wcvp_names = NA){
+                                  wcvp_plant_name_id = NA,
+                                  wcvp_names = NA) {
+
+  # Validate inputs
+  if (is.na(searchedName) && is.na(wcvp_plant_name_id)) {
+    stop("Either 'searchedName' or 'wcvp_plant_name_id' must be provided.")
+  }
+
+  if (is.na(wcvp_names) || nrow(wcvp_names) == 0) {
+    stop("Valid 'wcvp_names' data frame is required.")
+  }
+
   ipni_id <- NA
 
-  if(!is.na(searchedName))
-  {
+  # Resolve IPNI ID from scientific name
+  if (!is.na(searchedName)) {
     index <- wcvp_names$taxon_name == searchedName &
-             wcvp_names$taxon_status == "Accepted"
-    if(sum(index)>0)
-    {
-      ipni_id <- wcvp_names$ipni_id[index==TRUE]
+      wcvp_names$taxon_status == "Accepted"
+    if (sum(index, na.rm = TRUE) > 0) {
+      ipni_id <- wcvp_names$ipni_id[index]
+      ipni_id <- ipni_id[1]  # Take first match if multiple
     }
   }
 
-  if(!is.na(wcvp_plant_name_id))
-  {
+  # Resolve IPNI ID from WCVP plant name ID
+  if (!is.na(wcvp_plant_name_id)) {
     index <- wcvp_names$plant_name_id == wcvp_plant_name_id
-    if(sum(index)>0)
-    {
-      ipni_id <- wcvp_names$ipni_id[index==TRUE]
+    if (sum(index, na.rm = TRUE) > 0) {
+      ipni_id <- wcvp_names$ipni_id[index]
+      ipni_id <- ipni_id[1]  # Take first match if multiple
     }
   }
 
-  if(!is.na(ipni_id[]))
-  {
-    lookup_url <- paste("http://plantsoftheworldonline.org/api/2/taxon/urn:lsid:ipni.org:names:", ipni_id, sep="")
-    response <- httr::GET(lookup_url, query=list(fields="distribution"))
-    if (! httr::http_error(response)) {
-      returned_data <- jsonlite::fromJSON(httr::content(response, as="text"))
+  # Query POWO API if IPNI ID found
+  if (!is.na(ipni_id)) {
+    lookup_url <- paste0(
+      "http://plantsoftheworldonline.org/api/2/taxon/urn:lsid:ipni.org:names:",
+      ipni_id
+    )
 
+    response <- httr::GET(lookup_url, query = list(fields = "distribution"))
+
+    if (!httr::http_error(response)) {
+      returned_data <- jsonlite::fromJSON(httr::content(response, as = "text"))
       distribution <- returned_data$distribution$natives
 
-      if (! is.null(distribution)) {
-        results = mutate(distribution, POWO_ID=ipni_id)
-        results = rename(results, LEVEL3_NAM=name, LEVEL3_COD=tdwgCode)
-        results = mutate(results, LEVEL3_NAM=recode(LEVEL3_NAM, "á"="a"))
+      if (!is.null(distribution)) {
+        results <- distribution %>%
+          dplyr::mutate(POWO_ID = ipni_id) %>%
+          dplyr::rename(LEVEL3_NAM = name, LEVEL3_COD = tdwgCode) %>%
+          dplyr::mutate(LEVEL3_NAM = dplyr::recode(LEVEL3_NAM, "á" = "a"))
+        return(results)
       }
-
-
     }
-
-    return(results)
-
   }
+
+  # Return NULL if no distribution data found
   return(NULL)
 }
+# get_tdwg_distribution <- function(searchedName = NA,
+#                                     wcvp_plant_name_id = NA,
+#                                     wcvp_names = NA){
+#   ipni_id <- NA
+#
+#   if(!is.na(searchedName))
+#   {
+#     index <- wcvp_names$taxon_name == searchedName &
+#              wcvp_names$taxon_status == "Accepted"
+#     if(sum(index)>0)
+#     {
+#       ipni_id <- wcvp_names$ipni_id[index==TRUE]
+#     }
+#   }
+#
+#   if(!is.na(wcvp_plant_name_id))
+#   {
+#     index <- wcvp_names$plant_name_id == wcvp_plant_name_id
+#     if(sum(index)>0)
+#     {
+#       ipni_id <- wcvp_names$ipni_id[index==TRUE]
+#     }
+#   }
+#
+#   if(!is.na(ipni_id[]))
+#   {
+#     lookup_url <- paste("http://plantsoftheworldonline.org/api/2/taxon/urn:lsid:ipni.org:names:", ipni_id, sep="")
+#     response <- httr::GET(lookup_url, query=list(fields="distribution"))
+#     if (! httr::http_error(response)) {
+#       returned_data <- jsonlite::fromJSON(httr::content(response, as="text"))
+#
+#       distribution <- returned_data$distribution$natives
+#
+#       if (! is.null(distribution)) {
+#         results = mutate(distribution, POWO_ID=ipni_id)
+#         results = rename(results, LEVEL3_NAM=name, LEVEL3_COD=tdwgCode)
+#         results = mutate(results, LEVEL3_NAM=recode(LEVEL3_NAM, "á"="a"))
+#       }
+#
+#
+#     }
+#
+#     return(results)
+#
+#   }
+#   return(NULL)
+# }
 

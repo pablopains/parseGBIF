@@ -1,30 +1,50 @@
-#' @title Download Index Herbariorum data
+#' @title Download Index Herbariorum Data from API
 #' @name get_index_herbariorum
 #'
-#' @description Download the complete Index Herbariorum dataset containing
-#' information about herbaria worldwide, including codes, locations,
-#' and collection statistics.
+#' @description
+#' Downloads herbarium institution data from the Index Herbariorum API maintained
+#' by the New York Botanical Garden. Returns a structured list or data frame
+#' containing information about herbaria worldwide.
+#'
+#' @param url
+#' Character. The API endpoint URL for Index Herbariorum data.
+#' Default is "https://sweetgum.nybg.org/science/api/v1/institutions".
+#'
+#' @param flatten
+#' Logical. If `TRUE` (default), flattens nested JSON structures into
+#' a data frame. If `FALSE`, returns the raw nested list structure.
+#'
+#' @param timeout_sec
+#' Numeric. Timeout in seconds for API request. Default is 30 seconds.
+#'
+#' @param verbose
+#' Logical. If `TRUE`, displays verbose HTTP request information.
+#' Default is `FALSE`.
 #'
 #' @details
-#' This function downloads the complete Index Herbariorum dataset from
-#' the New York Botanical Garden's official CSV endpoint. The dataset
-#' contains information about herbaria institutions worldwide, including
-#' their standard codes, locations, contact information, and collection
-#' statistics.
+#' ## Data Source:
+#' The Index Herbariorum API provides comprehensive information about
+#' herbaria institutions worldwide, including codes, locations, contact
+#' information, and collection statistics.
+#'
+#' ## HTTP Client:
+#' The function preferentially uses `httr2` if available for modern
+#' HTTP handling with retry logic. Falls back to `httr` if `httr2` is
+#' not installed.
+#'
+#' ## Error Handling:
+#' - Implements retry logic for transient errors (403, 500+)
+#' - Provides informative error messages for HTTP failures
+#' - Handles timeout scenarios gracefully
 #'
 #' @return
-#' A tibble containing the Index Herbariorum data with the following
-#' typical columns:
-#' \itemize{
-#'   \item{Code}{Herbarium code (e.g., "NY", "RB", "K")}
-#'   \item{Name}{Full name of the herbarium}
-#'   \item{Country}{Country where the herbarium is located}
-#'   \item{City}{City where the herbarium is located}
-#'   \item{No. Specimens}{Number of specimens in the collection}
-#'   \item{Date Founded}{Date when the herbarium was founded}
-#'   \item{URL}{Website URL of the herbarium}
-#'   \item{...}{Additional columns with detailed information}
-#' }
+#' A list or data frame (depending on `flatten` parameter) containing
+#' Index Herbariorum institution data. Typical structure includes:
+#' - Institution codes and names
+#' - Geographic information (country, city)
+#' - Contact details and URLs
+#' - Collection statistics
+#' - Administrative metadata
 #'
 #' @author
 #' Pablo Hendrigo Alves de Melo,
@@ -32,23 +52,29 @@
 #' Alexandre Monro
 #'
 #' @seealso
-#' \code{\link[parseGBIF]{preprocess_data}},
-#' \code{\link[parseGBIF]{get_gbif_data}}
+#' [`prepare_gbif_occurrence_data()`] for preparing GBIF occurrence data,
+#' [`select_gbif_fields()`] for selecting relevant GBIF fields
 #'
 #' @examples
 #' \donttest{
 #' # Download Index Herbariorum data
-#' herbarium_data <- get_index_herbariorum()
+#' tryCatch({
+#'   herbarium_data <- get_index_herbariorum()
 #'
-#' # View the structure of the data
-#' head(herbarium_data)
+#'   # View the structure of the data
+#'   str(herbarium_data, max.level = 2)
 #'
-#' # Count herbaria by country
-#' table(herbarium_data$Country)
+#'   # Access specific elements
+#'   if (!is.null(herbarium_data$data)) {
+#'     head(herbarium_data$data)
+#'   }
+#' }, error = function(e) {
+#'   message("API request failed: ", e$message)
+#' })
 #' }
 #'
-#' @importFrom readr read_csv
-#' @importFrom utils download.file
+#' @importFrom jsonlite fromJSON
+#' @importFrom utils runif
 #' @export
 get_index_herbariorum <- function(
     url = "https://sweetgum.nybg.org/science/api/v1/institutions",
@@ -112,3 +138,24 @@ get_index_herbariorum <- function(
     return(out)
   }
 }
+
+
+# # httr fallback implementation
+# get_index_herbariorum_httr <- function(url, flatten, timeout_sec, verbose) {
+#   resp <- httr::GET(
+#     url,
+#     httr::add_headers(
+#       "User-Agent" = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 R-httr",
+#       "Accept" = "application/json"
+#     ),
+#     httr::timeout(timeout_sec)
+#   )
+#
+#   if (httr::http_error(resp)) {
+#     stop(sprintf("HTTP error %s accessing %s",
+#                  httr::status_code(resp), url), call. = FALSE)
+#   }
+#
+#   txt <- httr::content(resp, as = "text", encoding = "UTF-8")
+#   jsonlite::fromJSON(txt, flatten = flatten)
+# }

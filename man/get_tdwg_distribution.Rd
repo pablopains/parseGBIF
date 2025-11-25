@@ -11,14 +11,17 @@ get_tdwg_distribution(
 )
 }
 \arguments{
-\item{searchedName}{Character. Scientific name of the plant species to search for.}
+\item{searchedName}{Character. Scientific name of the plant species to search for.
+Either this or \code{wcvp_plant_name_id} must be provided.}
 
-\item{wcvp_plant_name_id}{Character. WCVP plant name ID for the species.}
+\item{wcvp_plant_name_id}{Character. WCVP plant name ID for the species.
+Either this or \code{searchedName} must be provided.}
 
-\item{wcvp_names}{Data frame. WCVP names data containing taxon information.}
+\item{wcvp_names}{Data frame. WCVP names data containing taxon information with columns:
+\code{taxon_name}, \code{taxon_status}, \code{plant_name_id}, \code{ipni_id}.}
 }
 \value{
-Returns a data frame with TDWG distribution information containing:
+A data frame with TDWG distribution information containing:
 \itemize{
 \item \code{LEVEL3_NAM}: TDWG level 3 region name
 \item \code{LEVEL3_COD}: TDWG level 3 region code
@@ -28,25 +31,25 @@ Returns \code{NULL} if no distribution data is found or if inputs are invalid.
 }
 \description{
 Retrieves TDWG (Taxonomic Databases Working Group) distribution data
-for a plant species from Plants of the World Online (POWO) API.
+for a plant species from Plants of the World Online (POWO) API using
+either scientific name or WCVP plant name ID.
 }
 \details{
 This function queries the Plants of the World Online (POWO) API to retrieve
-TDWG distribution data for a given plant species. It can search by either:
-\itemize{
-\item Scientific name (searchedName)
-\item WCVP plant name ID (wcvp_plant_name_id)
+TDWG distribution data for native ranges of plant species. The function:
+\enumerate{
+\item Resolves IPNI ID from either scientific name or WCVP plant name ID
+\item Queries POWO API for distribution data
+\item Processes and standardizes the returned distribution information
+\item Handles character encoding and API errors gracefully
 }
-
-The function requires a WCVP names data frame to resolve IPNI IDs from
-either scientific names or WCVP plant name IDs.
 }
 \note{
 \itemize{
 \item Requires an internet connection to access POWO API
-\item Depends on WCVP names data for IPNI ID resolution
-\item Returns NULL if no matching distribution data is found
-\item Handles URL encoding and API response parsing
+\item Only returns native distribution ranges (not introduced ranges)
+\item Returns NULL for invalid inputs or API errors
+\item WCVP names data must contain IPNI ID mappings
 }
 }
 \examples{
@@ -64,7 +67,9 @@ distribution <- get_tdwg_distribution(
 )
 
 # View distribution data
-head(distribution)
+if (!is.null(distribution)) {
+  head(distribution)
+}
 }
 
 }
