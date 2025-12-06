@@ -93,6 +93,7 @@ prepare_collectionCode <- function(occ = NA, herbarium_data = NA, quiet = FALSE)
     )
 
 
+
   # Sort for consistency
   pares_instituicao_colecao <- pares_instituicao_colecao %>%
     arrange(Ctrl_collectionCode_standardized, Ctrl_collectionCode, Ctrl_institutionCode, code_in_catalogNumber)
