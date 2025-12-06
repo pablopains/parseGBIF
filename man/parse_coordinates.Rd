@@ -7,10 +7,7 @@
 parse_coordinates(
   occ = NA,
   file_occ = NA,
-  iso2_field_name = "Ctrl_countryCode",
-  file_centroids =
-    "https://raw.githubusercontent.com/pablopains/parseGBIF/main/dataRaw/parseGBIF_GADM_centroids.CSV",
-  centroid_round = "point_110m"
+  iso2_field_name = "Ctrl_countryCode"
 )
 }
 \arguments{

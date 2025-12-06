@@ -119,7 +119,7 @@ parse_tdwg_distribution <- function(points, native_range, range_polygons) {
     stop("No valid coordinates found in points data")
   }
 
-  message("Processing ", nrow(points), " occurrence points...")
+  # message("Processing ", nrow(points), " occurrence points...")
 
   # Convert points to sf object with WGS84 CRS
   point_sf <- sf::st_as_sf(
@@ -130,7 +130,7 @@ parse_tdwg_distribution <- function(points, native_range, range_polygons) {
   )
 
   # Filter native range TDWG polygons
-  message("Filtering native range polygons...")
+  # message("Filtering native range polygons...")
   native_tdwg <- range_polygons %>%
     dplyr::filter(LEVEL3_COD %in% native_range$LEVEL3_COD) %>%
     dplyr::select(LEVEL3_COD)
@@ -142,18 +142,18 @@ parse_tdwg_distribution <- function(points, native_range, range_polygons) {
   }
 
   # Ensure CRS compatibility
-  message("Ensuring CRS compatibility...")
+  # message("Ensuring CRS compatibility...")
   native_tdwg <- sf::st_transform(native_tdwg, crs = sf::st_crs(point_sf))
 
   # Validate and repair geometries if necessary
   invalid_geoms <- sum(!sf::st_is_valid(native_tdwg))
   if (invalid_geoms > 0) {
-    message("Repairing ", invalid_geoms, " invalid geometries...")
+    # message("Repairing ", invalid_geoms, " invalid geometries...")
     native_tdwg <- sf::st_make_valid(native_tdwg)
   }
 
   # Perform spatial join
-  message("Performing spatial join...")
+  # message("Performing spatial join...")
   native_points <- sf::st_join(point_sf, native_tdwg)
 
   # Rename the output column
@@ -177,69 +177,3 @@ parse_tdwg_distribution <- function(points, native_range, range_polygons) {
   return(result)
 }
 
-
-# parse_tdwg_distribution <- function(points, native_range, range_polygons){
-#   # point_sf <- sf::st_as_sf(points,
-#   #                          coords=c("parseGBIF_decimalLongitude", "parseGBIF_decimalLatitude"),
-#   #                          crs=sf::st_crs(range_polygons),
-#   #                          remove=FALSE)
-#   # # get shapes of native range
-#   # native_tdwg <- dplyr::filter(range_polygons, LEVEL3_COD %in% native_range$LEVEL3_COD)
-#   # native_tdwg <- dplyr::select(native_tdwg, LEVEL3_COD)
-#   # # clip points to native range with a spatial join
-#   # native_points <- sf::st_join(point_sf, native_tdwg)
-#   # native_points <- dplyr::rename(native_points, native_range=LEVEL3_COD)
-#   # # convert back to normal data frame from sf
-#   # native_points <- tibble::as_tibble(native_points)
-#   # native_points <- dplyr::select(native_points, -geometry)
-#   # native_points
-#
-#   # Garantir que range_polygons tenha um CRS atualizado
-#   # range_polygons <- sf::st_transform(range_polygons, crs = 4326)
-#
-#   # Criar o objeto sf para os pontos, garantindo que o CRS seja WGS84 (EPSG:4326)
-#   point_sf <- sf::st_as_sf(points,
-#                        coords = c("parseGBIF_decimalLongitude", "parseGBIF_decimalLatitude"),
-#                        crs = 4326,  # Define explicitamente o CRS
-#                        remove = FALSE)
-#
-#   # Filtrar a regi?o nativa no shapefile TDWG
-#   native_tdwg <- dplyr::filter(range_polygons, LEVEL3_COD %in% native_range$LEVEL3_COD)
-#   native_tdwg <- dplyr::select(native_tdwg, LEVEL3_COD)
-#
-#   # Garantir que os CRS dos objetos sejam compat?veis antes do join
-#   native_tdwg <- sf::st_transform(native_tdwg, crs = sf::st_crs(point_sf))
-#
-#   native_tdwg <- sf::st_make_valid(native_tdwg)
-#
-#   # # Verificar se h? geometrias inv?lidas em native_tdwg
-#   # if(sum(!sf::st_is_valid(native_tdwg))>0)  # Conta quantas geometrias est?o inv?lidas
-#   # {
-#   #   # Corrigir geometrias inv?lidas
-#   #   native_tdwg <- sf::st_make_valid(native_tdwg)  # Corrige automaticamente
-#   #
-#   #   if(sum(!sf::st_is_valid(native_tdwg))>0)  # Conta quantas geometrias est?o inv?lidas
-#   #   {
-#   #     # Alternativa: Remover geometrias inv?lidas, caso n?o sejam corrig?veis
-#   #     native_tdwg <- native_tdwg[sf::st_is_valid(native_tdwg), ]
-#   #   }
-#   # }
-#
-#
-#   # Realizar a interse??o espacial entre os pontos e as regi?es TDWG
-#   native_points <- sf::st_join(point_sf, native_tdwg)
-#
-#   # Renomear a coluna de sa?da
-#   native_points <- dplyr::rename(native_points, native_range = LEVEL3_COD)
-#
-#   # Converter para tibble e remover a geometria
-#   native_points <- tibble::as_tibble(native_points)
-#   native_points <- dplyr::select(native_points, -geometry)
-#
-#   # # Verificar os CRS para garantir compatibilidade
-#   # print(st_crs(native_tdwg))
-#   # print(st_crs(point_sf))
-#
-#   # Retornar os pontos corrigidos
-#   native_points
-# }

@@ -176,8 +176,6 @@ prepare_collectionCode <- function(occ = NA, herbarium_data = NA, quiet = FALSE)
   return(occ)
 }
 
-
-
 #' #' @title Standardize collection codes using Index Herbariorum
 #' #' @name prepare_collectionCode
 #' #'

@@ -47,7 +47,10 @@ check_tdwg_distribution <- function(occ=NA,
     TDWG_LEVEL3 <- sf::st_transform(TDWG_LEVEL3, crs = 4326)
   }
 
-  nomes <- occ$wcvp_taxon_name %>% unique() %>% na.omit()
+  index <- occ$parseGBIF_dataset_result =='useable'
+
+
+  nomes <- occ$wcvp_taxon_name[index==TRUE] %>% unique() %>% na.omit()
   i=13
 
 
@@ -60,7 +63,7 @@ check_tdwg_distribution <- function(occ=NA,
   i=2
   for(i in 1:NROW(nomes))
   {
-
+    message(nomes[i])
     tdwg_dist <- get_tdwg_distribution(searchedName = nomes[i],
                                        wcvp_names = wcvp)
 
@@ -72,12 +75,6 @@ check_tdwg_distribution <- function(occ=NA,
 
     points <- occ[index==TRUE,]
 
-
-    # points <- occ$occ_voucher %>%
-    #    dplyr::filter(parseGBIF_dataset_result=='useable') %>%
-    #    dplyr::filter(wcvp_taxon_name == nomes[i])
-    #
-
     tdwg_points <- parse_tdwg_distribution(points = points,
                                            native_range = tdwg_dist,
                                            range_polygons = TDWG_LEVEL3)
@@ -87,12 +84,6 @@ check_tdwg_distribution <- function(occ=NA,
     # plot(TDWG_LEVEL3[['geometry']])
     # plot(point_sf, add=TRUE)
     # View(tdwg_dist)
-
-    # write.csv(tdwg_points,
-    #            paste0(folder_gbif,'\\', nomes[i],'.csv'),
-    #            fileEncoding = "UTF-8",
-    #            na = "",
-    #            row.names = FALSE)
 
     tdwg_points_res <- rbind(tdwg_points_res,
                              tdwg_points)

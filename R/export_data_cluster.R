@@ -56,9 +56,9 @@
 #' @importFrom utils rbind
 #' @export
 export_data_cluster <- function(occ_digital_voucher_file = '',
-                             occ_digital_voucher = NA,
-                             merge_unusable_data = TRUE,
-                             n_minimo=10000)
+                                   occ_digital_voucher = NA,
+                                   merge_unusable_data = TRUE,
+                                   n_minimo=10000)
 {
 
   if(is.na(occ_digital_voucher_file))
@@ -74,14 +74,14 @@ export_data_cluster <- function(occ_digital_voucher_file = '',
     }
 
     occ_digital_voucher <- readr::read_csv(occ_digital_voucher_file,
-                               locale = readr::locale(encoding = "UTF-8"),
-                               show_col_types = FALSE) %>% as.data.frame()
+                                           locale = readr::locale(encoding = "UTF-8"),
+                                           show_col_types = FALSE) %>% as.data.frame()
   }
 
-    if (NROW(occ_digital_voucher)==0)
-    {
-      stop("Empty occurrence data frame!")
-    }
+  if (NROW(occ_digital_voucher)==0)
+  {
+    stop("Empty occurrence data frame!")
+  }
 
 
   # divide
@@ -174,146 +174,146 @@ export_data_cluster <- function(occ_digital_voucher_file = '',
   if (NROW(occ_digital_voucher)>=n_minimo)
   {
 
-      print('export_data (1/24)')
-      export_data1 <- export_data(occ_digital_voucher_file = '',
-                                       occ_digital_voucher = occ_digital_voucher[i_k_1==TRUE,],
-                                       merge_unusable_data = merge_unusable_data,
-                                       silence = FALSE)
+    print('export_data (1/24)')
+    export_data1 <- export_data(occ_digital_voucher_file = '',
+                                occ_digital_voucher = occ_digital_voucher[i_k_1==TRUE,],
+                                merge_unusable_data = merge_unusable_data,
+                                silence = FALSE)
 
-      print('export_data (2/24)')
-      export_data2 <- export_data(occ_digital_voucher_file = '',
-                                       occ_digital_voucher = occ_digital_voucher[i_k_2==TRUE,],
-                                       merge_unusable_data = merge_unusable_data,
-                                       silence = TRUE)
-      print('export_data (3/24)')
-      export_data3 <- export_data(occ_digital_voucher_file = '',
-                                       occ_digital_voucher = occ_digital_voucher[i_k_3==TRUE,],
-                                       merge_unusable_data = merge_unusable_data,
-                                       silence = TRUE)
-      print('export_data (4/24)')
-      export_data4 <- export_data(occ_digital_voucher_file = '',
-                                       occ_digital_voucher = occ_digital_voucher[i_k_4==TRUE,],
-                                       merge_unusable_data = merge_unusable_data,
-                                       silence = TRUE)
+    print('export_data (2/24)')
+    export_data2 <- export_data(occ_digital_voucher_file = '',
+                                occ_digital_voucher = occ_digital_voucher[i_k_2==TRUE,],
+                                merge_unusable_data = merge_unusable_data,
+                                silence = TRUE)
+    print('export_data (3/24)')
+    export_data3 <- export_data(occ_digital_voucher_file = '',
+                                occ_digital_voucher = occ_digital_voucher[i_k_3==TRUE,],
+                                merge_unusable_data = merge_unusable_data,
+                                silence = TRUE)
+    print('export_data (4/24)')
+    export_data4 <- export_data(occ_digital_voucher_file = '',
+                                occ_digital_voucher = occ_digital_voucher[i_k_4==TRUE,],
+                                merge_unusable_data = merge_unusable_data,
+                                silence = TRUE)
 
-      print('export_data (5/24)')
-      export_data5 <- export_data(occ_digital_voucher_file = '',
-                                       occ_digital_voucher = occ_digital_voucher[i_k_5==TRUE,],
-                                       merge_unusable_data = merge_unusable_data,
-                                       silence = TRUE)
+    print('export_data (5/24)')
+    export_data5 <- export_data(occ_digital_voucher_file = '',
+                                occ_digital_voucher = occ_digital_voucher[i_k_5==TRUE,],
+                                merge_unusable_data = merge_unusable_data,
+                                silence = TRUE)
 
-      print('export_data (6/24)')
-      export_data6 <- export_data(occ_digital_voucher_file = '',
-                                       occ_digital_voucher = occ_digital_voucher[i_k_6==TRUE,],
-                                       merge_unusable_data = merge_unusable_data,
-                                       silence = TRUE)
+    print('export_data (6/24)')
+    export_data6 <- export_data(occ_digital_voucher_file = '',
+                                occ_digital_voucher = occ_digital_voucher[i_k_6==TRUE,],
+                                merge_unusable_data = merge_unusable_data,
+                                silence = TRUE)
 
-      print('export_data (7/24)')
-      export_data7 <- export_data(occ_digital_voucher_file = '',
-                                       occ_digital_voucher = occ_digital_voucher[i_k_7==TRUE,],
-                                       merge_unusable_data = merge_unusable_data,
-                                       silence = TRUE)
-      print('export_data (8/24)')
-      export_data8 <- export_data(occ_digital_voucher_file = '',
-                                       occ_digital_voucher = occ_digital_voucher[i_k_8==TRUE,],
-                                       merge_unusable_data = merge_unusable_data,
-                                       silence = TRUE)
+    print('export_data (7/24)')
+    export_data7 <- export_data(occ_digital_voucher_file = '',
+                                occ_digital_voucher = occ_digital_voucher[i_k_7==TRUE,],
+                                merge_unusable_data = merge_unusable_data,
+                                silence = TRUE)
+    print('export_data (8/24)')
+    export_data8 <- export_data(occ_digital_voucher_file = '',
+                                occ_digital_voucher = occ_digital_voucher[i_k_8==TRUE,],
+                                merge_unusable_data = merge_unusable_data,
+                                silence = TRUE)
 
-      print('export_data (9/24)')
-      export_data9 <- export_data(occ_digital_voucher_file = '',
-                                       occ_digital_voucher = occ_digital_voucher[i_k_9==TRUE,],
-                                       merge_unusable_data = merge_unusable_data,
-                                       silence = TRUE)
+    print('export_data (9/24)')
+    export_data9 <- export_data(occ_digital_voucher_file = '',
+                                occ_digital_voucher = occ_digital_voucher[i_k_9==TRUE,],
+                                merge_unusable_data = merge_unusable_data,
+                                silence = TRUE)
 
-      print('export_data (10/24)')
-      export_data10 <- export_data(occ_digital_voucher_file = '',
-                                        occ_digital_voucher = occ_digital_voucher[i_k_10==TRUE,],
-                                        merge_unusable_data = merge_unusable_data,
-                                        silence = TRUE)
+    print('export_data (10/24)')
+    export_data10 <- export_data(occ_digital_voucher_file = '',
+                                 occ_digital_voucher = occ_digital_voucher[i_k_10==TRUE,],
+                                 merge_unusable_data = merge_unusable_data,
+                                 silence = TRUE)
 
-      print('export_data (11/24)')
-      export_data11 <- export_data(occ_digital_voucher_file = '',
-                                        occ_digital_voucher = occ_digital_voucher[i_k_11==TRUE,],
-                                        merge_unusable_data = merge_unusable_data,
-                                        silence = TRUE)
+    print('export_data (11/24)')
+    export_data11 <- export_data(occ_digital_voucher_file = '',
+                                 occ_digital_voucher = occ_digital_voucher[i_k_11==TRUE,],
+                                 merge_unusable_data = merge_unusable_data,
+                                 silence = TRUE)
 
-      print('export_data (12/24)')
-      export_data12 <- export_data(occ_digital_voucher_file = '',
-                                        occ_digital_voucher = occ_digital_voucher[i_k_12==TRUE,],
-                                        merge_unusable_data = merge_unusable_data,
-                                        silence = TRUE)
+    print('export_data (12/24)')
+    export_data12 <- export_data(occ_digital_voucher_file = '',
+                                 occ_digital_voucher = occ_digital_voucher[i_k_12==TRUE,],
+                                 merge_unusable_data = merge_unusable_data,
+                                 silence = TRUE)
 
-      print('export_data (13/24)')
-      export_data13 <- export_data(occ_digital_voucher_file = '',
-                                        occ_digital_voucher = occ_digital_voucher[i_k_13==TRUE,],
-                                        merge_unusable_data = merge_unusable_data,
-                                        silence = TRUE)
+    print('export_data (13/24)')
+    export_data13 <- export_data(occ_digital_voucher_file = '',
+                                 occ_digital_voucher = occ_digital_voucher[i_k_13==TRUE,],
+                                 merge_unusable_data = merge_unusable_data,
+                                 silence = TRUE)
 
-      print('export_data (14/24)')
-      export_data14 <- export_data(occ_digital_voucher_file = '',
-                                        occ_digital_voucher = occ_digital_voucher[i_k_14==TRUE,],
-                                        merge_unusable_data = merge_unusable_data,
-                                        silence = TRUE)
+    print('export_data (14/24)')
+    export_data14 <- export_data(occ_digital_voucher_file = '',
+                                 occ_digital_voucher = occ_digital_voucher[i_k_14==TRUE,],
+                                 merge_unusable_data = merge_unusable_data,
+                                 silence = TRUE)
 
-      print('export_data (15/24)')
-      export_data15 <- export_data(occ_digital_voucher_file = '',
-                                        occ_digital_voucher = occ_digital_voucher[i_k_15==TRUE,],
-                                        merge_unusable_data = merge_unusable_data,
-                                        silence = TRUE)
+    print('export_data (15/24)')
+    export_data15 <- export_data(occ_digital_voucher_file = '',
+                                 occ_digital_voucher = occ_digital_voucher[i_k_15==TRUE,],
+                                 merge_unusable_data = merge_unusable_data,
+                                 silence = TRUE)
 
-      print('export_data (16/24)')
-      export_data16 <- export_data(occ_digital_voucher_file = '',
-                                        occ_digital_voucher = occ_digital_voucher[i_k_16==TRUE,],
-                                        merge_unusable_data = merge_unusable_data,
-                                        silence = TRUE)
+    print('export_data (16/24)')
+    export_data16 <- export_data(occ_digital_voucher_file = '',
+                                 occ_digital_voucher = occ_digital_voucher[i_k_16==TRUE,],
+                                 merge_unusable_data = merge_unusable_data,
+                                 silence = TRUE)
 
-      print('export_data (17/24)')
-      export_data17 <- export_data(occ_digital_voucher_file = '',
-                                        occ_digital_voucher = occ_digital_voucher[i_k_17==TRUE,],
-                                        merge_unusable_data = merge_unusable_data,
-                                        silence = TRUE)
+    print('export_data (17/24)')
+    export_data17 <- export_data(occ_digital_voucher_file = '',
+                                 occ_digital_voucher = occ_digital_voucher[i_k_17==TRUE,],
+                                 merge_unusable_data = merge_unusable_data,
+                                 silence = TRUE)
 
-      print('export_data (18/24)')
-      export_data18 <- export_data(occ_digital_voucher_file = '',
-                                        occ_digital_voucher = occ_digital_voucher[i_k_18==TRUE,],
-                                        merge_unusable_data = merge_unusable_data,
-                                        silence = TRUE)
+    print('export_data (18/24)')
+    export_data18 <- export_data(occ_digital_voucher_file = '',
+                                 occ_digital_voucher = occ_digital_voucher[i_k_18==TRUE,],
+                                 merge_unusable_data = merge_unusable_data,
+                                 silence = TRUE)
 
-      print('export_data (19/24)')
-      export_data19 <- export_data(occ_digital_voucher_file = '',
-                                        occ_digital_voucher = occ_digital_voucher[i_k_19==TRUE,],
-                                        merge_unusable_data = merge_unusable_data,
-                                        silence = TRUE)
+    print('export_data (19/24)')
+    export_data19 <- export_data(occ_digital_voucher_file = '',
+                                 occ_digital_voucher = occ_digital_voucher[i_k_19==TRUE,],
+                                 merge_unusable_data = merge_unusable_data,
+                                 silence = TRUE)
 
-      print('export_data (20/24)')
-      export_data20 <- export_data(occ_digital_voucher_file = '',
-                                        occ_digital_voucher = occ_digital_voucher[i_k_20==TRUE,],
-                                        merge_unusable_data = merge_unusable_data,
-                                        silence = TRUE)
+    print('export_data (20/24)')
+    export_data20 <- export_data(occ_digital_voucher_file = '',
+                                 occ_digital_voucher = occ_digital_voucher[i_k_20==TRUE,],
+                                 merge_unusable_data = merge_unusable_data,
+                                 silence = TRUE)
 
-      print('export_data (21/24)')
-      export_data21 <- export_data(occ_digital_voucher_file = '',
-                                        occ_digital_voucher = occ_digital_voucher[i_k_21==TRUE,],
-                                        merge_unusable_data = merge_unusable_data,
-                                        silence = TRUE)
+    print('export_data (21/24)')
+    export_data21 <- export_data(occ_digital_voucher_file = '',
+                                 occ_digital_voucher = occ_digital_voucher[i_k_21==TRUE,],
+                                 merge_unusable_data = merge_unusable_data,
+                                 silence = TRUE)
 
-      print('export_data (22/24)')
-      export_data22 <- export_data(occ_digital_voucher_file = '',
-                                        occ_digital_voucher = occ_digital_voucher[i_k_22==TRUE,],
-                                        merge_unusable_data = merge_unusable_data,
-                                        silence = TRUE)
+    print('export_data (22/24)')
+    export_data22 <- export_data(occ_digital_voucher_file = '',
+                                 occ_digital_voucher = occ_digital_voucher[i_k_22==TRUE,],
+                                 merge_unusable_data = merge_unusable_data,
+                                 silence = TRUE)
 
-      print('export_data (23/24)')
-      export_data23 <- export_data(occ_digital_voucher_file = '',
-                                        occ_digital_voucher = occ_digital_voucher[i_k_23==TRUE,],
-                                        merge_unusable_data = merge_unusable_data,
-                                        silence = TRUE)
+    print('export_data (23/24)')
+    export_data23 <- export_data(occ_digital_voucher_file = '',
+                                 occ_digital_voucher = occ_digital_voucher[i_k_23==TRUE,],
+                                 merge_unusable_data = merge_unusable_data,
+                                 silence = TRUE)
 
-      print('export_data (24/24)')
-      export_data24 <- export_data(occ_digital_voucher_file = '',
-                                        occ_digital_voucher = occ_digital_voucher[i_k_24==TRUE,],
-                                        merge_unusable_data = merge_unusable_data,
-                                        silence = TRUE)
+    print('export_data (24/24)')
+    export_data24 <- export_data(occ_digital_voucher_file = '',
+                                 occ_digital_voucher = occ_digital_voucher[i_k_24==TRUE,],
+                                 merge_unusable_data = merge_unusable_data,
+                                 silence = TRUE)
 
     results <- list(all_data = {})
 
@@ -343,23 +343,23 @@ export_data_cluster <- function(occ_digital_voucher_file = '',
                               export_data24$all_data) %>%
       data.frame(stringsAsFactors = FALSE)
 
-      remove(export_data1 , export_data2 , export_data3 ,
-      export_data4 , export_data5 , digital_voucher6 ,
-      export_data7 , export_data8 , export_data9 ,
-      export_data10 , export_data11 , export_data12 ,
-      export_data13 , export_data14 , export_data15 ,
-      export_data16 , export_data17 , export_data18 ,
-      export_data19 , export_data20 , export_data21 ,
-      export_data22 , export_data23 , export_data24)
+    remove(export_data1 , export_data2 , export_data3 ,
+           export_data4 , export_data5 , digital_voucher6 ,
+           export_data7 , export_data8 , export_data9 ,
+           export_data10 , export_data11 , export_data12 ,
+           export_data13 , export_data14 , export_data15 ,
+           export_data16 , export_data17 , export_data18 ,
+           export_data19 , export_data20 , export_data21 ,
+           export_data22 , export_data23 , export_data24)
 
   }else
   {
 
     print('export_data')
     results <- export_data(occ_digital_voucher_file = '',
-                                occ_digital_voucher = occ_digital_voucher,
-                                merge_unusable_data = merge_unusable_data,
-                                silence = TRUE)
+                           occ_digital_voucher = occ_digital_voucher,
+                           merge_unusable_data = merge_unusable_data,
+                           silence = TRUE)
 
 
   }
