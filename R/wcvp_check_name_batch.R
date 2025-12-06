@@ -178,7 +178,7 @@ wcvp_check_name_batch <- function(occ = NA,
     dplyr::mutate(wcvp_searchedName = Ctrl_scientificName) %>%
     dplyr::select(tidyselect::all_of(colunas_wcvp_sel))
 
-  name_search_wcvp <- occ_all[index==TRUE,]$wcvp_searchedName %>% unique() %>% as.character()
+  name_search_wcvp <- occ_all[index==TRUE,]$wcvp_searchedName %>% unique() %>% as.character() %>% sort()
 
   x <- {}
   i <- 1
