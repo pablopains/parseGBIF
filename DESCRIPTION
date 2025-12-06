@@ -1,7 +1,7 @@
 Package: parseGBIF
 Type: Package
 Title: A new R package to parse plant species occurrence records into unique collection events efficiently reduces data redundancy
-Version: 2.1.0
+Version: 2.1.1
 Date: 2025-11-25
 Authors@R: c(
     person("Pablo", "Melo", email = "pablopains@yahoo.com.br", role = c("aut", "cre"), 
