@@ -1,51 +1,51 @@
-#' @title Generate Collection Event Key for Duplicate Grouping
-#' @name generate_collection_event_key
+#' @title Generate Collection Event Key Version 2
+#' @name generate_collection_event_key_v2
 #'
 #' @description
-#' Generates a unique key to identify physical and digital duplicates of collection events.
-#' Combines the primary collector's surname, collector number, and botanical family to create
-#' a standardized key (family + recordedByStandardized + recordNumber_Standard) that enables
-#' grouping duplicates from the same unique collection event.
+#' Generates standardized collection event keys for biological occurrence data using
+#' optimized vectorized operations. Matches recorded collector names against collector
+#' dictionaries and creates unique identifiers based on family, collector, record number,
+#' and year for efficient duplicate grouping.
 #'
 #' @param occ
-#' Data frame. GBIF occurrence table with selected columns as returned by
-#' `select_gbif_fields(columns = 'standard')`.
+#' Data frame. GBIF occurrence data containing required columns:
+#' `Ctrl_recordNumber`, `Ctrl_family`, `Ctrl_recordedBy`, `Ctrl_year`.
 #'
 #' @param collectorDictionary_checked_file
-#' Character. Path to verified collector dictionary file.
+#' Character. Path to verified collector dictionary CSV file.
 #'
 #' @param collectorDictionary_checked
-#' Data frame. Verified collector dictionary data.
+#' Data frame. Pre-loaded verified collector dictionary.
 #'
 #' @param collectorDictionary_file
-#' Character. Path to base collector dictionary file. If empty, uses the default
-#' dictionary from the parseGBIF GitHub repository.
+#' Character. Path to base collector dictionary CSV file. If provided, loads
+#' default dictionary from parseGBIF GitHub repository.
 #'
 #' @param collectorDictionary
-#' Data frame. Base collector dictionary data.
+#' Data frame. Pre-loaded base collector dictionary.
 #'
 #' @param silence
 #' Logical. If `TRUE`, suppresses progress messages. Default is `TRUE`.
 #'
 #' @details
-#' ## Fields Created:
-#' - `Ctrl_nameRecordedBy_Standard`: Standardized collector surname
-#' - `Ctrl_recordNumber_Standard`: Numeric-only collector number
-#' - `Ctrl_key_family_recordedBy_recordNumber`: Primary collection event key
-#' - `Ctrl_key_year_recordedBy_recordNumber`: Alternative key with year
+#' ## Key Improvements from Version 1:
+#' - Vectorized operations replacing loops for better performance
+#' - Efficient data.table joins for large datasets
+#' - Memory-optimized dictionary loading
+#' - Batch processing of collector name matching
 #'
-#' ## Process:
-#' 1. Loads and merges collector dictionaries
-#' 2. Standardizes collector names using verified dictionary
-#' 3. Extracts numeric components from collector numbers
-#' 4. Generates unique keys for collection event grouping
+#' ## Processing Steps:
+#' 1. Loads and validates collector dictionaries
+#' 2. Performs vectorized matching of collector names
+#' 3. Standardizes record numbers (numeric extraction)
+#' 4. Generates unique collection event keys
 #' 5. Identifies new collectors for dictionary updates
 #'
 #' @return
 #' A list with three components:
-#' - `occ_collectorsDictionary`: Occurrence data with generated keys and standardized fields
-#' - `summary`: Summary of record counts per collection event key
-#' - `collectorsDictionary_add`: New collectors identified for dictionary updates
+#' - `occ_collectorsDictionary`: Occurrence data with standardized names and collection keys
+#' - `summary`: Frequency summary of collection keys
+#' - `collectorsDictionary_add`: New collector entries for dictionary updates
 #'
 #' @author
 #' Pablo Hendrigo Alves de Melo,
@@ -54,260 +54,298 @@
 #'
 #' @encoding UTF-8
 #'
-#' @seealso
-#' [`collectors_get_name()`] for extracting collector names from recordedBy fields,
-#' [`collectors_prepare_dictionary()`] for creating collector dictionaries
-#'
 #' @examples
 #' \donttest{
-#' # Generate collection event keys
-#' result <- generate_collection_event_key(
+#' # Generate collection event keys with optimized processing
+#' result <- generate_collection_event_key_v2(
 #'   occ = occ_data,
-#'   collectorDictionary_checked_file = 'collectorDictionary_checked.csv'
+#'   collectorDictionary_checked_file = 'collectorDictionary_checked.csv',
+#'   silence = FALSE
 #' )
 #'
-#' # View results
+#' # View optimized results
 #' names(result)
 #' head(result$occ_collectorsDictionary)
 #' head(result$summary)
 #' }
 #'
-#' @importFrom dplyr select mutate filter count arrange anti_join
-#' @importFrom readr read_csv
-#' @importFrom stringr str_replace_all str_trim
+#' @importFrom dplyr bind_rows mutate select rename distinct left_join coalesce
+#' @importFrom dplyr if_else arrange desc count all_of case_when
+#' @importFrom readr read_csv locale
+#' @importFrom stringr str_replace_all
 #' @importFrom data.table as.data.table
+#' @importFrom utils rm
 #' @export
-generate_collection_event_key <- function(occ=NA,
-                                      collectorDictionary_checked_file = NULL,
-                                      collectorDictionary_checked = NULL,
-                                      collectorDictionary_file = NULL,
-                                      collectorDictionary = NULL,
-                                      silence = TRUE)
-{
+generate_collection_event_key <- function(occ = NA,
+                                             collectorDictionary_checked_file = NULL,
+                                             collectorDictionary_checked = NULL,
+                                             collectorDictionary_file = NULL,
+                                             collectorDictionary = NULL,
+                                             silence = TRUE) {
 
-  print('Loading collectorDictionary...')
+  # 1. Efficient dictionary loading
+  if (!silence) message('Loading collectorDictionary...')
 
-  # if(collectorDictionary_file=='' | is.na(collectorDictionary_file) )
-  # {
-  #   stop("Invalid Collector's Dictionary!")
-  # }
-  #
-  # collectorDictionary <- readr::read_csv(collectorDictionary_file,
-  #                                        locale = readr::locale(encoding = "UTF-8"),
-  #                                        show_col_types = FALSE)
+  if (is.null(collectorDictionary) && !is.null(collectorDictionary_file)) {
+    if (!silence) message("Loading parseGBIF GitHub dictionaries...")
 
-  if (!is.null(collectorDictionary_file))
-  {
-
-    if (is.null(collectorDictionary))
-    {
-      collectorDictionary <- rbind(readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_1.csv',
-                                                   locale = readr::locale(encoding = 'UTF-8'),
-                                                   show_col_types = FALSE),
-                                   readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_2.csv',
-                                                   locale = readr::locale(encoding = 'UTF-8'),
-                                                   show_col_types = FALSE))
-    }
+    # Load dictionaries in parallel (conceptually)
+    dict1 <- readr::read_csv(
+      'https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_1.csv',
+      locale = readr::locale(encoding = 'UTF-8'),
+      show_col_types = FALSE
+    )
+    dict2 <- readr::read_csv(
+      'https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_2.csv',
+      locale = readr::locale(encoding = 'UTF-8'),
+      show_col_types = FALSE
+    )
+    collectorDictionary <- dplyr::bind_rows(dict1, dict2)
   }
 
-
-  if(NROW(collectorDictionary)==0 | any(colnames(collectorDictionary) %in% c('Ctrl_nameRecordedBy_Standard',
-                                                                             'Ctrl_recordedBy'
-                                                                             # 'Ctrl_notes',
-                                                                             # 'collectorDictionary',
-                                                                             # 'Ctrl_update',
-                                                                             # 'collectorName',
-                                                                             # 'Ctrl_fullName',
-                                                                             # 'Ctrl_fullNameII',
-                                                                             # 'CVStarrVirtualHerbarium_PersonDetails'
-                                                                             ))==FALSE)
-  {
-    stop("Empty Collector's Dictionary!")
+  # Validation
+  required_cols <- c('Ctrl_nameRecordedBy_Standard', 'Ctrl_recordedBy')
+  if (NROW(collectorDictionary) == 0 || !all(required_cols %in% colnames(collectorDictionary))) {
+    stop("Invalid Collector's Dictionary structure!")
   }
 
+  # 2. Optimized dictionary processing
   collectorDictionary <- collectorDictionary %>%
-    # dplyr::mutate(Ctrl_recordedBy = Ctrl_recordedBy %>% toupper()) %>%
+    dplyr::select(Ctrl_recordedBy, Ctrl_nameRecordedBy_Standard) %>%
+    dplyr::rename(Ctrl_nameRecordedBy_Standard_CNCFlora = Ctrl_nameRecordedBy_Standard) %>%
     data.table::as.data.table()
 
-
-  if(! silence == TRUE)
-  {
-    print('Loading collectorDictionary checked...')
+  # 3. Load verified dictionary
+  if (!is.null(collectorDictionary_checked_file) && is.null(collectorDictionary_checked)) {
+    collectorDictionary_checked <- readr::read_csv(
+      collectorDictionary_checked_file,
+      locale = readr::locale(encoding = "UTF-8"),
+      show_col_types = FALSE
+    )
   }
 
-  if( !is.null(collectorDictionary_checked_file) )
-  {
-    collectorDictionary_checked <- readr::read_csv(collectorDictionary_checked_file,
-                                                   locale = readr::locale(encoding = "UTF-8"),
-                                                   show_col_types = FALSE)
+  if (NROW(collectorDictionary_checked) == 0 || !all(required_cols %in% colnames(collectorDictionary_checked))) {
+    stop("Invalid verified Collector's Dictionary structure!")
   }
 
+  collectorDictionary_checked <- data.table::as.data.table(collectorDictionary_checked)
 
-  if(NROW(collectorDictionary_checked)==0 | any(colnames(collectorDictionary_checked) %in% c('Ctrl_nameRecordedBy_Standard',
-                                                                             'Ctrl_recordedBy'
-                                                                             # 'Ctrl_notes',
-                                                                             # 'collectorDictionary',
-                                                                             # 'Ctrl_update',
-                                                                             # 'collectorName',
-                                                                             # 'Ctrl_fullName',
-                                                                             # 'Ctrl_fullNameII',
-                                                                             # 'CVStarrVirtualHerbarium_PersonDetails'
-                                                                             ))==FALSE)
-  {
-    stop("Empty Collector's Dictionary checked!")
-  }
+  # 4. Identify new collectors using anti-join
+  collectorDictionary_checked_new <- dplyr::anti_join(
+    collectorDictionary_checked,
+    collectorDictionary,
+    by = "Ctrl_recordedBy"
+  ) %>%
+    dplyr::select(dplyr::all_of(required_cols))
 
+  # 5. Pre-process occurrence data
+  if (NROW(occ) == 0) stop("Empty occurrence data!")
 
-  collectorDictionary_checked <- collectorDictionary_checked %>%
-    # dplyr::mutate(Ctrl_recordedBy = Ctrl_recordedBy %>% toupper(),
-    #               Ctrl_nameRecordedBy_Standard = Ctrl_nameRecordedBy_Standard %>% toupper()) %>%
+  occ <- occ %>%
+    dplyr::select(Ctrl_recordNumber, Ctrl_family, Ctrl_recordedBy, Ctrl_year) %>%
+    dplyr::mutate(
+      Ctrl_recordedBy = toupper(Ctrl_recordedBy),
+      Ctrl_nameRecordedBy_Standard = NA_character_
+    ) %>%
     data.table::as.data.table()
 
+  # 6. Vectorized collector name matching (replaces loop)
+  collectorDictionary_lookup <- collectorDictionary_checked %>%
+    dplyr::select(Ctrl_recordedBy, Ctrl_nameRecordedBy_Standard) %>%
+    dplyr::distinct(Ctrl_recordedBy, .keep_all = TRUE)
 
-  if(NROW(occ)==0)
-  {
-    stop("Occurrence is empty!")
-  }
+  occ <- occ %>%
+    dplyr::left_join(collectorDictionary_lookup, by = "Ctrl_recordedBy", suffix = c("", ".y")) %>%
+    dplyr::mutate(
+      Ctrl_nameRecordedBy_Standard = dplyr::coalesce(Ctrl_nameRecordedBy_Standard.y, Ctrl_nameRecordedBy_Standard),
+      Ctrl_nameRecordedBy_Standard = dplyr::if_else(
+        is.na(Ctrl_nameRecordedBy_Standard),
+        "NOT-FOUND-COLLECTOR",
+        Ctrl_nameRecordedBy_Standard
+      )
+    ) %>%
+    dplyr::select(-Ctrl_nameRecordedBy_Standard.y)
 
+  # 7. Vectorized final processing
+  occ <- occ %>%
+    dplyr::mutate(
+      Ctrl_recordNumber_Standard = stringr::str_replace_all(Ctrl_recordNumber, "[^0-9]", ""),
+      Ctrl_recordNumber_Standard = dplyr::case_when(
+        is.na(Ctrl_recordNumber_Standard) | Ctrl_recordNumber_Standard == "" ~ "",
+        TRUE ~ as.character(as.integer(Ctrl_recordNumber_Standard))
+      ),
+      Ctrl_recordNumber_Standard = dplyr::if_else(
+        is.na(Ctrl_recordNumber_Standard), "", Ctrl_recordNumber_Standard
+      ),
+      Ctrl_key_family_recordedBy_recordNumber = paste(
+        toupper(trimws(Ctrl_family)),
+        Ctrl_nameRecordedBy_Standard,
+        Ctrl_recordNumber_Standard,
+        sep = '_'
+      ),
+      Ctrl_key_year_recordedBy_recordNumber = paste(
+        dplyr::if_else(is.na(Ctrl_year), "noYear", as.character(Ctrl_year)),
+        Ctrl_nameRecordedBy_Standard,
+        Ctrl_recordNumber_Standard,
+        sep = '_'
+      )
+    )
 
-   colunas <- colnames(collectorDictionary)
+  # 8. Optimized summary
+  summary <- occ %>%
+    dplyr::count(Ctrl_key_family_recordedBy_recordNumber, name = "numberOfRecords") %>%
+    dplyr::arrange(dplyr::desc(numberOfRecords))
 
-   collectorDictionary <- collectorDictionary %>%
-      dplyr::rename(Ctrl_nameRecordedBy_Standard_CNCFlora = Ctrl_nameRecordedBy_Standard) %>%
-      dplyr::select(Ctrl_recordedBy, Ctrl_nameRecordedBy_Standard_CNCFlora)
+  # 9. Final output
+  result_cols <- c(
+    'Ctrl_nameRecordedBy_Standard', 'Ctrl_recordNumber_Standard',
+    'Ctrl_key_family_recordedBy_recordNumber', 'Ctrl_key_year_recordedBy_recordNumber'
+  )
 
-   # # collectorDictionary_checked$Ctrl_recordedBy <- collectorDictionary_checked$Ctrl_recordedBy %>%
-   # #    toupper() %>% as.character()
-   #
-   # collectorDictionary$Ctrl_recordedBy <- collectorDictionary$Ctrl_recordedBy %>%
-   #    toupper() %>% as.character()
-
-   collectorDictionary_checked_new <- anti_join(collectorDictionary_checked,
-                                       collectorDictionary,
-                                       by = c('Ctrl_recordedBy')) %>%
-      dplyr::select(colunas)
-
-   ####
-
-   occ <- occ %>%
-     dplyr::select(Ctrl_recordNumber, Ctrl_family, Ctrl_recordedBy, Ctrl_year)
-
-   occ <- occ %>%
-      dplyr::mutate(Ctrl_nameRecordedBy_Standard='')
-
-   recordedBy_unique <- occ$Ctrl_recordedBy %>% unique() %>%  as.factor()
-   # recordedBy_unique <- recordedBy_unique %>% toupper()
-   # NROW(recordedBy_unique)
-
-   if(! silence == TRUE)
-   {
-     print("let's go...")
-     # print(NROW(recordedBy_unique))
-   }
-
-   # atualizando tabela de occorencias
-
-   rt <- NROW(recordedBy_unique)
-   ri <- 0
-
-   occ$Ctrl_recordedBy <- occ$Ctrl_recordedBy %>% toupper()
-
-   r=recordedBy_unique[1]
-   s <- 0
-
-   for (r in recordedBy_unique)
-   {
-      ri <- ri + 1
-      s <- s+1
-
-
-      if (is.na(r)) {next}
-      # index_occ <- (occ$Ctrl_recordedBy %>% toupper() %in% r) %>% ifelse(is.na(.), FALSE,.)
-      index_occ <- (occ$Ctrl_recordedBy %in% r) %>% ifelse(is.na(.), FALSE,.)
-      num_records <- NROW(occ[index_occ==TRUE,])
-      index_ajusted <- (collectorDictionary_checked$Ctrl_recordedBy == r) %>% ifelse(is.na(.), FALSE,.)
-
-      if(! silence == TRUE)
-      {
-        # print(paste0(ri, ' de ', rt, ' - ', r,' : ',num_records, ' registros' ))
-        if(s%%10==0){print(paste0(s, ' de ',rt))}
-
-      }
-
-
-
-      if (NROW(collectorDictionary_checked[index_ajusted==TRUE,]) == 0)
-      {
-         # occ[index_occ==TRUE, c('Ctrl_nameRecordedBy_Standard')] =
-         #    data.frame(Ctrl_nameRecordedBy_Standard  = 'undefined collector')
-         print(r)
-         print('in ajusted')
-         next
-      }
-
-      if (num_records == 0)
-      {
-         print(r)
-         print('table')
-         break
-      }
-
-      collectorDictionary_checked_tmp <- collectorDictionary_checked %>%
-         dplyr::filter(index_ajusted) %>%
-         dplyr::select(Ctrl_nameRecordedBy_Standard)
-
-      # 09-09-2022
-      collectorDictionary_checked_tmp <- collectorDictionary_checked_tmp[1,]
-
-      # 18-10-21
-      #pode-se ajustar aqui as duplicações
-
-      occ[index_occ==TRUE, c('Ctrl_nameRecordedBy_Standard')] =
-         data.frame(Ctrl_nameRecordedBy_Standard  = collectorDictionary_checked_tmp)
-
-   }
-
-   if(! silence == TRUE)
-   {
-      print('...finished!')
-   }
-
-   occ$Ctrl_recordNumber_Standard <- str_replace_all(occ$Ctrl_recordNumber, "[^0-9]", "")
-
-
-   occ$Ctrl_recordNumber_Standard <- ifelse(is.na(occ$Ctrl_recordNumber_Standard) |
-                                                   occ$Ctrl_recordNumber_Standard=='',"",occ$Ctrl_recordNumber_Standard  %>% strtoi())
-   # tirar o NA do numero
-   occ$Ctrl_recordNumber_Standard <- ifelse(is.na(occ$Ctrl_recordNumber_Standard),'',occ$Ctrl_recordNumber_Standard)
-
-   occ$Ctrl_key_family_recordedBy_recordNumber <- ""
-   occ <- occ %>%
-      dplyr::mutate(Ctrl_key_family_recordedBy_recordNumber =
-                       paste(Ctrl_family %>% toupper() %>% glue::trim(),
-                             Ctrl_nameRecordedBy_Standard,
-                             Ctrl_recordNumber_Standard,
-                             sep='_'))
-
-   occ$Ctrl_key_year_recordedBy_recordNumber <- ""
-   occ <- occ %>%
-      dplyr::mutate(Ctrl_key_year_recordedBy_recordNumber =
-                       paste(ifelse(Ctrl_year %>% is.na() == TRUE, 'noYear',Ctrl_year)  %>% glue::trim(),
-                             Ctrl_nameRecordedBy_Standard,
-                             Ctrl_recordNumber_Standard,
-                             sep='_'))
-
-
-   # # numero de registros por frase saída in
-   res_in <- occ %>% dplyr::count(paste0(Ctrl_key_family_recordedBy_recordNumber))
-   colnames(res_in) <- c('Key',
-                         'numberOfRecords')
-   res_in <- res_in %>% dplyr::arrange_at(c('numberOfRecords'), desc )
-
-   # print(occ$Ctrl_key_family_recordedBy_recordNumber %>% unique())
-   return(list(occ_collectorsDictionary = occ %>%
-                 dplyr::select(Ctrl_nameRecordedBy_Standard, Ctrl_recordNumber_Standard, Ctrl_key_family_recordedBy_recordNumber, Ctrl_key_year_recordedBy_recordNumber),
-               summary  = res_in,
-               collectorsDictionary_add = collectorDictionary_checked_new))
-
+  list(
+    occ_collectorsDictionary = occ %>% dplyr::select(dplyr::all_of(result_cols)),
+    summary = summary,
+    collectorsDictionary_add = collectorDictionary_checked_new
+  )
 }
-
+# generate_collection_event_key_v2 <- function(occ = NA,
+#                                           collectorDictionary_checked_file = NULL,
+#                                           collectorDictionary_checked = NULL,
+#                                           collectorDictionary_file = NULL,
+#                                           collectorDictionary = NULL,
+#                                           silence = TRUE) {
+#
+#   # 1. Carregamento mais eficiente dos dicionários
+#   if (!silence) print('Loading collectorDictionary...')
+#
+#   if (is.null(collectorDictionary)) {
+#     if (!is.null(collectorDictionary_file)) {
+#
+#       if (!silence) print("Lendo Github parseGBIF...")
+#
+#       # Carregamento paralelo dos arquivos
+#       dict1 <- readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_1.csv',
+#                                locale = readr::locale(encoding = 'UTF-8'),
+#                                show_col_types = FALSE)
+#       dict2 <- readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_2.csv',
+#                                locale = readr::locale(encoding = 'UTF-8'),
+#                                show_col_types = FALSE)
+#       collectorDictionary <- dplyr::bind_rows(dict1, dict2)
+#       rm(dict1, dict2) # Libera memória
+#     }
+#   }
+#
+#   # Validação mais rápida
+#   required_cols <- c('Ctrl_nameRecordedBy_Standard', 'Ctrl_recordedBy')
+#
+#   if (NROW(collectorDictionary) == 0 || !all(required_cols %in% colnames(collectorDictionary))) {
+#     stop("Empty or invalid Collector's Dictionary!")
+#   }
+#
+#   # 2. Otimização: processamento em lote do dicionário
+#   collectorDictionary <- collectorDictionary %>%
+#     # dplyr::mutate(Ctrl_recordedBy = toupper(Ctrl_recordedBy)) %>%
+#     dplyr::mutate(Ctrl_recordedBy = Ctrl_recordedBy) %>%
+#     dplyr::select(Ctrl_recordedBy, Ctrl_nameRecordedBy_Standard) %>%
+#     dplyr::rename(Ctrl_nameRecordedBy_Standard_CNCFlora = Ctrl_nameRecordedBy_Standard) %>%
+#     data.table::as.data.table() # Conversão para data.table para joins mais rápidos
+#
+#   # 3. Carregamento e processamento do dicionário verificado
+#   if (!is.null(collectorDictionary_checked_file)) {
+#     if (!silence) print("Carregamento e processamento do dicionário verificado...")
+#
+#     collectorDictionary_checked <- readr::read_csv(collectorDictionary_checked_file,
+#                                                    locale = readr::locale(encoding = "UTF-8"),
+#                                                    show_col_types = FALSE)
+#   }
+#
+#   if (NROW(collectorDictionary_checked) == 0 || !all(required_cols %in% colnames(collectorDictionary_checked))) {
+#     stop("Empty Collector's Dictionary checked!")
+#   }
+#
+#   # 4. Processamento mais eficiente do dicionário verificado
+#   collectorDictionary_checked <- collectorDictionary_checked %>%
+#     data.table::as.data.table()
+#
+#   # 5. Cálculo dos novos coletores ANTES do loop principal
+#   collectorDictionary_checked_new <- collectorDictionary_checked[
+#     !collectorDictionary, on = "Ctrl_recordedBy"
+#   ] %>%
+#     dplyr::select(dplyr::all_of(required_cols))
+#
+#   # 6. Pré-processamento da ocorrência
+#   if (NROW(occ) == 0) stop("Occurrence is empty!")
+#
+#   occ <- occ %>%
+#     dplyr::select(Ctrl_recordNumber, Ctrl_family, Ctrl_recordedBy, Ctrl_year) %>%
+#     dplyr::mutate(
+#       Ctrl_recordedBy = toupper(Ctrl_recordedBy),
+#       Ctrl_nameRecordedBy_Standard = NA_character_
+#     ) %>%
+#     data.table::as.data.table()
+#
+#   # 7. **SUBSTITUIÇÃO DO LOOP POR JOIN VETORIZADO** - Maior ganho de performance
+#
+#   collectorDictionary_lookup <- collectorDictionary_checked %>%
+#     dplyr::select(Ctrl_recordedBy, Ctrl_nameRecordedBy_Standard) %>%
+#     dplyr::distinct(Ctrl_recordedBy, .keep_all = TRUE) # Remove duplicatas
+#
+#   # Join vetorizado em vez do loop
+#   occ <- occ %>%
+#     dplyr::left_join(collectorDictionary_lookup,
+#                      by = "Ctrl_recordedBy",
+#                      suffix = c("", ".y")) %>%
+#     dplyr::mutate(
+#       Ctrl_nameRecordedBy_Standard = dplyr::coalesce(Ctrl_nameRecordedBy_Standard.y,
+#                                                      Ctrl_nameRecordedBy_Standard),
+#       Ctrl_nameRecordedBy_Standard = dplyr::if_else(
+#         is.na(Ctrl_nameRecordedBy_Standard),
+#         "NOT-FOUND-COLLECTOR",
+#         Ctrl_nameRecordedBy_Standard
+#       )
+#     ) %>%
+#     dplyr::select(-Ctrl_nameRecordedBy_Standard.y)
+#
+#   # 8. Processamento final vetorizado
+#   occ <- occ %>%
+#     dplyr::mutate(
+#       Ctrl_recordNumber_Standard = stringr::str_replace_all(Ctrl_recordNumber, "[^0-9]", ""),
+#       Ctrl_recordNumber_Standard = dplyr::case_when(
+#         is.na(Ctrl_recordNumber_Standard) | Ctrl_recordNumber_Standard == "" ~ "",
+#         TRUE ~ as.character(as.integer(Ctrl_recordNumber_Standard))
+#       ),
+#       Ctrl_recordNumber_Standard = dplyr::if_else(
+#         is.na(Ctrl_recordNumber_Standard), "", Ctrl_recordNumber_Standard
+#       ),
+#
+#       # Chaves de coleção
+#       Ctrl_key_family_recordedBy_recordNumber = paste(
+#         toupper(trimws(Ctrl_family)),
+#         Ctrl_nameRecordedBy_Standard,
+#         Ctrl_recordNumber_Standard,
+#         sep = '_'
+#       ),
+#
+#       Ctrl_key_year_recordedBy_recordNumber = paste(
+#         dplyr::if_else(is.na(Ctrl_year), "noYear", as.character(Ctrl_year)),
+#         Ctrl_nameRecordedBy_Standard,
+#         Ctrl_recordNumber_Standard,
+#         sep = '_'
+#       )
+#     )
+#
+#   # 9. Resumo otimizado
+#   res_in <- occ %>%
+#     dplyr::count(Ctrl_key_family_recordedBy_recordNumber, name = "numberOfRecords") %>%
+#     dplyr::arrange(dplyr::desc(numberOfRecords))
+#
+#   # 10. Retorno final
+#   result_cols <- c('Ctrl_nameRecordedBy_Standard', 'Ctrl_recordNumber_Standard',
+#                    'Ctrl_key_family_recordedBy_recordNumber', 'Ctrl_key_year_recordedBy_recordNumber')
+#
+#   list(
+#     occ_collectorsDictionary = occ %>% dplyr::select(dplyr::all_of(result_cols)),
+#     summary = res_in,
+#     collectorsDictionary_add = collectorDictionary_checked_new
+#   )
+# }
