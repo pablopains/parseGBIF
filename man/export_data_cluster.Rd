@@ -8,7 +8,8 @@ export_data_cluster(
   occ_digital_voucher_file = "",
   occ_digital_voucher = NA,
   merge_unusable_data = TRUE,
-  n_minimo = 10000
+  n_minimo = 10000,
+  use_dt_version = TRUE
 )
 }
 \arguments{
@@ -22,6 +23,9 @@ Default is \code{TRUE}.}
 \item{n_minimo}{Integer. Minimum number of records to trigger parallel processing. If the dataset
 has fewer records than this threshold, processing is done in a single batch.
 Default is 10000.}
+
+\item{use_dt_version}{Logical. If \code{TRUE} (default), uses the data.table version \code{export_data_dt}.
+If \code{FALSE}, uses the base R version \code{export_data}.}
 }
 \value{
 Data frame. Combined results from all partitions containing:
@@ -35,7 +39,8 @@ Data frame. Combined results from all partitions containing:
 Processes and exports results from parsed GBIF occurrence data by dividing the work
 into multiple parallel steps to reduce total processing time for large datasets.
 This function splits the data into 24 partitions and processes each separately
-using the \code{export_data()} function, then combines the results.
+using either \code{export_data_dt()} (default, data.table version) or \code{export_data()}
+(base R version), then combines the results.
 }
 \details{
 \subsection{Parallel Processing:}{
@@ -43,7 +48,7 @@ using the \code{export_data()} function, then combines the results.
 For datasets larger than \code{n_minimo} records, the function:
 \enumerate{
 \item Divides unique collection event keys into 24 equal partitions
-\item Processes each partition separately using \code{export_data()}
+\item Processes each partition separately using the chosen export function
 \item Combines results from all partitions
 \item Returns the combined dataset
 }
@@ -53,12 +58,13 @@ For smaller datasets, processing is done in a single batch for efficiency.
 
 \subsection{Output:}{
 
-Returns the same data structure as \code{export_data()} but processed in parallel
+Returns the same data structure as \code{export_data()}/\code{export_data_dt()} but processed in parallel
 for improved performance on large datasets.
 }
 }
 \seealso{
 \code{\link[=export_data]{export_data()}} for the standard sequential processing version,
+\code{\link[=export_data_dt]{export_data_dt()}} for the data.table version,
 \code{\link[=select_digital_voucher]{select_digital_voucher()}} for selecting digital vouchers
 }
 \author{

@@ -55,7 +55,6 @@
 #' @param file_name_occ_collectorsDictionary character, path to CSV file with occ_collectorsDictionary data
 #' @param enumOccurrenceIssue An enumeration of validation rules for single occurrence records by GBIF file, if NA, will be used, data(EnumOccurrenceIssue)
 #' @param n_minimo minimum number of records to split processing
-#' @param use_dt_version logical, if TRUE (default) uses the data.table version `select_digital_voucher_dt`, if FALSE uses the base version `select_digital_voucher`
 #'
 #' @details
 #' * parseGBIF_duplicates_grouping_status - "groupable", "not groupable: no recordedBy and no recordNumber",
@@ -97,19 +96,15 @@
 #' @importFrom readr read_csv locale
 #' @export
 select_digital_voucher_cluster <- function(occ = NA,
-                                              occ_gbif_issue = NA,
-                                              occ_wcvp_check_name = NA,
-                                              occ_collectorsDictionary = NA,
-                                              file_name_occ_issue = NA,
-                                              file_name_occ_wcvp_check_name = NA,
-                                              file_name_occ_collectorsDictionary = NA,
-                                              enumOccurrenceIssue = NA,
-                                              n_minimo = 10000,
-                                              use_dt_version = TRUE)
+                                           occ_gbif_issue = NA,
+                                           occ_wcvp_check_name = NA,
+                                           occ_collectorsDictionary = NA,
+                                           file_name_occ_issue = NA,
+                                           file_name_occ_wcvp_check_name = NA,
+                                           file_name_occ_collectorsDictionary = NA,
+                                           enumOccurrenceIssue = NA,
+                                           n_minimo = 10000)
 {
-
-  # Escolhe a função de acordo com o parâmetro
-  select_func <- if (use_dt_version) select_digital_voucher_dt else select_digital_voucher
 
   # file_name_occ_issue <- 'parseGBIF_1_occ_issue.csv'
   if(!is.na(file_name_occ_issue)){
@@ -132,11 +127,11 @@ select_digital_voucher_cluster <- function(occ = NA,
 
   if(NROW(occ)<=n_minimo)
   {
-    digital_voucher <- select_func(occ = occ,
-                                   occ_gbif_issue = occ_gbif_issue,
-                                   occ_wcvp_check_name = occ_wcvp_check_name,
-                                   occ_collectorsDictionary = occ_collectorsDictionary,
-                                   silence = FALSE)$occ_digital_voucher
+    digital_voucher <- select_digital_voucher(occ = occ,
+                                              occ_gbif_issue = occ_gbif_issue,
+                                              occ_wcvp_check_name = occ_wcvp_check_name,
+                                              occ_collectorsDictionary = occ_collectorsDictionary,
+                                              silence = FALSE)$occ_digital_voucher
   }else
   {
 
@@ -222,171 +217,174 @@ select_digital_voucher_cluster <- function(occ = NA,
     }
 
     print('select_digital_voucher (1/24)')
-    digital_voucher1 <- select_func(occ = occ[i_k_1==TRUE,],
-                                    occ_gbif_issue = occ_gbif_issue[i_k_1==TRUE,],
-                                    occ_wcvp_check_name = occ_wcvp_check_name[i_k_1==TRUE,],
-                                    occ_collectorsDictionary = occ_collectorsDictionary[i_k_1==TRUE,],
-                                    silence = FALSE)
+    digital_voucher1 <- select_digital_voucher(occ = occ[i_k_1==TRUE,],
+                                               occ_gbif_issue = occ_gbif_issue[i_k_1==TRUE,],
+                                               occ_wcvp_check_name = occ_wcvp_check_name[i_k_1==TRUE,],
+                                               occ_collectorsDictionary = occ_collectorsDictionary[i_k_1==TRUE,],
+                                               silence = FALSE)
 
     print('select_digital_voucher (2/24)')
-    digital_voucher2 <- select_func(occ = occ[i_k_2==TRUE,],
-                                    occ_gbif_issue = occ_gbif_issue[i_k_2==TRUE,],
-                                    occ_wcvp_check_name = occ_wcvp_check_name[i_k_2==TRUE,],
-                                    occ_collectorsDictionary = occ_collectorsDictionary[i_k_2==TRUE,],
-                                    silence = TRUE)
+    digital_voucher2 <- select_digital_voucher(occ = occ[i_k_2==TRUE,],
+                                               occ_gbif_issue = occ_gbif_issue[i_k_2==TRUE,],
+                                               occ_wcvp_check_name = occ_wcvp_check_name[i_k_2==TRUE,],
+                                               occ_collectorsDictionary = occ_collectorsDictionary[i_k_2==TRUE,],
+                                               silence = TRUE)
     print('select_digital_voucher (3/24)')
-    digital_voucher3 <- select_func(occ = occ[i_k_3==TRUE,],
-                                    occ_gbif_issue = occ_gbif_issue[i_k_3==TRUE,],
-                                    occ_wcvp_check_name = occ_wcvp_check_name[i_k_3==TRUE,],
-                                    occ_collectorsDictionary = occ_collectorsDictionary[i_k_3==TRUE,],
-                                    silence = TRUE)
+    digital_voucher3 <- select_digital_voucher(occ = occ[i_k_3==TRUE,],
+                                               occ_gbif_issue = occ_gbif_issue[i_k_3==TRUE,],
+                                               occ_wcvp_check_name = occ_wcvp_check_name[i_k_3==TRUE,],
+                                               occ_collectorsDictionary = occ_collectorsDictionary[i_k_3==TRUE,],
+                                               silence = TRUE)
 
     print('select_digital_voucher (4/24)')
-    digital_voucher4 <- select_func(occ = occ[i_k_4==TRUE,],
-                                    occ_gbif_issue = occ_gbif_issue[i_k_4==TRUE,],
-                                    occ_wcvp_check_name = occ_wcvp_check_name[i_k_4==TRUE,],
-                                    occ_collectorsDictionary = occ_collectorsDictionary[i_k_4==TRUE,],
-                                    silence = TRUE)
+    digital_voucher4 <- select_digital_voucher(occ = occ[i_k_4==TRUE,],
+                                               occ_gbif_issue = occ_gbif_issue[i_k_4==TRUE,],
+                                               occ_wcvp_check_name = occ_wcvp_check_name[i_k_4==TRUE,],
+                                               occ_collectorsDictionary = occ_collectorsDictionary[i_k_4==TRUE,],
+                                               silence = TRUE)
 
     print('select_digital_voucher (5/24)')
-    digital_voucher5 <- select_func(occ = occ[i_k_5==TRUE,],
-                                    occ_gbif_issue = occ_gbif_issue[i_k_5==TRUE,],
-                                    occ_wcvp_check_name = occ_wcvp_check_name[i_k_5==TRUE,],
-                                    occ_collectorsDictionary = occ_collectorsDictionary[i_k_5==TRUE,],
-                                    silence = TRUE)
+    digital_voucher5 <- select_digital_voucher(occ = occ[i_k_5==TRUE,],
+                                               occ_gbif_issue = occ_gbif_issue[i_k_5==TRUE,],
+                                               occ_wcvp_check_name = occ_wcvp_check_name[i_k_5==TRUE,],
+                                               occ_collectorsDictionary = occ_collectorsDictionary[i_k_5==TRUE,],
+                                               silence = TRUE)
 
     print('select_digital_voucher (6/24)')
-    digital_voucher6 <- select_func(occ = occ[i_k_6==TRUE,],
-                                    occ_gbif_issue = occ_gbif_issue[i_k_6==TRUE,],
-                                    occ_wcvp_check_name = occ_wcvp_check_name[i_k_6==TRUE,],
-                                    occ_collectorsDictionary = occ_collectorsDictionary[i_k_6==TRUE,],
-                                    silence = TRUE)
+    digital_voucher6 <- select_digital_voucher(occ = occ[i_k_6==TRUE,],
+                                               occ_gbif_issue = occ_gbif_issue[i_k_6==TRUE,],
+                                               occ_wcvp_check_name = occ_wcvp_check_name[i_k_6==TRUE,],
+                                               occ_collectorsDictionary = occ_collectorsDictionary[i_k_6==TRUE,],
+                                               silence = TRUE)
 
     print('select_digital_voucher (7/24)')
-    digital_voucher7 <- select_func(occ = occ[i_k_7==TRUE,],
-                                    occ_gbif_issue = occ_gbif_issue[i_k_7==TRUE,],
-                                    occ_wcvp_check_name = occ_wcvp_check_name[i_k_7==TRUE,],
-                                    occ_collectorsDictionary = occ_collectorsDictionary[i_k_7==TRUE,],
-                                    silence = TRUE)
+    digital_voucher7 <- select_digital_voucher(occ = occ[i_k_7==TRUE,],
+                                               occ_gbif_issue = occ_gbif_issue[i_k_7==TRUE,],
+                                               occ_wcvp_check_name = occ_wcvp_check_name[i_k_7==TRUE,],
+                                               occ_collectorsDictionary = occ_collectorsDictionary[i_k_7==TRUE,],
+                                               silence = TRUE)
 
     print('select_digital_voucher (8/24)')
-    digital_voucher8 <- select_func(occ = occ[i_k_8==TRUE,],
-                                    occ_gbif_issue = occ_gbif_issue[i_k_8==TRUE,],
-                                    occ_wcvp_check_name = occ_wcvp_check_name[i_k_8==TRUE,],
-                                    occ_collectorsDictionary = occ_collectorsDictionary[i_k_8==TRUE,],
-                                    silence = TRUE)
+    digital_voucher8 <- select_digital_voucher(occ = occ[i_k_8==TRUE,],
+                                               occ_gbif_issue = occ_gbif_issue[i_k_8==TRUE,],
+                                               occ_wcvp_check_name = occ_wcvp_check_name[i_k_8==TRUE,],
+                                               occ_collectorsDictionary = occ_collectorsDictionary[i_k_8==TRUE,],
+                                               silence = TRUE)
 
     print('select_digital_voucher (9/24)')
-    digital_voucher9 <- select_func(occ = occ[i_k_9==TRUE,],
-                                    occ_gbif_issue = occ_gbif_issue[i_k_9==TRUE,],
-                                    occ_wcvp_check_name = occ_wcvp_check_name[i_k_9==TRUE,],
-                                    occ_collectorsDictionary = occ_collectorsDictionary[i_k_9==TRUE,],
-                                    silence = TRUE)
+    digital_voucher9 <- select_digital_voucher(occ = occ[i_k_9==TRUE,],
+                                               occ_gbif_issue = occ_gbif_issue[i_k_9==TRUE,],
+                                               occ_wcvp_check_name = occ_wcvp_check_name[i_k_9==TRUE,],
+                                               occ_collectorsDictionary = occ_collectorsDictionary[i_k_9==TRUE,],
+                                               silence = TRUE)
 
     print('select_digital_voucher (10/24)')
-    digital_voucher10 <- select_func(occ = occ[i_k_10==TRUE,],
-                                     occ_gbif_issue = occ_gbif_issue[i_k_10==TRUE,],
-                                     occ_wcvp_check_name = occ_wcvp_check_name[i_k_10==TRUE,],
-                                     occ_collectorsDictionary = occ_collectorsDictionary[i_k_10==TRUE,],
-                                     silence = TRUE)
+    digital_voucher10 <- select_digital_voucher(occ = occ[i_k_10==TRUE,],
+                                                occ_gbif_issue = occ_gbif_issue[i_k_10==TRUE,],
+                                                occ_wcvp_check_name = occ_wcvp_check_name[i_k_10==TRUE,],
+                                                occ_collectorsDictionary = occ_collectorsDictionary[i_k_10==TRUE,],
+                                                silence = TRUE)
 
     print('select_digital_voucher (11/24)')
-    digital_voucher11 <- select_func(occ = occ[i_k_11==TRUE,],
-                                     occ_gbif_issue = occ_gbif_issue[i_k_11==TRUE,],
-                                     occ_wcvp_check_name = occ_wcvp_check_name[i_k_11==TRUE,],
-                                     occ_collectorsDictionary = occ_collectorsDictionary[i_k_11==TRUE,],
-                                     silence = TRUE)
+    digital_voucher11 <- select_digital_voucher(occ = occ[i_k_11==TRUE,],
+                                                occ_gbif_issue = occ_gbif_issue[i_k_11==TRUE,],
+                                                occ_wcvp_check_name = occ_wcvp_check_name[i_k_11==TRUE,],
+                                                occ_collectorsDictionary = occ_collectorsDictionary[i_k_11==TRUE,],
+                                                silence = TRUE)
 
     print('select_digital_voucher (12/24)')
-    digital_voucher12 <- select_func(occ = occ[i_k_12==TRUE,],
-                                     occ_gbif_issue = occ_gbif_issue[i_k_12==TRUE,],
-                                     occ_wcvp_check_name = occ_wcvp_check_name[i_k_12==TRUE,],
-                                     occ_collectorsDictionary = occ_collectorsDictionary[i_k_12==TRUE,],
-                                     silence = TRUE)
+    digital_voucher12 <- select_digital_voucher(occ = occ[i_k_12==TRUE,],
+                                                occ_gbif_issue = occ_gbif_issue[i_k_12==TRUE,],
+                                                occ_wcvp_check_name = occ_wcvp_check_name[i_k_12==TRUE,],
+                                                occ_collectorsDictionary = occ_collectorsDictionary[i_k_12==TRUE,],
+                                                silence = TRUE)
 
     print('select_digital_voucher (13/24)')
-    digital_voucher13 <- select_func(occ = occ[i_k_13==TRUE,],
-                                     occ_gbif_issue = occ_gbif_issue[i_k_13==TRUE,],
-                                     occ_wcvp_check_name = occ_wcvp_check_name[i_k_13==TRUE,],
-                                     occ_collectorsDictionary = occ_collectorsDictionary[i_k_13==TRUE,],
-                                     silence = TRUE)
+    digital_voucher13 <- select_digital_voucher(occ = occ[i_k_13==TRUE,],
+                                                occ_gbif_issue = occ_gbif_issue[i_k_13==TRUE,],
+                                                occ_wcvp_check_name = occ_wcvp_check_name[i_k_13==TRUE,],
+                                                occ_collectorsDictionary = occ_collectorsDictionary[i_k_13==TRUE,],
+                                                silence = TRUE)
 
     print('select_digital_voucher (14/24)')
-    digital_voucher14 <- select_func(occ = occ[i_k_14==TRUE,],
-                                     occ_gbif_issue = occ_gbif_issue[i_k_14==TRUE,],
-                                     occ_wcvp_check_name = occ_wcvp_check_name[i_k_14==TRUE,],
-                                     occ_collectorsDictionary = occ_collectorsDictionary[i_k_14==TRUE,],
-                                     silence = TRUE)
+    digital_voucher14 <- select_digital_voucher(occ = occ[i_k_14==TRUE,],
+                                                occ_gbif_issue = occ_gbif_issue[i_k_14==TRUE,],
+                                                occ_wcvp_check_name = occ_wcvp_check_name[i_k_14==TRUE,],
+                                                occ_collectorsDictionary = occ_collectorsDictionary[i_k_14==TRUE,],
+                                                silence = TRUE)
 
     print('select_digital_voucher (15/24)')
-    digital_voucher15 <- select_func(occ = occ[i_k_15==TRUE,],
-                                     occ_gbif_issue = occ_gbif_issue[i_k_15==TRUE,],
-                                     occ_wcvp_check_name = occ_wcvp_check_name[i_k_15==TRUE,],
-                                     occ_collectorsDictionary = occ_collectorsDictionary[i_k_15==TRUE,],
-                                     silence = TRUE)
+    digital_voucher15 <- select_digital_voucher(occ = occ[i_k_15==TRUE,],
+                                                occ_gbif_issue = occ_gbif_issue[i_k_15==TRUE,],
+                                                occ_wcvp_check_name = occ_wcvp_check_name[i_k_15==TRUE,],
+                                                occ_collectorsDictionary = occ_collectorsDictionary[i_k_15==TRUE,],
+                                                silence = TRUE)
 
     print('select_digital_voucher (16/24)')
-    digital_voucher16 <- select_func(occ = occ[i_k_16==TRUE,],
-                                     occ_gbif_issue = occ_gbif_issue[i_k_16==TRUE,],
-                                     occ_wcvp_check_name = occ_wcvp_check_name[i_k_16==TRUE,],
-                                     occ_collectorsDictionary = occ_collectorsDictionary[i_k_16==TRUE,],
-                                     silence = TRUE)
+    digital_voucher16 <- select_digital_voucher(occ = occ[i_k_16==TRUE,],
+                                                occ_gbif_issue = occ_gbif_issue[i_k_16==TRUE,],
+                                                occ_wcvp_check_name = occ_wcvp_check_name[i_k_16==TRUE,],
+                                                occ_collectorsDictionary = occ_collectorsDictionary[i_k_16==TRUE,],
+                                                silence = TRUE)
 
     print('select_digital_voucher (17/24)')
-    digital_voucher17 <- select_func(occ = occ[i_k_17==TRUE,],
-                                     occ_gbif_issue = occ_gbif_issue[i_k_17==TRUE,],
-                                     occ_wcvp_check_name = occ_wcvp_check_name[i_k_17==TRUE,],
-                                     occ_collectorsDictionary = occ_collectorsDictionary[i_k_17==TRUE,],
-                                     silence = TRUE)
+    digital_voucher17 <- select_digital_voucher(occ = occ[i_k_17==TRUE,],
+                                                occ_gbif_issue = occ_gbif_issue[i_k_17==TRUE,],
+                                                occ_wcvp_check_name = occ_wcvp_check_name[i_k_17==TRUE,],
+                                                occ_collectorsDictionary = occ_collectorsDictionary[i_k_17==TRUE,],
+                                                silence = TRUE)
 
     print('select_digital_voucher (18/24)')
-    digital_voucher18 <- select_func(occ = occ[i_k_18==TRUE,],
-                                     occ_gbif_issue = occ_gbif_issue[i_k_18==TRUE,],
-                                     occ_wcvp_check_name = occ_wcvp_check_name[i_k_18==TRUE,],
-                                     occ_collectorsDictionary = occ_collectorsDictionary[i_k_18==TRUE,],
-                                     silence = TRUE)
+    digital_voucher18 <- select_digital_voucher(occ = occ[i_k_18==TRUE,],
+                                                occ_gbif_issue = occ_gbif_issue[i_k_18==TRUE,],
+                                                occ_wcvp_check_name = occ_wcvp_check_name[i_k_18==TRUE,],
+                                                occ_collectorsDictionary = occ_collectorsDictionary[i_k_18==TRUE,],
+                                                silence = TRUE)
 
     print('select_digital_voucher (19/24)')
-    digital_voucher19 <- select_func(occ = occ[i_k_19==TRUE,],
-                                     occ_gbif_issue = occ_gbif_issue[i_k_19==TRUE,],
-                                     occ_wcvp_check_name = occ_wcvp_check_name[i_k_19==TRUE,],
-                                     occ_collectorsDictionary = occ_collectorsDictionary[i_k_19==TRUE,],
-                                     silence = TRUE)
+    digital_voucher19 <- select_digital_voucher(occ = occ[i_k_19==TRUE,],
+                                                occ_gbif_issue = occ_gbif_issue[i_k_19==TRUE,],
+                                                occ_wcvp_check_name = occ_wcvp_check_name[i_k_19==TRUE,],
+                                                occ_collectorsDictionary = occ_collectorsDictionary[i_k_19==TRUE,],
+                                                silence = TRUE)
 
     print('select_digital_voucher (20/24)')
-    digital_voucher20 <- select_func(occ = occ[i_k_20==TRUE,],
-                                     occ_gbif_issue = occ_gbif_issue[i_k_20==TRUE,],
-                                     occ_wcvp_check_name = occ_wcvp_check_name[i_k_20==TRUE,],
-                                     occ_collectorsDictionary = occ_collectorsDictionary[i_k_20==TRUE,],
-                                     silence = TRUE)
+    digital_voucher20 <- select_digital_voucher(occ = occ[i_k_20==TRUE,],
+                                                occ_gbif_issue = occ_gbif_issue[i_k_20==TRUE,],
+                                                occ_wcvp_check_name = occ_wcvp_check_name[i_k_20==TRUE,],
+                                                occ_collectorsDictionary = occ_collectorsDictionary[i_k_20==TRUE,],
+                                                silence = TRUE)
 
     print('select_digital_voucher (21/24)')
-    digital_voucher21 <- select_func(occ = occ[i_k_21==TRUE,],
-                                     occ_gbif_issue = occ_gbif_issue[i_k_21==TRUE,],
-                                     occ_wcvp_check_name = occ_wcvp_check_name[i_k_21==TRUE,],
-                                     occ_collectorsDictionary = occ_collectorsDictionary[i_k_21==TRUE,],
-                                     silence = TRUE)
+    digital_voucher21 <- select_digital_voucher(occ = occ[i_k_21==TRUE,],
+                                                occ_gbif_issue = occ_gbif_issue[i_k_21==TRUE,],
+                                                occ_wcvp_check_name = occ_wcvp_check_name[i_k_21==TRUE,],
+                                                occ_collectorsDictionary = occ_collectorsDictionary[i_k_21==TRUE,],
+                                                silence = TRUE)
 
     print('select_digital_voucher (22/24)')
-    digital_voucher22 <- select_func(occ = occ[i_k_22==TRUE,],
-                                     occ_gbif_issue = occ_gbif_issue[i_k_22==TRUE,],
-                                     occ_wcvp_check_name = occ_wcvp_check_name[i_k_22==TRUE,],
-                                     occ_collectorsDictionary = occ_collectorsDictionary[i_k_22==TRUE,],
-                                     silence = TRUE)
+    digital_voucher22 <- select_digital_voucher(occ = occ[i_k_22==TRUE,],
+                                                occ_gbif_issue = occ_gbif_issue[i_k_22==TRUE,],
+                                                occ_wcvp_check_name = occ_wcvp_check_name[i_k_22==TRUE,],
+                                                occ_collectorsDictionary = occ_collectorsDictionary[i_k_22==TRUE,],
+                                                silence = TRUE)
 
     print('select_digital_voucher (23/24)')
-    digital_voucher23 <- select_func(occ = occ[i_k_23==TRUE,],
-                                     occ_gbif_issue = occ_gbif_issue[i_k_23==TRUE,],
-                                     occ_wcvp_check_name = occ_wcvp_check_name[i_k_23==TRUE,],
-                                     occ_collectorsDictionary = occ_collectorsDictionary[i_k_23==TRUE,],
-                                     silence = TRUE)
+    digital_voucher23 <- select_digital_voucher(occ = occ[i_k_23==TRUE,],
+                                                occ_gbif_issue = occ_gbif_issue[i_k_23==TRUE,],
+                                                occ_wcvp_check_name = occ_wcvp_check_name[i_k_23==TRUE,],
+                                                occ_collectorsDictionary = occ_collectorsDictionary[i_k_23==TRUE,],
+                                                silence = TRUE)
 
     print('select_digital_voucher (24/24)')
-    digital_voucher24 <- select_func(occ = occ[i_k_24==TRUE,],
-                                     occ_gbif_issue = occ_gbif_issue[i_k_24==TRUE,],
-                                     occ_wcvp_check_name = occ_wcvp_check_name[i_k_24==TRUE,],
-                                     occ_collectorsDictionary = occ_collectorsDictionary[i_k_24==TRUE,],
-                                     silence = TRUE)
+    digital_voucher24 <- select_digital_voucher(occ = occ[i_k_24==TRUE,],
+                                                occ_gbif_issue = occ_gbif_issue[i_k_24==TRUE,],
+                                                occ_wcvp_check_name = occ_wcvp_check_name[i_k_24==TRUE,],
+                                                occ_collectorsDictionary = occ_collectorsDictionary[i_k_24==TRUE,],
+                                                silence = TRUE)
+    # results <- list(all_data = {},
+    #                 occ_results = {})
+
 
     digital_voucher <- rbind(digital_voucher1$occ_digital_voucher,
                              digital_voucher2$occ_digital_voucher,
@@ -413,6 +411,8 @@ select_digital_voucher_cluster <- function(occ = NA,
                              digital_voucher23$occ_digital_voucher,
                              digital_voucher24$occ_digital_voucher) %>%
       data.frame(stringsAsFactors = FALSE)
+
+
 
   }
 
