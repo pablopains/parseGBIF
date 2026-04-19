@@ -89,18 +89,45 @@ generate_collection_event_key <- function(occ = NA,
   if (is.null(collectorDictionary) && !is.null(collectorDictionary_file)) {
     if (!silence) message("Loading parseGBIF GitHub dictionaries...")
 
-    # Load dictionaries in parallel (conceptually)
-    dict1 <- readr::read_csv(
-      'https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_1.csv',
-      locale = readr::locale(encoding = 'UTF-8'),
-      show_col_types = FALSE
-    )
-    dict2 <- readr::read_csv(
-      'https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_2.csv',
-      locale = readr::locale(encoding = 'UTF-8'),
-      show_col_types = FALSE
-    )
-    collectorDictionary <- dplyr::bind_rows(dict1, dict2)
+    # # Load dictionaries in parallel (conceptually)
+    # dict1 <- readr::read_csv(
+    #   'https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_1.csv',
+    #   locale = readr::locale(encoding = 'UTF-8'),
+    #   show_col_types = FALSE
+    # )
+    # dict2 <- readr::read_csv(
+    #   'https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_2.csv',
+    #   locale = readr::locale(encoding = 'UTF-8'),
+    #   show_col_types = FALSE
+    # )
+    # collectorDictionary <- dplyr::bind_rows(dict1, dict2)
+
+    # --- Substituir a partir daqui ---
+    collectorDictionary <- {
+      # URL do arquivo ZIP (raw)
+      zip_url <- "https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/collectorsDictionary.zip"
+
+      # Criar um arquivo temporário para o ZIP
+      temp_zip <- tempfile(fileext = ".zip")
+
+      # Baixar o arquivo ZIP
+      download.file(zip_url, destfile = temp_zip, mode = "wb", quiet = TRUE)
+
+      # Criar um diretório temporário para extração
+      temp_dir <- tempdir()
+
+      # Extrair o arquivo ZIP
+      unzip(temp_zip, exdir = temp_dir)
+
+      # Caminho para o arquivo CSV dentro do ZIP
+      csv_path <- file.path(temp_dir, "collectorsDictionary.csv")
+
+      # Ler o CSV
+      readr::read_csv(csv_path,
+                      locale = readr::locale(encoding = "UTF-8"),
+                      show_col_types = FALSE)
+    }
+    # --- Fim da substituição ---
   }
 
   # Validation
