@@ -159,38 +159,18 @@ collectors_prepare_dictionary <- function(occ=NA,
   if (collectorDictionary_file=='' & is.null(collectorDictionary))
   {
 
-    # collectorDictionary <- rbind(readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_1.csv',
-    #                                        locale = readr::locale(encoding = 'UTF-8'),
-    #                                        show_col_types = FALSE),
-    #                              readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_2.csv',
-    #                                              locale = readr::locale(encoding = 'UTF-8'),
-    #                                              show_col_types = FALSE))
-    # --- Substituir a partir daqui ---
-    collectorDictionary <- {
-      # URL do arquivo ZIP (raw)
-      zip_url <- "https://raw.githubusercontent.com/pablopains/parseGBIF/main/collectorDictionary/collectorsDictionary.zip"
-
-      # Criar um arquivo temporário para o ZIP
-      temp_zip <- tempfile(fileext = ".zip")
-
-      # Baixar o arquivo ZIP
-      download.file(zip_url, destfile = temp_zip, mode = "wb", quiet = TRUE)
-
-      # Criar um diretório temporário para extração
-      temp_dir <- tempdir()
-
-      # Extrair o arquivo ZIP
-      unzip(temp_zip, exdir = temp_dir)
-
-      # Caminho para o arquivo CSV dentro do ZIP
-      csv_path <- file.path(temp_dir, "collectorsDictionary.csv")
-
-      # Ler o CSV
-      readr::read_csv(csv_path,
-                      locale = readr::locale(encoding = "UTF-8"),
-                      show_col_types = FALSE)
-    }
-    # --- Fim da substituição ---
+    collectorDictionary <- rbind(readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_1.csv',
+                                           locale = readr::locale(encoding = 'UTF-8'),
+                                           show_col_types = FALSE),
+                                 readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_2.csv',
+                                                 locale = readr::locale(encoding = 'UTF-8'),
+                                                 show_col_types = FALSE),
+                                 readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_3.csv',
+                                                 locale = readr::locale(encoding = 'UTF-8'),
+                                                 show_col_types = FALSE),
+                                 readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_4.csv',
+                                                 locale = readr::locale(encoding = 'UTF-8'),
+                                                 show_col_types = FALSE))
     }
 
 

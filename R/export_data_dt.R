@@ -6,7 +6,7 @@
 #' from duplicate records to create unique collection event records. For each unique
 #' collection event key (complete or incomplete), this function combines information
 #' from duplicate records and generates a single unique collection event record.
-#' 
+#'
 #' This is an optimized version using \code{data.table} for improved performance on
 #' large datasets, while maintaining the same interface and output as \code{export_data}.
 #'
@@ -89,7 +89,7 @@ export_data_dt <- function(occ_digital_voucher_file = '',
                                                  'Ctrl_collectionCode', 'Ctrl_datasetName', 'Ctrl_language',
                                                  "wcvp_plant_name_id", "wcvp_taxon_rank", "wcvp_taxon_status",
                                                  "wcvp_family", "wcvp_taxon_name", "wcvp_taxon_authors", "wcvp_searchNotes"),
-                           fields_to_parse = c('Ctrl_gbifID', 'Ctrl_bibliographicCitation', 'Ctrl_language',
+                           fields_to_parse = c('Ctrl_gbifID', 'Ctrl_family', 'Ctrl_bibliographicCitation', 'Ctrl_language',
                                                'Ctrl_institutionCode', 'Ctrl_collectionCode', 'Ctrl_datasetName',
                                                'Ctrl_basisOfRecord', 'Ctrl_catalogNumber', 'Ctrl_recordNumber',
                                                'Ctrl_recordedBy', 'Ctrl_occurrenceStatus', 'Ctrl_eventDate',
@@ -117,59 +117,59 @@ export_data_dt <- function(occ_digital_voucher_file = '',
                                                'parseGBIF_wcvp_taxon_name', 'parseGBIF_wcvp_taxon_authors',
                                                'parseGBIF_wcvp_reviewed', 'parseGBIF_dataset_result'),
                            silence = TRUE) {
-  
+
   if (!requireNamespace("data.table", quietly = TRUE)) stop("Pacote data.table é necessário.")
   if (!requireNamespace("jsonlite", quietly = TRUE)) stop("Pacote jsonlite é necessário.")
   if (!requireNamespace("jsonify", quietly = TRUE)) stop("Pacote jsonify é necessário.")
-  
+
   # 1. Carregamento dos dados
   if (!is.na(occ_digital_voucher_file) && occ_digital_voucher_file != "") {
     occ_tmp <- data.table::fread(occ_digital_voucher_file, encoding = "UTF-8", data.table = TRUE)
   } else {
     occ_tmp <- data.table::as.data.table(occ_digital_voucher)
   }
-  
+
   # 2. Conversão de datas para character (evita problemas de merge)
   date_cols <- names(occ_tmp)[sapply(occ_tmp, function(x) inherits(x, c("POSIXct", "POSIXlt", "Date")))]
   for (col in date_cols) data.table::set(occ_tmp, j = col, value = as.character(occ_tmp[[col]]))
-  
+
   # 3. Seleção e inicialização de colunas
   occ_tmp <- occ_tmp[, ..fields_to_parse]
   occ_tmp[, c("parseGBIF_freq_duplicate_or_missing_data", "parseGBIF_duplicates_map", "parseGBIF_merged_fields") := .("", "", "")]
   if (!"parseGBIF_merged" %in% names(occ_tmp)) occ_tmp[, parseGBIF_merged := FALSE]
-  
+
   # 4. Separação dos datasets
   data.table::setorder(occ_tmp, Ctrl_key_family_recordedBy_recordNumber)
   occ_in <- occ_tmp[parseGBIF_dataset_result == "useable"]
   occ_dup <- occ_tmp[parseGBIF_dataset_result == "duplicate"]
   occ_out_to_recover <- occ_tmp[parseGBIF_dataset_result == "unusable"]
-  
-  occ_res_full <- if (merge_unusable_data) 
-    data.table::rbindlist(list(occ_in, occ_out_to_recover), use.names = TRUE, fill = TRUE) 
-  else 
+
+  occ_res_full <- if (merge_unusable_data)
+    data.table::rbindlist(list(occ_in, occ_out_to_recover), use.names = TRUE, fill = TRUE)
+  else
     data.table::copy(occ_in)
-  
+
   # 5. Indexação para performance
   data.table::setkey(occ_res_full, Ctrl_key_family_recordedBy_recordNumber)
   data.table::setkey(occ_dup, Ctrl_key_family_recordedBy_recordNumber)
   keys <- unique(occ_res_full$Ctrl_key_family_recordedBy_recordNumber)
   fields_to_all <- unique(c(fields_to_compare, fields_to_merge))
-  
+
   # 6. Loop principal de processamento
   for (s in seq_along(keys)) {
     k <- keys[s]
     if (is.na(k) || k == "") next
-    
+
     master_subset <- occ_res_full[.(k)]
     if (nrow(master_subset) == 0 || !isTRUE(master_subset$parseGBIF_duplicates[1])) next
-    
+
     dups <- occ_dup[.(k)]
     if (nrow(dups) == 0) next
-    
+
     raw_master <- as.list(master_subset[1, ..fields_to_all])
     raw_dups_list <- lapply(fields_to_all, function(col) dups[[col]])
     names(raw_dups_list) <- fields_to_all
-    
+
     # Limpeza de strings (remove caracteres problemáticos, inclusive aspas)
     clean_master <- lapply(raw_master, function(x) {
       if (is.na(x)) return("")
@@ -179,16 +179,16 @@ export_data_dt <- function(occ_digital_voucher_file = '',
       vec[is.na(vec)] <- ""
       gsub('\\{|\\}|\\[|\\]|\\(|\\)|\\\\|\\*|\\"', '', as.character(vec))
     })
-    
+
     freq_json_list <- character()
     dup_map_json_list <- character()
     merged_fields_json <- character()
     merged_any <- FALSE
-    
+
     for (col in fields_to_all) {
       val_master_clean <- clean_master[[col]]
       vals_dup_clean <- clean_dups[[col]]
-      
+
       # --- Tabela de frequência (igual à original) ---
       all_vals <- c(raw_master[[col]], raw_dups_list[[col]])
       tbl <- table(all_vals, useNA = "no")
@@ -197,23 +197,23 @@ export_data_dt <- function(occ_digital_voucher_file = '',
         names(d) <- c("value", "freq")
         d[order(-d$freq), ]
       } else data.frame(value = character(), freq = integer())
-      
+
       diff_empty <- master_subset$parseGBIF_num_duplicates[1] - (if(nrow(freq_df) > 0) sum(freq_df$freq) else 0)
       if (diff_empty > 0) freq_df <- rbind(freq_df, data.frame(value = "empty", freq = diff_empty))
       if (nrow(freq_df) > 0) freq_json_list <- c(freq_json_list, sprintf('"%s":%s', col, jsonify::to_json(freq_df)))
-      
+
       # --- Mapa de duplicatas com validação incremental (igual à original) ---
       # Constrói o prefixo do JSON para o campo atual (valor mestre)
       col_json_prefix <- sprintf('"%s":["%s"', col, val_master_clean)
       current_col_map <- character()
       added_vals <- character()
-      
+
       for (ix in seq_len(nrow(dups))) {
         v_clean <- vals_dup_clean[ix]
         if (v_clean == "" || nchar(v_clean) > 10000) next
         if (v_clean %in% added_vals) next
         if (toupper(v_clean) == toupper(val_master_clean)) next
-        
+
         # Monta o JSON parcial para este campo
         partial_json <- paste0("{", col_json_prefix)
         for (v in current_col_map) {
@@ -221,26 +221,26 @@ export_data_dt <- function(occ_digital_voucher_file = '',
         }
         # Adiciona o novo valor proposto
         test_json_str <- paste0(partial_json, ",\"", gsub('"', '', v_clean), "\"]}")
-        
+
         # Tenta interpretar o JSON parcial + novo valor
         test_pass <- tryCatch({
           jsonlite::fromJSON(test_json_str)
           TRUE
         }, error = function(e) FALSE)
-        
+
         if (!test_pass) next
-        
+
         # Se passou, inclui o valor no mapa
         current_col_map <- c(current_col_map, sprintf('"%s"', v_clean))
         added_vals <- c(added_vals, v_clean)
       }
-      
+
       if (length(current_col_map) > 0) {
-        dup_map_json_list <- c(dup_map_json_list, 
-                               sprintf('"%s":["%s",%s]', col, val_master_clean, 
+        dup_map_json_list <- c(dup_map_json_list,
+                               sprintf('"%s":["%s",%s]', col, val_master_clean,
                                        paste(current_col_map, collapse = ",")))
       }
-      
+
       # --- Merge de campos vazios (usa a última duplicata válida) ---
       if (val_master_clean == "" && col %in% fields_to_merge) {
         for (ix in seq_len(nrow(dups))) {
@@ -252,26 +252,26 @@ export_data_dt <- function(occ_digital_voucher_file = '',
         }
       }
     }
-    
+
     # Atualiza as colunas de metadados no registro mestre
-    if (length(freq_json_list) > 0) 
+    if (length(freq_json_list) > 0)
       occ_res_full[.(k), parseGBIF_freq_duplicate_or_missing_data := paste0("{", paste(freq_json_list, collapse = ","), "}")]
-    if (length(dup_map_json_list) > 0) 
+    if (length(dup_map_json_list) > 0)
       occ_res_full[.(k), parseGBIF_duplicates_map := paste0("{", paste(dup_map_json_list, collapse = ","), "}")]
-    if (merged_any) 
+    if (merged_any)
       occ_res_full[.(k), `:=`(parseGBIF_merged_fields = paste0("{", paste(merged_fields_json, collapse = ","), "}"), parseGBIF_merged = TRUE)]
-    
-    if (!silence && s %% 1000 == 0) 
+
+    if (!silence && s %% 1000 == 0)
       print(paste0("Processados ", s, " de ", length(keys), " grupos"))
   }
-  
+
   # 7. Recomposição final dos objetos de saída
   occ_all <- data.table::rbindlist(list(
     occ_res_full[parseGBIF_dataset_result == "useable"],
     if (merge_unusable_data) occ_res_full[parseGBIF_dataset_result == "unusable"] else occ_out_to_recover,
     occ_dup
   ), use.names = TRUE, fill = TRUE)
-  
+
   return(list(
     all_data = as.data.frame(occ_all),
     useable_data_merge = as.data.frame(occ_res_full[parseGBIF_dataset_result == "useable"]),
@@ -290,7 +290,7 @@ export_data_dt <- function(occ_digital_voucher_file = '',
 #' #' from duplicate records to create unique collection event records. For each unique
 #' #' collection event key (complete or incomplete), this function combines information
 #' #' from duplicate records and generates a single unique collection event record.
-#' #' 
+#' #'
 #' #' This is an optimized version using \code{data.table} for improved performance on
 #' #' large datasets, while maintaining the same interface and output as \code{export_data}.
 #' #'
@@ -401,59 +401,59 @@ export_data_dt <- function(occ_digital_voucher_file = '',
 #'                                                 'parseGBIF_wcvp_taxon_name', 'parseGBIF_wcvp_taxon_authors',
 #'                                                 'parseGBIF_wcvp_reviewed', 'parseGBIF_dataset_result'),
 #'                             silence = TRUE) {
-#'   
+#'
 #'   if (!requireNamespace("data.table", quietly = TRUE)) stop("Pacote data.table é necessário.")
 #'   if (!requireNamespace("jsonlite", quietly = TRUE)) stop("Pacote jsonlite é necessário.")
 #'   if (!requireNamespace("jsonify", quietly = TRUE)) stop("Pacote jsonify é necessário.")
-#'   
+#'
 #'   # 1. Carregamento dos dados
 #'   if (!is.na(occ_digital_voucher_file) && occ_digital_voucher_file != "") {
 #'     occ_tmp <- data.table::fread(occ_digital_voucher_file, encoding = "UTF-8", data.table = TRUE)
 #'   } else {
 #'     occ_tmp <- data.table::as.data.table(occ_digital_voucher)
 #'   }
-#'   
+#'
 #'   # 2. Conversão de datas para character (evita problemas de merge)
 #'   date_cols <- names(occ_tmp)[sapply(occ_tmp, function(x) inherits(x, c("POSIXct", "POSIXlt", "Date")))]
 #'   for (col in date_cols) data.table::set(occ_tmp, j = col, value = as.character(occ_tmp[[col]]))
-#'   
+#'
 #'   # 3. Seleção e inicialização de colunas
 #'   occ_tmp <- occ_tmp[, ..fields_to_parse]
 #'   occ_tmp[, c("parseGBIF_freq_duplicate_or_missing_data", "parseGBIF_duplicates_map", "parseGBIF_merged_fields") := .("", "", "")]
 #'   if (!"parseGBIF_merged" %in% names(occ_tmp)) occ_tmp[, parseGBIF_merged := FALSE]
-#'   
+#'
 #'   # 4. Separação dos datasets
 #'   data.table::setorder(occ_tmp, Ctrl_key_family_recordedBy_recordNumber)
 #'   occ_in <- occ_tmp[parseGBIF_dataset_result == "useable"]
 #'   occ_dup <- occ_tmp[parseGBIF_dataset_result == "duplicate"]
 #'   occ_out_to_recover <- occ_tmp[parseGBIF_dataset_result == "unusable"]
-#'   
-#'   occ_res_full <- if (merge_unusable_data) 
-#'     data.table::rbindlist(list(occ_in, occ_out_to_recover), use.names = TRUE, fill = TRUE) 
-#'   else 
+#'
+#'   occ_res_full <- if (merge_unusable_data)
+#'     data.table::rbindlist(list(occ_in, occ_out_to_recover), use.names = TRUE, fill = TRUE)
+#'   else
 #'     data.table::copy(occ_in)
-#'   
+#'
 #'   # 5. Indexação para performance
 #'   data.table::setkey(occ_res_full, Ctrl_key_family_recordedBy_recordNumber)
 #'   data.table::setkey(occ_dup, Ctrl_key_family_recordedBy_recordNumber)
 #'   keys <- unique(occ_res_full$Ctrl_key_family_recordedBy_recordNumber)
 #'   fields_to_all <- unique(c(fields_to_compare, fields_to_merge))
-#'   
+#'
 #'   # 6. Loop principal de processamento
 #'   for (s in seq_along(keys)) {
 #'     k <- keys[s]
 #'     if (is.na(k) || k == "") next
-#'     
+#'
 #'     master_subset <- occ_res_full[.(k)]
 #'     if (nrow(master_subset) == 0 || !isTRUE(master_subset$parseGBIF_duplicates[1])) next
-#'     
+#'
 #'     dups <- occ_dup[.(k)]
 #'     if (nrow(dups) == 0) next
-#'     
+#'
 #'     raw_master <- as.list(master_subset[1, ..fields_to_all])
 #'     raw_dups_list <- lapply(fields_to_all, function(col) dups[[col]])
 #'     names(raw_dups_list) <- fields_to_all
-#'     
+#'
 #'     # Limpeza de strings (remove caracteres problemáticos, inclusive aspas)
 #'     clean_master <- lapply(raw_master, function(x) {
 #'       if (is.na(x)) return("")
@@ -463,16 +463,16 @@ export_data_dt <- function(occ_digital_voucher_file = '',
 #'       vec[is.na(vec)] <- ""
 #'       gsub('\\{|\\}|\\[|\\]|\\(|\\)|\\\\|\\*|\\"', '', as.character(vec))
 #'     })
-#'     
+#'
 #'     freq_json_list <- character()
 #'     dup_map_json_list <- character()
 #'     merged_fields_json <- character()
 #'     merged_any <- FALSE
-#'     
+#'
 #'     for (col in fields_to_all) {
 #'       val_master_clean <- clean_master[[col]]
 #'       vals_dup_clean <- clean_dups[[col]]
-#'       
+#'
 #'       # --- Tabela de frequência (igual à original) ---
 #'       all_vals <- c(raw_master[[col]], raw_dups_list[[col]])
 #'       tbl <- table(all_vals, useNA = "no")
@@ -481,11 +481,11 @@ export_data_dt <- function(occ_digital_voucher_file = '',
 #'         names(d) <- c("value", "freq")
 #'         d[order(-d$freq), ]
 #'       } else data.frame(value = character(), freq = integer())
-#'       
+#'
 #'       diff_empty <- master_subset$parseGBIF_num_duplicates[1] - (if(nrow(freq_df) > 0) sum(freq_df$freq) else 0)
 #'       if (diff_empty > 0) freq_df <- rbind(freq_df, data.frame(value = "empty", freq = diff_empty))
 #'       if (nrow(freq_df) > 0) freq_json_list <- c(freq_json_list, sprintf('"%s":%s', col, jsonify::to_json(freq_df)))
-#'       
+#'
 #'       # --- Mapa de duplicatas (com validação JSON, igual à original) ---
 #'       current_col_map <- character()
 #'       added_vals <- character()
@@ -494,21 +494,21 @@ export_data_dt <- function(occ_digital_voucher_file = '',
 #'         if (v_clean == "" || nchar(v_clean) > 10000) next
 #'         if (v_clean %in% added_vals) next
 #'         if (toupper(v_clean) == toupper(val_master_clean)) next
-#'         
+#'
 #'         # Validação JSON: tenta interpretar o valor em uma estrutura simples
 #'         test_json <- tryCatch({
 #'           jsonlite::fromJSON(paste0('{"test":["', gsub('"', '', v_clean), '"]}'))
 #'           TRUE
 #'         }, error = function(e) FALSE)
 #'         if (!test_json) next
-#'         
+#'
 #'         added_vals <- c(added_vals, v_clean)
 #'         current_col_map <- c(current_col_map, sprintf('"%s"', v_clean))
 #'       }
 #'       if (length(current_col_map) > 0) {
 #'         dup_map_json_list <- c(dup_map_json_list, sprintf('"%s":["%s",%s]', col, val_master_clean, paste(current_col_map, collapse = ",")))
 #'       }
-#'       
+#'
 #'       # --- Merge de campos vazios (COMPORTAMENTO ORIGINAL: usa a última duplicata válida) ---
 #'       if (val_master_clean == "" && col %in% fields_to_merge) {
 #'         for (ix in seq_len(nrow(dups))) {
@@ -521,26 +521,26 @@ export_data_dt <- function(occ_digital_voucher_file = '',
 #'         }
 #'       }
 #'     }
-#'     
+#'
 #'     # Atualiza as colunas de metadados no registro mestre
-#'     if (length(freq_json_list) > 0) 
+#'     if (length(freq_json_list) > 0)
 #'       occ_res_full[.(k), parseGBIF_freq_duplicate_or_missing_data := paste0("{", paste(freq_json_list, collapse = ","), "}")]
-#'     if (length(dup_map_json_list) > 0) 
+#'     if (length(dup_map_json_list) > 0)
 #'       occ_res_full[.(k), parseGBIF_duplicates_map := paste0("{", paste(dup_map_json_list, collapse = ","), "}")]
-#'     if (merged_any) 
+#'     if (merged_any)
 #'       occ_res_full[.(k), `:=`(parseGBIF_merged_fields = paste0("{", paste(merged_fields_json, collapse = ","), "}"), parseGBIF_merged = TRUE)]
-#'     
-#'     if (!silence && s %% 1000 == 0) 
+#'
+#'     if (!silence && s %% 1000 == 0)
 #'       print(paste0("Processados ", s, " de ", length(keys), " grupos"))
 #'   }
-#'   
+#'
 #'   # 7. Recomposição final dos objetos de saída
 #'   occ_all <- data.table::rbindlist(list(
 #'     occ_res_full[parseGBIF_dataset_result == "useable"],
 #'     if (merge_unusable_data) occ_res_full[parseGBIF_dataset_result == "unusable"] else occ_out_to_recover,
 #'     occ_dup
 #'   ), use.names = TRUE, fill = TRUE)
-#'   
+#'
 #'   return(list(
 #'     all_data = as.data.frame(occ_all),
 #'     useable_data_merge = as.data.frame(occ_res_full[parseGBIF_dataset_result == "useable"]),

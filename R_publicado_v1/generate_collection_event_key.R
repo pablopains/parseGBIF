@@ -81,6 +81,12 @@ generate_collection_event_key <- function(occ=NA,
                                                    show_col_types = FALSE),
                                    readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_2.csv',
                                                    locale = readr::locale(encoding = 'UTF-8'),
+                                                   show_col_types = FALSE),
+                                   readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_3.csv',
+                                                   locale = readr::locale(encoding = 'UTF-8'),
+                                                   show_col_types = FALSE),
+                                   readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_4.csv',
+                                                   locale = readr::locale(encoding = 'UTF-8'),
                                                    show_col_types = FALSE))
     }
   }

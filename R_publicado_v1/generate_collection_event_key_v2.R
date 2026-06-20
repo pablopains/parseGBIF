@@ -103,15 +103,18 @@ generate_collection_event_key_v2 <- function(occ = NA,
 
       if (!silence) print("Lendo Github parseGBIF...")
 
-      # Carregamento paralelo dos arquivos
-      dict1 <- readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_1.csv',
+      collectorDictionary <- rbind(readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_1.csv',
                                locale = readr::locale(encoding = 'UTF-8'),
-                               show_col_types = FALSE)
-      dict2 <- readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_2.csv',
+                               show_col_types = FALSE),
+                           readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_2.csv',
                                locale = readr::locale(encoding = 'UTF-8'),
-                               show_col_types = FALSE)
-      collectorDictionary <- dplyr::bind_rows(dict1, dict2)
-      rm(dict1, dict2) # Libera memória
+                               show_col_types = FALSE),
+                           readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_3.csv',
+                               locale = readr::locale(encoding = 'UTF-8'),
+                               show_col_types = FALSE),
+                           readr::read_csv('https://raw.githubusercontent.com/pablopains/parseGBIF/refs/heads/main/collectorDictionary/CollectorsDictionary_4.csv',
+                               locale = readr::locale(encoding = 'UTF-8'),
+                               show_col_types = FALSE))
     }
   }
 

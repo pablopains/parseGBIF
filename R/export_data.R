@@ -113,6 +113,7 @@ export_data <- function(occ_digital_voucher_file = '',
                                               "wcvp_searchNotes"),
 
                         fields_to_parse = c('Ctrl_gbifID',
+                                            'Ctrl_family',
                                             'Ctrl_bibliographicCitation',
                                             'Ctrl_language',
                                             'Ctrl_institutionCode',
