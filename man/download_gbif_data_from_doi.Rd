@@ -12,8 +12,10 @@ download_gbif_data_from_doi(
 )
 }
 \arguments{
-\item{gbif_doi_url}{Character. The URL of the GBIF DOI for the occurrence dataset.
-Expected format: https://www.gbif.org/occurrence/download/XXXXXXX}
+\item{gbif_doi_url}{Character. A GBIF download identifier in one of these formats:
+\verb{https://doi.org/10.15468/dl.xxxxxx}, bare DOI \code{10.15468/dl.xxxxxx},
+\verb{https://www.gbif.org/occurrence/download/XXXXXXX}, or the direct
+GBIF API ZIP URL.}
 
 \item{folder}{Character. Directory path where files will be saved. If the folder doesn't exist,
 it will be created automatically. Use forward slashes (/) for cross-platform compatibility.}
@@ -37,8 +39,8 @@ DOI URLs, downloading the compressed data, and extracting the relevant files.
 \details{
 \subsection{Workflow:}{
 \enumerate{
-\item Parses the GBIF DOI webpage to extract the direct download link
-\item Downloads the compressed occurrence data file (dataGBIF.zip)
+\item Resolves a GBIF DOI or extracts the GBIF download request key
+\item Builds the direct GBIF API ZIP download URL
 \item Extracts all files to the specified directory
 \item Optionally removes auxiliary files to keep only the main occurrence data
 }
@@ -58,7 +60,7 @@ DOI URLs, downloading the compressed data, and extracting the relevant files.
 # Download GBIF data from DOI to temporary directory
 tryCatch({
   downloaded_files <- download_gbif_data_from_doi(
-    gbif_doi_url = 'https://www.gbif.org/occurrence/download/0151470-230224095556074',
+    gbif_doi_url = 'https://doi.org/10.15468/dl.nbcqc6',
     folder = tempdir(),  # Use temporary directory for safe example
     keep_only_occurrence_file = TRUE,
     overwrite = FALSE

@@ -7,8 +7,10 @@
 #' DOI URLs, downloading the compressed data, and extracting the relevant files.
 #'
 #' @param gbif_doi_url
-#' Character. The URL of the GBIF DOI for the occurrence dataset.
-#' Expected format: https://www.gbif.org/occurrence/download/XXXXXXX
+#' Character. A GBIF download identifier in one of these formats:
+#' `https://doi.org/10.15468/dl.xxxxxx`, bare DOI `10.15468/dl.xxxxxx`,
+#' `https://www.gbif.org/occurrence/download/XXXXXXX`, or the direct
+#' GBIF API ZIP URL.
 #'
 #' @param folder
 #' Character. Directory path where files will be saved. If the folder doesn't exist,
@@ -25,8 +27,8 @@
 #'
 #' @details
 #' ## Workflow:
-#' 1. Parses the GBIF DOI webpage to extract the direct download link
-#' 2. Downloads the compressed occurrence data file (dataGBIF.zip)
+#' 1. Resolves a GBIF DOI or extracts the GBIF download request key
+#' 2. Builds the direct GBIF API ZIP download URL
 #' 3. Extracts all files to the specified directory
 #' 4. Optionally removes auxiliary files to keep only the main occurrence data
 #'
@@ -54,7 +56,7 @@
 #' # Download GBIF data from DOI to temporary directory
 #' tryCatch({
 #'   downloaded_files <- download_gbif_data_from_doi(
-#'     gbif_doi_url = 'https://www.gbif.org/occurrence/download/0151470-230224095556074',
+#'     gbif_doi_url = 'https://doi.org/10.15468/dl.nbcqc6',
 #'     folder = tempdir(),  # Use temporary directory for safe example
 #'     keep_only_occurrence_file = TRUE,
 #'     overwrite = FALSE
@@ -68,6 +70,7 @@
 #' })
 #' }
 #'
+#' @importFrom httr HEAD headers status_code user_agent timeout config
 #' @importFrom xml2 read_html
 #' @importFrom rvest html_nodes html_attr
 #' @importFrom stringr str_detect
@@ -79,29 +82,60 @@ download_gbif_data_from_doi <- function(gbif_doi_url,
                                         keep_only_occurrence_file = TRUE,
                                         overwrite = FALSE) {
 
-  # Validate URL format
-  if (!grepl("^https://www.gbif.org/occurrence/download/", gbif_doi_url)) {
-    stop("Invalid GBIF DOI URL format. Expected: https://www.gbif.org/occurrence/download/XXXXXXX")
+  gbif_doi_url <- trimws(gbif_doi_url)
+
+  if (!nzchar(gbif_doi_url)) {
+    stop("`gbif_doi_url` is empty.")
+  }
+
+  download_key <- NULL
+  url_file_zip_GBIF <- NULL
+
+  if (grepl("^10\\.15468/dl\\.[A-Za-z0-9]+/?$", gbif_doi_url)) {
+    gbif_doi_url <- paste0("https://doi.org/", sub("/$", "", gbif_doi_url))
+  }
+
+  if (grepl("^https?://api\\.gbif\\.org/v1/occurrence/download/request/[^/?#]+\\.zip/?$", gbif_doi_url)) {
+    url_file_zip_GBIF <- sub("/$", "", gbif_doi_url)
+  } else if (grepl("^https?://occurrence-download\\.gbif\\.org/occurrence/download/request/[^/?#]+\\.zip/?$", gbif_doi_url)) {
+    url_file_zip_GBIF <- sub("/$", "", gbif_doi_url)
+  } else if (grepl("^https?://www\\.gbif\\.org/occurrence/download/[^/?#]+/?$", gbif_doi_url)) {
+    download_key <- sub("^https?://www\\.gbif\\.org/occurrence/download/([^/?#]+)/?$", "\\1", gbif_doi_url)
+  } else if (grepl("^https?://doi\\.org/10\\.15468/dl\\.[A-Za-z0-9]+/?$", gbif_doi_url)) {
+    doi_response <- httr::HEAD(
+      gbif_doi_url,
+      httr::user_agent("parseGBIF download_gbif_data_from_doi"),
+      httr::timeout(60),
+      httr::config(followlocation = FALSE)
+    )
+
+    redirect_location <- httr::headers(doi_response)[["location"]]
+
+    if (httr::status_code(doi_response) < 300 || httr::status_code(doi_response) >= 400 ||
+        is.null(redirect_location) ||
+        !grepl("^https?://www\\.gbif\\.org/occurrence/download/[^/?#]+/?$", redirect_location)) {
+      stop("Could not resolve the GBIF DOI to an occurrence download page.")
+    }
+
+    download_key <- sub("^https?://www\\.gbif\\.org/occurrence/download/([^/?#]+)/?$", "\\1", redirect_location)
+  } else {
+    stop(
+      paste0(
+        "Invalid GBIF download identifier. Accepted formats: ",
+        "`https://doi.org/10.15468/dl.xxxxxx`, bare DOI `10.15468/dl.xxxxxx`, ",
+        "`https://www.gbif.org/occurrence/download/XXXXXXX`, or the direct GBIF API ZIP URL."
+      )
+    )
+  }
+
+  if (is.null(url_file_zip_GBIF)) {
+    url_file_zip_GBIF <- paste0("https://api.gbif.org/v1/occurrence/download/request/", download_key, ".zip")
   }
 
   # Create folder if it doesn't exist
   if (!dir.exists(folder)) {
     dir.create(folder, recursive = TRUE)
   }
-
-  # Extract download link from GBIF page
-  li_dr <- xml2::read_html(gbif_doi_url) %>%
-    rvest::html_nodes("a") %>%
-    rvest::html_attr("href")
-
-  index <- stringr::str_detect(li_dr, "https://api.gbif.org/v1/occurrence/download/request/")
-  index <- ifelse(is.na(index), FALSE, index)
-
-  if (sum(index) == 0) {
-    stop("No download link found on the GBIF DOI page")
-  }
-
-  url_file_zip_GBIF <- li_dr[index == TRUE][1]  # Take first valid link
 
   # Use file.path for cross-platform compatibility
   path_file_zip_GBIF <- file.path(folder, "dataGBIF.zip")

@@ -84,7 +84,11 @@ function
 
  folder_download <- tempdir()
  
- download_gbif_data_from_doi(gbif_doi_url = 'https://doi.org/10.15468/dl.nbcqc6', folder = folder_download, keep_only_occurrence_file = TRUE)
+ download_gbif_data_from_doi(gbif_doi_url = 'https://doi.org/10.15468/dl.k7d3c9', folder = folder_download, keep_only_occurrence_file = TRUE)
+ 
+ download_gbif_data_from_doi(gbif_doi_url = 'https://www.gbif.org/occurrence/download/0072170-260519110011954', folder = folder_download, keep_only_occurrence_file = TRUE)
+ 
+ 
 ```
 
 #### 1.2. Preparing occurrence data downloaded from GBIF
